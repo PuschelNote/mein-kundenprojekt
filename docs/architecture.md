@@ -96,7 +96,7 @@ Aufgaben:
 - Entitaeten aus der Datenbank in TypeScript-Typen abbilden
 - Historische Preise von Bestellpositionen unveraendert speichern
 
-## Vorgeschlagene Ordnerstruktur
+## Aktuelle Ordnerstruktur
 
 ```text
 .
@@ -114,13 +114,6 @@ Aufgaben:
 |       +-- orders/
 |       +-- guests/
 |       +-- menu/
-+-- components/
-|   +-- ui/
-|   +-- reservations/
-|   +-- tables/
-|   +-- orders/
-|   +-- guests/
-|   +-- menu/
 +-- lib/
 |   +-- db/
 |   +-- services/
@@ -129,14 +122,21 @@ Aufgaben:
 |   +-- validation/
 |   +-- constants/
 +-- types/
++-- tests/
 +-- docs/
 |   +-- SPEC_Marco Ferretti Bella Vista.md
 |   +-- backlog.md
-|   +-- decisions.md
 |   +-- architecture.md
-+-- public/
-+-- tests/
+|   +-- decisions.md
+|   +-- modus-operandi.md
+|   +-- concepts/
+|   +-- audit/
++-- AGENTS.md
++-- CLAUDE.md
 ```
+
+Noch nicht vorhandene Fachseiten und Module werden erst angelegt, wenn das
+zugehoerige Backlog-Feature umgesetzt wird.
 
 ## Domänenmodule
 
