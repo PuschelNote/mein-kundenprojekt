@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 import { PrismaClient } from "@/generated/prisma/client";
 
@@ -6,7 +7,7 @@ const globalForPrisma = globalThis as unknown as {
 };
 
 const adapter = new PrismaBetterSqlite3({
-  url: process.env.DATABASE_URL ?? "file:./prisma/dev.db",
+  url: process.env.DATABASE_URL ?? "file:./dev.db",
 });
 
 export const prisma =

@@ -78,3 +78,42 @@ lautlos umschreiben._
   Datei ergänzt und die betroffenen Feature-Status in `backlog.md` aktualisiert.
 - **Konsequenz:** Ein Commit ist erst bereit, wenn Implementierung und
   Projektdokumentation denselben Stand abbilden.
+
+## 2026-07-23 — Mitarbeiter als standortgebundene Entität
+
+- **Status:** angenommen
+- **Kontext:** `BV-001` verlangt für jeden Mitarbeiter ID, Name, Standort und
+  genau eine der drei Rollen. Das vollständige Standortfeature `BV-002` folgt
+  erst anschließend, die Relation ist jedoch bereits für `BV-001` erforderlich.
+- **Entscheidung:** `Mitarbeiter` referenziert verpflichtend einen minimalen
+  `Standort`-Datensatz. Kreuzberg und Spandau werden idempotent als Grunddaten
+  angelegt. Rollen werden als Prisma-Enum `bedienung`, `manager` und `inhaber`
+  gespeichert.
+- **Konsequenz:** Die Datenbank verhindert Mitarbeiter ohne gültigen Standort
+  oder Rolle. Der globale Standortkontext und weitere Standortlogik bleiben
+  weiterhin Scope von `BV-002`.
+
+## 2026-07-23 — Mitarbeiterverwaltung nutzt Server Actions
+
+- **Status:** angenommen
+- **Kontext:** Das erste CRUD-Feature soll ohne zusätzliche API-Schicht klein und
+  serverseitig validiert bleiben.
+- **Entscheidung:** `/mitarbeiter` verwendet Next.js Server Components und Server
+  Actions. Validierung und Prisma-Zugriffe liegen unabhängig von der UI in
+  `lib/mitarbeiter.ts`. Mitarbeiter können angelegt, bearbeitet und gelöscht
+  werden; Standortlöschung bleibt durch die Datenbankrelation eingeschränkt.
+- **Konsequenz:** Die Oberfläche ist kein Sicherheitsperimeter. Authentifizierung
+  und Autorisierung werden später mit `BV-022` an der serverseitigen
+  Anwendungsgrenze ergänzt.
+
+## 2026-07-23 — Lokale CRUD-Integrationstests gegen SQLite
+
+- **Status:** angenommen
+- **Kontext:** Validierung allein beweist nicht, dass Prisma-Schema, Adapter und
+  CRUD-Logik gemeinsam funktionieren.
+- **Entscheidung:** Der eingebaute Node-Test-Runner wird über `tsx` ausgeführt.
+  Tests prüfen Validierung und einen vollständigen Anlegen–Ändern–Löschen-Ablauf
+  gegen die lokale SQLite-Datenbank. Testdatensätze tragen eindeutige Namen und
+  werden wieder entfernt.
+- **Konsequenz:** `npm test` setzt eine migrierte lokale Datenbank voraus, lässt
+  aber keine Mitarbeiter-Testdaten zurück.

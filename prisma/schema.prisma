@@ -6,3 +6,28 @@ generator client {
 datasource db {
   provider = "sqlite"
 }
+
+enum Rolle {
+  bedienung
+  manager
+  inhaber
+}
+
+model Standort {
+  id          String        @id
+  name        String        @unique
+  mitarbeiter Mitarbeiter[]
+}
+
+model Mitarbeiter {
+  id         String   @id @default(cuid())
+  name       String
+  rolle      Rolle
+  standortId String
+  standort   Standort @relation(fields: [standortId], references: [id], onDelete: Restrict)
+  erstelltAm DateTime @default(now())
+  geaendertAm DateTime @updatedAt
+
+  @@index([standortId])
+  @@index([rolle])
+}

@@ -15,7 +15,7 @@ _Stand: 23.07.2026_
 
 | ID | Feature | Status | Anforderung / Akzeptanzkern |
 |---|---|---|---|
-| BV-001 | Mitarbeiter und Rollen verwalten | validated | Mitarbeiter besitzen ID, Name, Standort und genau eine Rolle: `bedienung`, `manager` oder `inhaber`. |
+| BV-001 | Mitarbeiter und Rollen verwalten | done | Mitarbeiter besitzen ID, Name, Standort und genau eine Rolle: `bedienung`, `manager` oder `inhaber`. CRUD unter `/mitarbeiter`; Validierungs- und Persistenztests sind grün. |
 | BV-002 | Verbindlichen Standortkontext führen | validated | Kreuzberg und Spandau besitzen eindeutige IDs; jede standortgebundene Entität referenziert genau einen Standort. |
 | BV-020 | Standardöffnungszeiten hinterlegen | validated | Kreuzberg ist Di–So 17–23 Uhr, Spandau Do–So 17–22 Uhr geöffnet. |
 | BV-021 | Mitarbeiter Standorten zuordnen | validated | Mitarbeiter sind einem Standort zugeordnet; Giuseppe ist Manager in Kreuzberg und Renate in Spandau. |

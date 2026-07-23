@@ -77,9 +77,21 @@ Zentrale Anwendung / API
 | Abrechnung | unveränderliche Einzelpreise, Gesamtsumme, automatischer Rabatt |
 | Identität & Rechte | Mitarbeiter, Standortzuordnung, Rollen und Autorisierung |
 
+### Implementierte Modulstruktur
+
+| Pfad | Verantwortung |
+|---|---|
+| `app/mitarbeiter/` | Servergerenderte Mitarbeiterverwaltung, Formulare und Server Actions |
+| `lib/mitarbeiter.ts` | Validierung, Standortprüfung und CRUD-Anwendungslogik |
+| `lib/prisma.ts` | Prozessweit wiederverwendeter Prisma Client mit SQLite-Adapter |
+| `prisma/schema.prisma` | Relationales Datenmodell und technische Constraints |
+| `scripts/seed.ts` | Idempotente Grunddaten für Kreuzberg und Spandau |
+| `tests/` | Node-Test-Runner mit TypeScript sowie lokale SQLite-Integrationstests |
+
 ## Kernmodell und Invarianten
 
 - Jede standortabhängige Entität referenziert genau einen Standort.
+- Ein Mitarbeiter besitzt genau eine Rolle und gehört genau einem Standort an.
 - Tischidentität ist nicht standortübergreifend aus der sichtbaren Nummer
   ableitbar; intern wird eine eindeutige Tisch-ID verwendet.
 - Ein Tisch hat höchstens eine aktive Bestellung gleichzeitig.
