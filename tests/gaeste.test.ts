@@ -3,6 +3,7 @@ import { after, describe, it } from "node:test";
 import {
   createGast,
   deleteGast,
+  findGastByTelefon,
   GastValidationError,
   istBellaCardAktiv,
   normalisiereTelefonnummer,
@@ -81,6 +82,22 @@ describe("Gast-Persistenz", () => {
       ),
       GastValidationError,
     );
+
+    await deleteGast(created.id);
+    gastId = undefined;
+  });
+
+  it("findet einen Gast exakt trotz abweichender Schreibweise", async () => {
+    const created = await createGast(
+      validateGastInput({ name: "Suchgast", telefon: "+49 30 1122334" }),
+    );
+    gastId = created.id;
+
+    const gefunden = await findGastByTelefon("0049 (30) 112-2334");
+    const unbekannt = await findGastByTelefon("+49 30 9988776");
+
+    assert.equal(gefunden?.id, created.id);
+    assert.equal(unbekannt, null);
 
     await deleteGast(created.id);
     gastId = undefined;

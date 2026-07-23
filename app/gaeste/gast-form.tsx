@@ -9,6 +9,7 @@ type GastFormProps = {
     formData: FormData,
   ) => Promise<GastActionState>;
   submitLabel: string;
+  defaultTelefon?: string;
   gast?: {
     id: string;
     name: string;
@@ -17,7 +18,12 @@ type GastFormProps = {
   };
 };
 
-export function GastForm({ action, submitLabel, gast }: GastFormProps) {
+export function GastForm({
+  action,
+  submitLabel,
+  defaultTelefon,
+  gast,
+}: GastFormProps) {
   const [state, formAction, pending] = useActionState(action, {});
 
   return (
@@ -40,7 +46,7 @@ export function GastForm({ action, submitLabel, gast }: GastFormProps) {
           name="telefon"
           type="tel"
           required
-          defaultValue={gast?.telefon}
+          defaultValue={gast?.telefon ?? defaultTelefon}
           autoComplete="tel"
         />
       </label>

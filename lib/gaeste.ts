@@ -1,5 +1,7 @@
 import { prisma } from "@/lib/prisma";
 
+export { istBellaCardAktiv } from "@/lib/gast-status";
+
 export type GastInput = {
   name: string;
   telefon: string;
@@ -57,12 +59,13 @@ export function validateGastInput(input: {
   };
 }
 
-export function istBellaCardAktiv(besuchszaehler: number) {
-  return besuchszaehler >= 10;
-}
-
 export function listGaeste() {
   return prisma.gast.findMany({ orderBy: { name: "asc" } });
+}
+
+export function findGastByTelefon(value: unknown) {
+  const telefonNormalisiert = normalisiereTelefonnummer(value);
+  return prisma.gast.findUnique({ where: { telefonNormalisiert } });
 }
 
 export async function createGast(input: GastInput) {

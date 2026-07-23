@@ -5,12 +5,44 @@ import { requireBerechtigung } from "@/lib/berechtigungen";
 import {
   createGast,
   deleteGast,
+  findGastByTelefon,
   GastValidationError,
   updateGast,
   validateGastInput,
 } from "@/lib/gaeste";
 
 export type GastActionState = { error?: string; success?: string };
+
+export type GastSearchState = {
+  error?: string;
+  searched?: boolean;
+  telefon?: string;
+  gast?: {
+    id: string;
+    name: string;
+    telefon: string;
+    besuchszaehler: number;
+    notizen: string | null;
+  } | null;
+};
+
+export async function searchGastAction(
+  _state: GastSearchState,
+  formData: FormData,
+): Promise<GastSearchState> {
+  try {
+    await requireBerechtigung("gastdaten_sehen", "/gaeste");
+    const telefon = String(formData.get("telefon") ?? "").trim();
+    const gast = await findGastByTelefon(telefon);
+    return { searched: true, telefon, gast };
+  } catch (error) {
+    if (error instanceof GastValidationError) {
+      return { error: error.message };
+    }
+    console.error("Gastsuche fehlgeschlagen");
+    return { error: "Die Suche konnte nicht ausgeführt werden." };
+  }
+}
 
 export async function createGastAction(
   _state: GastActionState,

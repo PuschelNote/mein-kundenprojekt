@@ -90,6 +90,7 @@ Zentrale Anwendung / API
 | `components/opening-hours.tsx` | Vollständiger Wochenplan mit geöffneten und geschlossenen Tagen |
 | `lib/mitarbeiter.ts` | Validierung, Standortprüfung und CRUD-Anwendungslogik |
 | `lib/gaeste.ts` | Gastvalidierung, Telefonnummern-Normalisierung und CRUD-Logik |
+| `lib/gast-status.ts` | Client- und serverseitig nutzbare Ableitung des Bella-Card-Status |
 | `lib/grunddaten.ts` | Idempotente, nicht-destruktive Anlage von Standorten, Managern und Standardzeiten |
 | `lib/berechtigungen.ts` | Capability-Matrix, Mitarbeiter-Session und serverseitige Guards |
 | `lib/oeffnungszeiten.ts` | Zeitvalidierung, Formatierung, Öffnungsprüfung und Datenzugriff |
@@ -119,6 +120,8 @@ Zentrale Anwendung / API
 - Ab zehn abgeschlossenen Besuchen werden 15 % Rabatt automatisch berechnet.
 - Telefonnummern werden zusätzlich in normalisierter Form eindeutig gespeichert;
   der Bella-Card-Status wird aus dem Besuchszähler abgeleitet.
+- Gast-Erkennung verwendet ausschließlich einen exakten Vergleich des
+  normalisierten Werts und gibt höchstens ein Profil zurück.
 - Grillgerichte sind ausschließlich Kreuzberg zugeordnet und in Spandau weder
   sichtbar noch bestellbar.
 - Neue Bestellungen sind ab 30 Minuten vor Standortschließung gesperrt.

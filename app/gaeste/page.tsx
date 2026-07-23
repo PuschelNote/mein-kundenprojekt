@@ -6,6 +6,7 @@ import {
   updateGastAction,
 } from "./actions";
 import { GastForm } from "./gast-form";
+import { GastSearch } from "./gast-search";
 
 export default async function GaestePage() {
   await requireBerechtigung("gastdaten_sehen", "/gaeste");
@@ -20,6 +21,8 @@ export default async function GaestePage() {
           <p>Gastprofile, Kontaktdaten und Treuestatus verwalten.</p>
         </div>
       </header>
+
+      <GastSearch />
 
       <section className="panel">
         <h2>Neuen Gast anlegen</h2>

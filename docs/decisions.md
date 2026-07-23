@@ -278,3 +278,30 @@ lautlos umschreiben._
 - **Konsequenz:** Gastidentität und Besuchszähler sind standortübergreifend. Für
   Gastdaten gilt bis zur Klärung des dokumentierten Widerspruchs weiterhin die
   restriktivere Rollenmatrix: Bedienungen erhalten keinen Zugriff.
+
+## 2026-07-23 — Gast-Erkennung sucht exakt nach normalisierter Telefonnummer
+
+- **Status:** angenommen
+- **Kontext:** Die Telefonnummer ist das eindeutige Erkennungsmerkmal. Eine
+  unscharfe oder teilweise Suche könnte mehrere fremde Gastprofile offenlegen
+  und falsche Verknüpfungen erzeugen.
+- **Entscheidung:** `findGastByTelefon()` normalisiert die vollständige Eingabe
+  mit derselben Funktion wie das Gast-CRUD und fragt anschließend exakt auf dem
+  eindeutigen Feld `telefonNormalisiert` ab. Das Ergebnis ist genau ein Gast oder
+  `null`; Teiltreffer werden nicht unterstützt.
+- **Konsequenz:** Schreibvarianten mit Leerzeichen, Klammern, Bindestrichen oder
+  `00` statt `+` führen zuverlässig zum selben Profil. Reservierungen verwenden
+  später die zurückgegebene stabile Gast-ID.
+
+## 2026-07-23 — Telefonnummernsuche verwendet eine Server Action statt GET
+
+- **Status:** angenommen
+- **Kontext:** Ein GET-Suchformular würde die personenbezogene Telefonnummer in
+  URL, Browserhistorie und möglicherweise Zugriffslogs schreiben.
+- **Entscheidung:** Die Gastseite sendet die Suche als geschützte Server Action.
+  Suchzustand und Ergebnis werden im React-Action-State gehalten; bei Nicht-
+  Treffer kann dieselbe Telefonnummer direkt in ein neues Gastformular
+  übernommen werden.
+- **Konsequenz:** Telefonnummern erscheinen nicht in der URL. Die Server Action
+  prüft `gastdaten_sehen` erneut, sodass ein manipulierter Direktaufruf keine
+  Autorisierung umgeht.
