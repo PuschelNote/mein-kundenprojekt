@@ -144,3 +144,31 @@ lautlos umschreiben._
   ungültige Werte fallen auf `/` zurück.
 - **Konsequenz:** Standortauswahl bleibt komfortabel und kann nicht als
   Weiterleitung auf fremde Domains missbraucht werden.
+
+## 2026-07-23 — Standardöffnungszeiten als Minuten seit Mitternacht
+
+- **Status:** angenommen
+- **Kontext:** Standardzeiten müssen angezeigt und später für Reservierungen und
+  den Küchenannahmeschluss zuverlässig verglichen werden können. SQLite besitzt
+  keinen eigenständigen Uhrzeittyp.
+- **Entscheidung:** Pro Standort und geöffnetem Wochentag existiert genau ein
+  `StandardOeffnungszeit`-Datensatz. Öffnungs- und Schließzeit werden als ganze
+  Minuten seit Mitternacht gespeichert. Ein fehlender Wochentag bedeutet
+  „geschlossen“.
+- **Alternativen:** Freie Uhrzeitstrings und explizite Datensätze mit
+  `geschlossen=true` wurden verworfen, weil sie zusätzliche Format- bzw.
+  Konsistenzzustände erlauben würden.
+- **Konsequenz:** Zeitfenster sind eindeutig vergleichbar. Die Domänenlogik
+  validiert `0 <= Öffnung < Schließung <= 1440`; die Schließminute selbst gilt
+  bereits als geschlossen.
+
+## 2026-07-23 — Standardzeiten sind feste Grunddaten
+
+- **Status:** angenommen
+- **Kontext:** Die Spec nennt feste reguläre Zeiten; veränderliche Feiertage sind
+  getrennt als `BV-016` vorgesehen.
+- **Entscheidung:** Kreuzberg Di–So 17–23 Uhr und Spandau Do–So 17–22 Uhr werden
+  idempotent über den Seed gepflegt und zunächst nur angezeigt.
+- **Konsequenz:** `BV-020` enthält keine Bearbeitungsoberfläche. Feiertags-
+  Overrides oder sonstige Ausnahmen verändern die Standarddatensätze später
+  nicht, sondern überlagern sie datumsbezogen.

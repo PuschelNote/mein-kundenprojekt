@@ -54,7 +54,7 @@ body {
   text-transform: uppercase;
 }
 
-main {
+.home-page {
   display: grid;
   min-height: 100vh;
   place-content: center;
@@ -63,8 +63,21 @@ main {
   text-align: center;
 }
 
+.home-page {
+  grid-template-columns: minmax(18rem, 32rem) minmax(18rem, 28rem);
+  align-items: center;
+  gap: 3rem;
+}
+
+.home-intro {
+  display: grid;
+  justify-items: start;
+  gap: 1rem;
+  text-align: left;
+}
+
 .primary-link {
-  justify-self: center;
+  justify-self: start;
   border-radius: 0.6rem;
   background: #273c2c;
   color: white;
@@ -82,10 +95,46 @@ h1 {
   font-size: clamp(2.5rem, 8vw, 5rem);
 }
 
-main > p:last-child {
+.home-intro > p:last-of-type {
   max-width: 38rem;
   color: #635950;
   line-height: 1.6;
+}
+
+.opening-hours {
+  border: 1px solid #ded5c8;
+  border-radius: 1rem;
+  background: #fffdf9;
+  box-shadow: 0 0.6rem 2rem rgb(73 50 31 / 8%);
+  padding: 1.5rem;
+  text-align: left;
+}
+
+.opening-hours h2 {
+  margin: 0 0 1rem;
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+.opening-hours dl {
+  display: grid;
+  margin: 0;
+}
+
+.opening-hours dl > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 2rem;
+  border-top: 1px solid #eee6dc;
+  padding: 0.65rem 0;
+}
+
+.opening-hours dt {
+  font-weight: 700;
+}
+
+.opening-hours dd {
+  margin: 0;
+  color: #635950;
 }
 
 .eyebrow {
@@ -326,6 +375,13 @@ button {
 }
 
 @media (max-width: 780px) {
+  .home-page {
+    grid-template-columns: 1fr;
+    align-content: start;
+    min-height: auto;
+    padding-top: 4rem;
+  }
+
   .app-header {
     padding-inline: 1rem;
   }

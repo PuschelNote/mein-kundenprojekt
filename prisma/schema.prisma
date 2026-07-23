@@ -13,10 +13,33 @@ enum Rolle {
   inhaber
 }
 
+enum Wochentag {
+  montag
+  dienstag
+  mittwoch
+  donnerstag
+  freitag
+  samstag
+  sonntag
+}
+
 model Standort {
-  id          String        @id
-  name        String        @unique
-  mitarbeiter Mitarbeiter[]
+  id                       String                    @id
+  name                     String                    @unique
+  mitarbeiter              Mitarbeiter[]
+  standardOeffnungszeiten StandardOeffnungszeit[]
+}
+
+model StandardOeffnungszeit {
+  id              String     @id @default(cuid())
+  standortId      String
+  standort        Standort   @relation(fields: [standortId], references: [id], onDelete: Cascade)
+  wochentag       Wochentag
+  oeffnetMinute   Int
+  schliesstMinute Int
+
+  @@unique([standortId, wochentag])
+  @@index([standortId])
 }
 
 model Mitarbeiter {

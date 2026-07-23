@@ -84,7 +84,9 @@ Zentrale Anwendung / API
 | `app/mitarbeiter/` | Servergerenderte Mitarbeiterverwaltung, Formulare und Server Actions |
 | `app/standort/` | Explizite Standortauswahl und serverseitiger Kontextwechsel |
 | `components/app-header.tsx` | Globale Anzeige des aktiven Standorts und Wechselmöglichkeit |
+| `components/opening-hours.tsx` | Vollständiger Wochenplan mit geöffneten und geschlossenen Tagen |
 | `lib/mitarbeiter.ts` | Validierung, Standortprüfung und CRUD-Anwendungslogik |
+| `lib/oeffnungszeiten.ts` | Zeitvalidierung, Formatierung, Öffnungsprüfung und Datenzugriff |
 | `lib/standort.ts` | Cookie-Kontext, ID-Validierung und verpflichtender Standortzugriff |
 | `lib/prisma.ts` | Prozessweit wiederverwendeter Prisma Client mit SQLite-Adapter |
 | `prisma/schema.prisma` | Relationales Datenmodell und technische Constraints |
@@ -95,6 +97,8 @@ Zentrale Anwendung / API
 
 - Jede standortabhängige Entität referenziert genau einen Standort.
 - Ein Mitarbeiter besitzt genau eine Rolle und gehört genau einem Standort an.
+- Reguläre Öffnungszeiten sind je Standort und Wochentag eindeutig. Ein fehlender
+  Eintrag bedeutet „geschlossen“; Zeitfenster verwenden Minuten seit Mitternacht.
 - Standortgebundene Seiten und Operationen verwenden ausschließlich einen
   serverseitig validierten Standortkontext; Clientwerte allein sind nicht
   vertrauenswürdig.
