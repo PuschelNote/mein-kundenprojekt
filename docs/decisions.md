@@ -172,3 +172,31 @@ lautlos umschreiben._
 - **Konsequenz:** `BV-020` enthält keine Bearbeitungsoberfläche. Feiertags-
   Overrides oder sonstige Ausnahmen verändern die Standarddatensätze später
   nicht, sondern überlagern sie datumsbezogen.
+
+## 2026-07-23 — Stabile IDs für bekannte Standortmanager
+
+- **Status:** angenommen
+- **Kontext:** Die Spec benennt Giuseppe für Kreuzberg und Renate für Spandau.
+  Wiederholtes Seeding bei Setup und Tests darf keine Duplikate erzeugen.
+- **Entscheidung:** Beide Manager erhalten stabile technische IDs
+  `manager-kreuzberg-giuseppe` und `manager-spandau-renate`. Das zentrale
+  Grunddaten-Seeding verwendet Upserts mit leerem Update-Zweig.
+- **Alternativen:** Namen als natürliche Schlüssel und ein Seed, der Datensätze
+  bei jedem Lauf vollständig überschreibt, wurden verworfen. Namen sind nicht
+  garantiert eindeutig; destruktive Updates würden bewusste Änderungen
+  unbemerkt zurücksetzen.
+- **Konsequenz:** Fehlende Manager werden reproduzierbar angelegt, vorhandene
+  Datensätze aber nicht durch `npm test` oder `db:seed` überschrieben. Änderungen
+  und Löschungen bleiben bis zur Berechtigungsumsetzung in `BV-022` möglich.
+
+## 2026-07-23 — Standortfilterung erfolgt in Prisma-Abfragen
+
+- **Status:** angenommen
+- **Kontext:** Spätere Reservierungs- und Bestellabläufe dürfen keine Mitarbeiter
+  eines anderen Standorts als Auswahl anbieten.
+- **Entscheidung:** `lib/mitarbeiter.ts` stellt explizite Abfragen für Mitarbeiter
+  und Manager eines Standorts bereit; der Filter wird als `where: { standortId }`
+  an SQLite übergeben.
+- **Konsequenz:** Künftige standortgebundene Formulare nutzen diese Abfragen mit
+  dem validierten Standortkontext. Die administrative Mitarbeiterseite darf
+  weiterhin beide Standorte zeigen und gruppiert sie serverseitig.

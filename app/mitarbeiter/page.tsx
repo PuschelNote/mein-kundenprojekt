@@ -20,6 +20,18 @@ export default async function MitarbeiterPage() {
     listStandorte(),
     requireAktiverStandort("/mitarbeiter"),
   ]);
+  const standortGruppen = standorte
+    .map((standort) => ({
+      ...standort,
+      mitarbeiter: mitarbeiter.filter(
+        (person) => person.standortId === standort.id,
+      ),
+    }))
+    .sort((a, b) => {
+      if (a.id === aktiverStandort.id) return -1;
+      if (b.id === aktiverStandort.id) return 1;
+      return a.name.localeCompare(b.name, "de");
+    });
 
   return (
     <main className="admin-page">
@@ -56,33 +68,62 @@ export default async function MitarbeiterPage() {
             Noch keine Mitarbeiter vorhanden. Lege oben den ersten Eintrag an.
           </div>
         ) : (
-          mitarbeiter.map((person) => (
-            <article className="employee-card" key={person.id}>
-              <div>
-                <h3>{person.name}</h3>
-                <p>
-                  {person.standort.name} · {rollenLabel[person.rolle]}
-                </p>
-              </div>
+          standortGruppen.map((gruppe) => {
+            const manager = gruppe.mitarbeiter.filter(
+              (person) => person.rolle === "manager",
+            );
+            return (
+              <section
+                className={`location-employee-group ${gruppe.id === aktiverStandort.id ? "active" : ""}`}
+                key={gruppe.id}
+              >
+                <header>
+                  <div>
+                    <p className="eyebrow">
+                      {gruppe.id === aktiverStandort.id
+                        ? "Aktiver Standort"
+                        : "Weiterer Standort"}
+                    </p>
+                    <h3>{gruppe.name}</h3>
+                  </div>
+                  <p>
+                    {gruppe.mitarbeiter.length} Mitarbeiter · Manager: {" "}
+                    {manager.length > 0
+                      ? manager.map((person) => person.name).join(", ")
+                      : "nicht zugeordnet"}
+                  </p>
+                </header>
 
-              <details>
-                <summary>Bearbeiten</summary>
-                <MitarbeiterForm
-                  action={updateMitarbeiterAction}
-                  standorte={standorte}
-                  submitLabel="Änderungen speichern"
-                  mitarbeiter={person}
-                />
-              </details>
+                {gruppe.mitarbeiter.map((person) => (
+                  <article className="employee-card" key={person.id}>
+                    <div>
+                      <h3>{person.name}</h3>
+                      <p>
+                        {person.standort.name} · {rollenLabel[person.rolle]}
+                      </p>
+                    </div>
 
-              <form action={deleteMitarbeiterAction}>
-                <input type="hidden" name="id" value={person.id} />
-                <button className="danger-button" type="submit">
-                  Löschen
-                </button>
-              </form>
-            </article>
-          ))
+                    <details>
+                      <summary>Bearbeiten</summary>
+                      <MitarbeiterForm
+                        action={updateMitarbeiterAction}
+                        standorte={standorte}
+                        submitLabel="Änderungen speichern"
+                        mitarbeiter={person}
+                      />
+                    </details>
+
+                    <form action={deleteMitarbeiterAction}>
+                      <input type="hidden" name="id" value={person.id} />
+                      <button className="danger-button" type="submit">
+                        Löschen
+                      </button>
+                    </form>
+                  </article>
+                ))}
+              </section>
+            );
+          })
         )}
       </section>
     </main>

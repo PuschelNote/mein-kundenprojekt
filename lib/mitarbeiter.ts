@@ -49,6 +49,21 @@ export function listStandorte() {
   return prisma.standort.findMany({ orderBy: { name: "asc" } });
 }
 
+export function listMitarbeiterFuerStandort(standortId: string) {
+  return prisma.mitarbeiter.findMany({
+    where: { standortId },
+    include: { standort: true },
+    orderBy: { name: "asc" },
+  });
+}
+
+export function listManagerFuerStandort(standortId: string) {
+  return prisma.mitarbeiter.findMany({
+    where: { standortId, rolle: Rolle.manager },
+    orderBy: { name: "asc" },
+  });
+}
+
 export async function createMitarbeiter(input: MitarbeiterInput) {
   await assertStandortExists(input.standortId);
   return prisma.mitarbeiter.create({ data: input });

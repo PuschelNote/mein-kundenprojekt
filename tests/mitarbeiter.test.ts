@@ -4,12 +4,15 @@ import { Rolle } from "../generated/prisma/enums";
 import {
   createMitarbeiter,
   deleteMitarbeiter,
+  listManagerFuerStandort,
+  listMitarbeiterFuerStandort,
   MitarbeiterValidationError,
   updateMitarbeiter,
   validateMitarbeiterInput,
 } from "../lib/mitarbeiter";
 import { prisma } from "../lib/prisma";
 import { parseStandortId, safeReturnTo } from "../lib/standort";
+import { seedGrunddaten } from "../lib/grunddaten";
 
 const testName = `BV-001 Test ${Date.now()}`;
 let testId: string | undefined;
@@ -100,16 +103,42 @@ describe("Mitarbeiter-Persistenz", () => {
     const updated = await updateMitarbeiter(created.id, {
       name: `${testName} geändert`,
       rolle: Rolle.manager,
-      standortId: "kreuzberg",
+      standortId: "spandau",
     });
 
     assert.equal(updated.rolle, Rolle.manager);
+    assert.equal(updated.standortId, "spandau");
 
     await deleteMitarbeiter(created.id);
     testId = undefined;
     assert.equal(
       await prisma.mitarbeiter.count({ where: { id: created.id } }),
       0,
+    );
+  });
+
+  it("liefert Mitarbeiter ausschließlich für den gewählten Standort", async () => {
+    const kreuzberg = await listMitarbeiterFuerStandort("kreuzberg");
+    const spandau = await listMitarbeiterFuerStandort("spandau");
+
+    assert.ok(kreuzberg.every((person) => person.standortId === "kreuzberg"));
+    assert.ok(spandau.every((person) => person.standortId === "spandau"));
+  });
+
+  it("legt die beiden Manager idempotent und standortbezogen an", async () => {
+    await seedGrunddaten();
+    await seedGrunddaten();
+
+    const kreuzbergManager = await listManagerFuerStandort("kreuzberg");
+    const spandauManager = await listManagerFuerStandort("spandau");
+
+    assert.equal(
+      kreuzbergManager.filter((person) => person.id === "manager-kreuzberg-giuseppe").length,
+      1,
+    );
+    assert.equal(
+      spandauManager.filter((person) => person.id === "manager-spandau-renate").length,
+      1,
     );
   });
 
