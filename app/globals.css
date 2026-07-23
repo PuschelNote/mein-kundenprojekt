@@ -360,6 +360,7 @@ button {
 }
 
 .employee-form button,
+.guest-form button,
 .danger-button {
   border: 0;
   border-radius: 0.55rem;
@@ -370,6 +371,96 @@ button {
 .employee-form button {
   background: #273c2c;
   color: white;
+}
+
+.guest-form {
+  display: grid;
+  grid-template-columns: minmax(12rem, 1fr) minmax(12rem, 1fr) 2fr auto;
+  align-items: end;
+  gap: 1rem;
+}
+
+.guest-form label {
+  display: grid;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.guest-form input,
+.guest-form textarea {
+  width: 100%;
+  border: 1px solid #b9ac9e;
+  border-radius: 0.55rem;
+  background: white;
+  padding: 0.7rem 0.8rem;
+}
+
+.guest-form textarea {
+  resize: vertical;
+}
+
+.guest-form button {
+  background: #273c2c;
+  color: white;
+}
+
+.guest-list {
+  display: grid;
+  gap: 1rem;
+  margin-top: 2.5rem;
+}
+
+.guest-card {
+  display: grid;
+  gap: 1rem;
+  border: 1px solid #ded5c8;
+  border-radius: 1rem;
+  background: #fffdf9;
+  box-shadow: 0 0.6rem 2rem rgb(73 50 31 / 8%);
+  padding: 1.25rem 1.5rem;
+}
+
+.guest-summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.guest-summary h3,
+.guest-summary p {
+  margin: 0;
+}
+
+.guest-summary p,
+.guest-notes {
+  color: #635950;
+}
+
+.guest-status {
+  display: grid;
+  justify-items: end;
+  gap: 0.3rem;
+}
+
+.guest-status strong {
+  color: #74685e;
+  font-size: 0.8rem;
+}
+
+.guest-status strong.active {
+  color: #23652f;
+}
+
+.guest-card details summary {
+  cursor: pointer;
+  color: #8d2f24;
+  font-weight: 700;
+}
+
+.guest-card details .guest-form {
+  grid-template-columns: 1fr;
+  margin-top: 1rem;
 }
 
 .employee-form button:disabled {
@@ -498,6 +589,18 @@ button {
 
   .employee-form {
     grid-template-columns: 1fr;
+  }
+
+  .guest-form {
+    grid-template-columns: 1fr;
+  }
+
+  .guest-summary {
+    flex-direction: column;
+  }
+
+  .guest-status {
+    justify-items: start;
   }
 
   .page-header,

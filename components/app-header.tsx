@@ -18,6 +18,9 @@ export async function AppHeader() {
         {mitarbeiter && hatBerechtigung(mitarbeiter.rolle, "mitarbeiter_verwalten") ? (
           <Link href="/mitarbeiter">Mitarbeiter</Link>
         ) : null}
+        {mitarbeiter && hatBerechtigung(mitarbeiter.rolle, "gastdaten_sehen") ? (
+          <Link href="/gaeste">Gäste</Link>
+        ) : null}
         {mitarbeiter ? (
           <form action={logoutMitarbeiterAction}>
             <button className="staff-session" type="submit">

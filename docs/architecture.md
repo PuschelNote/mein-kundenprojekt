@@ -84,10 +84,12 @@ Zentrale Anwendung / API
 | `app/mitarbeiter/` | Servergerenderte Mitarbeiterverwaltung, Formulare und Server Actions |
 | `app/mitarbeiter-waehlen/` | Prototypische Mitarbeiter-Session für den aktiven Standort |
 | `app/nicht-erlaubt/` | Verständliche Zielseite bei fehlender Capability |
+| `app/gaeste/` | Geschützte Gastverwaltung für Manager und Inhaber |
 | `app/standort/` | Explizite Standortauswahl und serverseitiger Kontextwechsel |
 | `components/app-header.tsx` | Globale Anzeige des aktiven Standorts und Wechselmöglichkeit |
 | `components/opening-hours.tsx` | Vollständiger Wochenplan mit geöffneten und geschlossenen Tagen |
 | `lib/mitarbeiter.ts` | Validierung, Standortprüfung und CRUD-Anwendungslogik |
+| `lib/gaeste.ts` | Gastvalidierung, Telefonnummern-Normalisierung und CRUD-Logik |
 | `lib/grunddaten.ts` | Idempotente, nicht-destruktive Anlage von Standorten, Managern und Standardzeiten |
 | `lib/berechtigungen.ts` | Capability-Matrix, Mitarbeiter-Session und serverseitige Guards |
 | `lib/oeffnungszeiten.ts` | Zeitvalidierung, Formatierung, Öffnungsprüfung und Datenzugriff |
@@ -115,6 +117,8 @@ Zentrale Anwendung / API
 - Der Besuchszähler steigt genau einmal beim Übergang einer Bestellung auf
   `bezahlt`; wiederholte Verarbeitung muss idempotent sein.
 - Ab zehn abgeschlossenen Besuchen werden 15 % Rabatt automatisch berechnet.
+- Telefonnummern werden zusätzlich in normalisierter Form eindeutig gespeichert;
+  der Bella-Card-Status wird aus dem Besuchszähler abgeleitet.
 - Grillgerichte sind ausschließlich Kreuzberg zugeordnet und in Spandau weder
   sichtbar noch bestellbar.
 - Neue Bestellungen sind ab 30 Minuten vor Standortschließung gesperrt.

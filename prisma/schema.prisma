@@ -54,3 +54,16 @@ model Mitarbeiter {
   @@index([standortId])
   @@index([rolle])
 }
+
+model Gast {
+  id                    String   @id @default(cuid())
+  name                  String
+  telefon               String
+  telefonNormalisiert   String   @unique
+  besuchszaehler        Int      @default(0)
+  notizen               String?
+  erstelltAm            DateTime @default(now())
+  geaendertAm           DateTime @updatedAt
+
+  @@index([name])
+}

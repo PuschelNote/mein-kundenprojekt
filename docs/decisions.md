@@ -242,3 +242,39 @@ lautlos umschreiben._
   ohne Inhaber zurücklassen. Marco wird mit stabiler ID als Inhaber am
   Hauptstandort Kreuzberg angelegt; diese Standortzuordnung ist eine
   Projektannahme, bis die Spec sie konkretisiert.
+
+## 2026-07-23 — Telefonnummern erhalten einen eindeutigen Normalwert
+
+- **Status:** angenommen
+- **Kontext:** Telefonnummern sind laut Spec das Erkennungsmerkmal eines Gasts.
+  Schreibweisen mit Leerzeichen, Klammern, Bindestrichen oder `00` dürfen nicht
+  zu doppelten Gastprofilen führen.
+- **Entscheidung:** Das Gastmodell speichert die eingegebene Anzeigeform und einen
+  eindeutigen Normalwert. Trennzeichen werden entfernt, ein Präfix `00` wird zu
+  `+`, anschließend sind 7–15 Ziffern erlaubt. Die Datenbank erzwingt Eindeutigkeit
+  auf `telefonNormalisiert`.
+- **Konsequenz:** Verschiedene Schreibweisen derselben Nummer werden als Duplikat
+  abgewiesen. Telefonnummern erscheinen nicht in technischen Serverlogs. Eine
+  aktive Such- und Erkennungsoberfläche folgt getrennt in `BV-023`.
+
+## 2026-07-23 — Bella-Card-Status wird nicht redundant gespeichert
+
+- **Status:** angenommen
+- **Kontext:** Die Spec beschreibt die Bella-Card als aktiv ab zehn Besuchen. Ein
+  separates Statusfeld könnte vom Besuchszähler abweichen.
+- **Entscheidung:** `Gast.besuchszaehler` startet bei null; `Bella-Card aktiv`
+  wird ausschließlich als `besuchszaehler >= 10` abgeleitet.
+- **Konsequenz:** Es kann keinen widersprüchlichen Treuestatus geben. Das freie
+  Bearbeiten des Besuchszählers ist in `BV-005` nicht vorgesehen; die automatische
+  Erhöhung folgt in `BV-040`.
+
+## 2026-07-23 — Gäste sind vorerst standortübergreifend
+
+- **Status:** angenommen
+- **Kontext:** Die Spec ordnet Reservierungen und Bestellungen einem Standort zu,
+  das Gastprofil selbst jedoch nicht. Stammgäste können beide Restaurants nutzen.
+- **Entscheidung:** `Gast` besitzt keine `standortId`. Manager und Inhaber können
+  dieselbe Gastliste aus beiden Standortkontexten verwalten.
+- **Konsequenz:** Gastidentität und Besuchszähler sind standortübergreifend. Für
+  Gastdaten gilt bis zur Klärung des dokumentierten Widerspruchs weiterhin die
+  restriktivere Rollenmatrix: Bedienungen erhalten keinen Zugriff.
