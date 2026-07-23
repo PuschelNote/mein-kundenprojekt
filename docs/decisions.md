@@ -117,3 +117,30 @@ lautlos umschreiben._
   werden wieder entfernt.
 - **Konsequenz:** `npm test` setzt eine migrierte lokale Datenbank voraus, lässt
   aber keine Mitarbeiter-Testdaten zurück.
+
+## 2026-07-23 — Expliziter Standortkontext im HTTP-only Cookie
+
+- **Status:** angenommen
+- **Kontext:** Fehlende oder implizite Standortannahmen haben im realen Betrieb
+  bereits eine Doppelbuchung zwischen Kreuzberg und Spandau verursacht.
+- **Entscheidung:** Der aktive Standort wird erst nach ausdrücklicher Auswahl in
+  einem HTTP-only Cookie `bella-vista-standort` gespeichert. Ohne gültigen Cookie
+  leiten standortgebundene Seiten nach `/standort` um. Zulässig sind nur die IDs
+  `kreuzberg` und `spandau`, zusätzlich validiert gegen die Datenbank.
+- **Alternativen:** Ein stiller Standardstandort und eine rein clientseitige
+  Auswahl wurden verworfen, weil beide falsche oder manipulierbare Zuordnungen
+  ermöglichen.
+- **Konsequenz:** Künftige standortgebundene Server Actions müssen den zentralen
+  Helper in `lib/standort.ts` verwenden. Das Cookie erleichtert Kontextführung,
+  ersetzt aber weder Anmeldung noch Berechtigungsprüfung aus `BV-022`.
+
+## 2026-07-23 — Standortwechsel erlaubt nur interne Rücksprungziele
+
+- **Status:** angenommen
+- **Kontext:** Nach der Standortwahl soll zur ursprünglich angeforderten Seite
+  zurückgesprungen werden, ohne eine Open-Redirect-Schwachstelle einzuführen.
+- **Entscheidung:** `returnTo` akzeptiert ausschließlich absolute interne Pfade,
+  die mit genau einem `/` beginnen. Externe URLs, protokollrelative URLs und
+  ungültige Werte fallen auf `/` zurück.
+- **Konsequenz:** Standortauswahl bleibt komfortabel und kann nicht als
+  Weiterleitung auf fremde Domains missbraucht werden.

@@ -16,7 +16,7 @@ _Stand: 23.07.2026_
 | ID | Feature | Status | Anforderung / Akzeptanzkern |
 |---|---|---|---|
 | BV-001 | Mitarbeiter und Rollen verwalten | done | Mitarbeiter besitzen ID, Name, Standort und genau eine Rolle: `bedienung`, `manager` oder `inhaber`. CRUD unter `/mitarbeiter`; Validierungs- und Persistenztests sind grün. |
-| BV-002 | Verbindlichen Standortkontext führen | validated | Kreuzberg und Spandau besitzen eindeutige IDs; jede standortgebundene Entität referenziert genau einen Standort. |
+| BV-002 | Verbindlichen Standortkontext führen | done | Kreuzberg und Spandau besitzen eindeutige IDs; ein serverseitig validierter Cookie-Kontext erzwingt eine explizite Auswahl und wird global angezeigt. |
 | BV-020 | Standardöffnungszeiten hinterlegen | validated | Kreuzberg ist Di–So 17–23 Uhr, Spandau Do–So 17–22 Uhr geöffnet. |
 | BV-021 | Mitarbeiter Standorten zuordnen | validated | Mitarbeiter sind einem Standort zugeordnet; Giuseppe ist Manager in Kreuzberg und Renate in Spandau. |
 | BV-022 | Rollenbasierte Zugriffe erzwingen | validated | Reservierungen, Bestellungen und Tischstatus sind für alle Rollen erlaubt; Gast-/Bella-Card-Daten nur für Manager und Inhaber; Karten- und Preisänderungen nur für den Inhaber. |

@@ -9,6 +9,7 @@ import {
   validateMitarbeiterInput,
 } from "../lib/mitarbeiter";
 import { prisma } from "../lib/prisma";
+import { parseStandortId, safeReturnTo } from "../lib/standort";
 
 const testName = `BV-001 Test ${Date.now()}`;
 let testId: string | undefined;
@@ -51,6 +52,21 @@ describe("Mitarbeiter-Validierung", () => {
         }),
       MitarbeiterValidationError,
     );
+  });
+});
+
+describe("Standortkontext", () => {
+  it("akzeptiert nur bekannte Standort-IDs", () => {
+    assert.equal(parseStandortId("kreuzberg"), "kreuzberg");
+    assert.equal(parseStandortId("spandau"), "spandau");
+    assert.equal(parseStandortId("mitte"), null);
+    assert.equal(parseStandortId(undefined), null);
+  });
+
+  it("erlaubt nur interne Rücksprungpfade", () => {
+    assert.equal(safeReturnTo("/mitarbeiter"), "/mitarbeiter");
+    assert.equal(safeReturnTo("https://example.com"), "/");
+    assert.equal(safeReturnTo("//example.com"), "/");
   });
 });
 

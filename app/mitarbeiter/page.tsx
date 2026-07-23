@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { listMitarbeiter, listStandorte } from "@/lib/mitarbeiter";
+import { requireAktiverStandort } from "@/lib/standort";
 import {
   createMitarbeiterAction,
   deleteMitarbeiterAction,
@@ -14,9 +15,10 @@ const rollenLabel = {
 };
 
 export default async function MitarbeiterPage() {
-  const [mitarbeiter, standorte] = await Promise.all([
+  const [mitarbeiter, standorte, aktiverStandort] = await Promise.all([
     listMitarbeiter(),
     listStandorte(),
+    requireAktiverStandort("/mitarbeiter"),
   ]);
 
   return (
@@ -25,7 +27,10 @@ export default async function MitarbeiterPage() {
         <div>
           <p className="eyebrow">Phase 0 · BV-001</p>
           <h1>Mitarbeiter</h1>
-          <p>Teammitglieder, Standort und Rolle zentral verwalten.</p>
+          <p>
+            Teammitglieder zentral verwalten. Aktiver Standort: {" "}
+            <strong>{aktiverStandort.name}</strong>.
+          </p>
         </div>
         <Link href="/">Zur Startseite</Link>
       </header>
@@ -36,6 +41,7 @@ export default async function MitarbeiterPage() {
           action={createMitarbeiterAction}
           standorte={standorte}
           submitLabel="Mitarbeiter anlegen"
+          defaultStandortId={aktiverStandort.id}
         />
       </section>
 

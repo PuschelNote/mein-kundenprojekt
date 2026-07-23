@@ -15,6 +15,7 @@ type MitarbeiterFormProps = {
   ) => Promise<MitarbeiterActionState>;
   standorte: StandortOption[];
   submitLabel: string;
+  defaultStandortId?: string;
   mitarbeiter?: {
     id: string;
     name: string;
@@ -29,6 +30,7 @@ export function MitarbeiterForm({
   action,
   standorte,
   submitLabel,
+  defaultStandortId,
   mitarbeiter,
 }: MitarbeiterFormProps) {
   const [state, formAction, pending] = useActionState(action, initialState);
@@ -52,7 +54,11 @@ export function MitarbeiterForm({
 
       <label>
         Standort
-        <select name="standortId" required defaultValue={mitarbeiter?.standortId ?? ""}>
+        <select
+          name="standortId"
+          required
+          defaultValue={mitarbeiter?.standortId ?? defaultStandortId ?? ""}
+        >
           <option value="" disabled>
             Standort auswählen
           </option>
