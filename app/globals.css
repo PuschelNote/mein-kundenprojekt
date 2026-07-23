@@ -54,6 +54,21 @@ body {
   text-transform: uppercase;
 }
 
+.staff-session {
+  display: grid;
+  border: 0;
+  background: transparent;
+  color: #26211d;
+  padding: 0;
+  text-align: right;
+}
+
+.staff-session span {
+  color: #74685e;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+}
+
 .home-page {
   display: grid;
   min-height: 100vh;
@@ -207,6 +222,61 @@ button {
   gap: 2rem;
   padding: 3rem 2rem;
   text-align: center;
+}
+
+.staff-picker-page,
+.access-denied-page {
+  display: grid;
+  min-height: calc(100vh - 4.5rem);
+  place-content: center;
+  justify-items: center;
+  gap: 1.5rem;
+  padding: 3rem 2rem;
+  text-align: center;
+}
+
+.staff-picker-page > div:first-child {
+  display: grid;
+  justify-items: center;
+  gap: 0.75rem;
+}
+
+.staff-picker-page > div:first-child p:last-child {
+  max-width: 36rem;
+  color: #635950;
+  line-height: 1.6;
+}
+
+.staff-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  width: min(48rem, 100%);
+  gap: 1rem;
+}
+
+.staff-picker-grid button {
+  display: grid;
+  width: 100%;
+  gap: 0.4rem;
+  border: 1px solid #d7cabd;
+  border-radius: 1rem;
+  background: #fffdf9;
+  color: #26211d;
+  padding: 1.5rem;
+}
+
+.staff-picker-grid button:hover {
+  border-color: #a33a2b;
+}
+
+.staff-picker-grid strong {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.4rem;
+}
+
+.staff-picker-grid span {
+  color: #635950;
+  text-transform: capitalize;
 }
 
 .location-intro {

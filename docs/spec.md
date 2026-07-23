@@ -97,7 +97,7 @@ Beide Standorte laufen aktuell komplett auf Papier: Zettel, Notizbücher, Tasche
 
 ## Rollen & Berechtigungen
 
-| Funktion | Bedienung | Manager | Inhaber (Marcello) |
+| Funktion | Bedienung | Manager | Inhaber (Marco) |
 |---|---|---|---|
 | Reservierungen eintragen/ändern | x | x | x |
 | Bestellungen aufnehmen | x | x | x |

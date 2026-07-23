@@ -19,7 +19,7 @@ _Stand: 23.07.2026_
 | BV-002 | Verbindlichen Standortkontext führen | done | Kreuzberg und Spandau besitzen eindeutige IDs; ein serverseitig validierter Cookie-Kontext erzwingt eine explizite Auswahl und wird global angezeigt. |
 | BV-020 | Standardöffnungszeiten hinterlegen | done | Kreuzberg ist Di–So 17–23 Uhr, Spandau Do–So 17–22 Uhr geöffnet; geschlossene Tage und Wochenpläne werden standortbezogen angezeigt. |
 | BV-021 | Mitarbeiter Standorten zuordnen | done | Mitarbeiter sind einem Standort zugeordnet; Giuseppe ist Manager in Kreuzberg und Renate in Spandau. Die Übersicht ist nach Standort gruppiert und priorisiert den aktiven Kontext. |
-| BV-022 | Rollenbasierte Zugriffe erzwingen | validated | Reservierungen, Bestellungen und Tischstatus sind für alle Rollen erlaubt; Gast-/Bella-Card-Daten nur für Manager und Inhaber; Karten- und Preisänderungen nur für den Inhaber. |
+| BV-022 | Rollenbasierte Zugriffe erzwingen | done | Zentrale deny-by-default Capability-Matrix und serverseitige Guards setzen die Rollenrechte durch. Mitarbeiterwahl ist als Prototyp noch nicht durch PIN oder Passwort abgesichert. |
 | BV-045 | Technisches Projektgrundgerüst einrichten | done | Next.js mit TypeScript, ESLint, Prisma und lokaler SQLite-Verbindung ist eingerichtet; Prisma-Generierung, Datenbankcheck, Lint und Production-Build laufen erfolgreich. |
 
 ## Phase 1 — Kern: Gäste und Reservierungen

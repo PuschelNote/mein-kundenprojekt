@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { listMitarbeiter, listStandorte } from "@/lib/mitarbeiter";
 import { requireAktiverStandort } from "@/lib/standort";
+import { requireBerechtigung } from "@/lib/berechtigungen";
 import {
   createMitarbeiterAction,
   deleteMitarbeiterAction,
@@ -19,6 +20,7 @@ export default async function MitarbeiterPage() {
     listMitarbeiter(),
     listStandorte(),
     requireAktiverStandort("/mitarbeiter"),
+    requireBerechtigung("mitarbeiter_verwalten", "/mitarbeiter"),
   ]);
   const standortGruppen = standorte
     .map((standort) => ({

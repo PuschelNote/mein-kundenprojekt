@@ -140,6 +140,18 @@ describe("Mitarbeiter-Persistenz", () => {
       spandauManager.filter((person) => person.id === "manager-spandau-renate").length,
       1,
     );
+    const marco = await prisma.mitarbeiter.findUnique({
+      where: { id: "inhaber-marcello" },
+    });
+    assert.equal(marco?.name, "Marco");
+    assert.equal(marco?.rolle, Rolle.inhaber);
+  });
+
+  it("verhindert das Löschen des letzten Inhabers", async () => {
+    await assert.rejects(
+      deleteMitarbeiter("inhaber-marcello"),
+      MitarbeiterValidationError,
+    );
   });
 
   it("lehnt einen unbekannten Standort ab", async () => {

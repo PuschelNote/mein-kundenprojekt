@@ -1,8 +1,13 @@
 import Link from "next/link";
+import { getAktiverMitarbeiter, hatBerechtigung } from "@/lib/berechtigungen";
 import { getAktiverStandort } from "@/lib/standort";
+import { logoutMitarbeiterAction } from "@/app/mitarbeiter-waehlen/actions";
 
 export async function AppHeader() {
-  const standort = await getAktiverStandort();
+  const [standort, mitarbeiter] = await Promise.all([
+    getAktiverStandort(),
+    getAktiverMitarbeiter(),
+  ]);
 
   return (
     <header className="app-header">
@@ -10,7 +15,19 @@ export async function AppHeader() {
         Bella Vista
       </Link>
       <nav aria-label="Hauptnavigation">
-        {standort ? <Link href="/mitarbeiter">Mitarbeiter</Link> : null}
+        {mitarbeiter && hatBerechtigung(mitarbeiter.rolle, "mitarbeiter_verwalten") ? (
+          <Link href="/mitarbeiter">Mitarbeiter</Link>
+        ) : null}
+        {mitarbeiter ? (
+          <form action={logoutMitarbeiterAction}>
+            <button className="staff-session" type="submit">
+              <span>{mitarbeiter.rolle}</span>
+              <strong>{mitarbeiter.name}</strong>
+            </button>
+          </form>
+        ) : standort ? (
+          <Link href="/mitarbeiter-waehlen">Mitarbeiter wählen</Link>
+        ) : null}
         <Link className="location-switch" href="/standort">
           <span>Standort</span>
           <strong>{standort?.name ?? "auswählen"}</strong>

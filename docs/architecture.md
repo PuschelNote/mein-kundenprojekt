@@ -82,11 +82,14 @@ Zentrale Anwendung / API
 | Pfad | Verantwortung |
 |---|---|
 | `app/mitarbeiter/` | Servergerenderte Mitarbeiterverwaltung, Formulare und Server Actions |
+| `app/mitarbeiter-waehlen/` | Prototypische Mitarbeiter-Session für den aktiven Standort |
+| `app/nicht-erlaubt/` | Verständliche Zielseite bei fehlender Capability |
 | `app/standort/` | Explizite Standortauswahl und serverseitiger Kontextwechsel |
 | `components/app-header.tsx` | Globale Anzeige des aktiven Standorts und Wechselmöglichkeit |
 | `components/opening-hours.tsx` | Vollständiger Wochenplan mit geöffneten und geschlossenen Tagen |
 | `lib/mitarbeiter.ts` | Validierung, Standortprüfung und CRUD-Anwendungslogik |
 | `lib/grunddaten.ts` | Idempotente, nicht-destruktive Anlage von Standorten, Managern und Standardzeiten |
+| `lib/berechtigungen.ts` | Capability-Matrix, Mitarbeiter-Session und serverseitige Guards |
 | `lib/oeffnungszeiten.ts` | Zeitvalidierung, Formatierung, Öffnungsprüfung und Datenzugriff |
 | `lib/standort.ts` | Cookie-Kontext, ID-Validierung und verpflichtender Standortzugriff |
 | `lib/prisma.ts` | Prozessweit wiederverwendeter Prisma Client mit SQLite-Adapter |
@@ -117,6 +120,8 @@ Zentrale Anwendung / API
 - Neue Bestellungen sind ab 30 Minuten vor Standortschließung gesperrt.
 - Preis- und Kartenänderungen sind ausschließlich für die Rolle `inhaber`
   zulässig.
+- Berechtigungen werden serverseitig vor schreibenden Operationen geprüft. Eine
+  ausgeblendete Navigation ist nur Bedienhilfe und keine Sicherheitsgrenze.
 
 ## Offline- und Synchronisationsprinzipien
 

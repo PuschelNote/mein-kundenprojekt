@@ -200,3 +200,45 @@ lautlos umschreiben._
 - **Konsequenz:** Künftige standortgebundene Formulare nutzen diese Abfragen mit
   dem validierten Standortkontext. Die administrative Mitarbeiterseite darf
   weiterhin beide Standorte zeigen und gruppiert sie serverseitig.
+
+## 2026-07-23 — Rollen werden über zentrale Capabilities autorisiert
+
+- **Status:** angenommen
+- **Kontext:** Verteilte Prüfungen wie `rolle === "manager"` würden bei neuen
+  Funktionen leicht auseinanderlaufen oder vergessen werden.
+- **Entscheidung:** `lib/berechtigungen.ts` definiert eine deny-by-default
+  Capability-Matrix. Bedienung erhält Reservierungen, Bestellaufnahme und
+  Tischstatus. Manager erhält zusätzlich Gastdaten, Bella-Card-Rabatt und die
+  administrative Mitarbeiterverwaltung. Der Inhaber erhält alle Capabilities,
+  insbesondere Karten- und Preisänderungen.
+- **Konsequenz:** Seiten und Server Actions prüfen Capabilities serverseitig vor
+  dem Datenzugriff. UI-Ausblendung ist nur ergänzend. Neue sensible Funktionen
+  benötigen eine explizite Capability-Zuordnung.
+
+## 2026-07-23 — Mitarbeiterwahl ist nur eine Prototyp-Session
+
+- **Status:** angenommen mit Sicherheitsvorbehalt
+- **Kontext:** Für Rollenprüfungen muss die Anwendung einen handelnden
+  Mitarbeiter kennen. Die Spec definiert jedoch noch keine PIN-, Passwort- oder
+  Geräteanmeldung.
+- **Entscheidung:** Der aktive Mitarbeiter wird nach expliziter Auswahl in einem
+  zwölf Stunden gültigen HTTP-only Cookie gespeichert und bei jedem Zugriff
+  gegen Datenbank und aktiven Standort validiert. Ein Standortwechsel löscht die
+  Session. Es werden keine Zugangsdaten erfunden.
+- **Konsequenz:** Die Rollenprüfung und Standortbindung funktionieren, aber die
+  Identität ist nicht produktionssicher nachgewiesen: Eine Person am Gerät kann
+  einen anderen Mitarbeiter wählen. Vor Produktion ist eine eigene Entscheidung
+  zu persönlicher PIN oder einem anderen Authentifizierungsverfahren Pflicht.
+
+## 2026-07-23 — Schutz des letzten Inhabers
+
+- **Status:** angenommen
+- **Kontext:** Ohne Inhaber wäre keine Rolle mehr vorhanden, die sämtliche
+  administrativen Rechte besitzt.
+- **Entscheidung:** Der letzte Inhaber kann weder gelöscht noch zu einer anderen
+  Rolle herabgestuft werden. Der aktive Mitarbeiter kann sich außerdem nicht
+  selbst löschen.
+- **Konsequenz:** Administrative Änderungen können das System nicht vollständig
+  ohne Inhaber zurücklassen. Marco wird mit stabiler ID als Inhaber am
+  Hauptstandort Kreuzberg angelegt; diese Standortzuordnung ist eine
+  Projektannahme, bis die Spec sie konkretisiert.

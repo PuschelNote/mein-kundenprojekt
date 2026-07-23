@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { MITARBEITER_COOKIE } from "@/lib/session-constants";
 
 export const STANDORT_COOKIE = "bella-vista-standort";
 export const STANDORT_IDS = ["kreuzberg", "spandau"] as const;
@@ -68,6 +69,7 @@ export async function setAktiverStandort(value: unknown) {
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
   });
+  cookieStore.delete(MITARBEITER_COOKIE);
 
   return standort;
 }

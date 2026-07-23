@@ -1,11 +1,14 @@
-import Link from "next/link";
 import { OpeningHours } from "@/components/opening-hours";
 import { getStandardOeffnungszeiten } from "@/lib/oeffnungszeiten";
 import { requireAktiverStandort } from "@/lib/standort";
+import { requireAktiverMitarbeiter } from "@/lib/berechtigungen";
 
 export default async function Home() {
   const standort = await requireAktiverStandort("/");
-  const oeffnungszeiten = await getStandardOeffnungszeiten(standort.id);
+  const [oeffnungszeiten, mitarbeiter] = await Promise.all([
+    getStandardOeffnungszeiten(standort.id),
+    requireAktiverMitarbeiter("/"),
+  ]);
 
   return (
     <main className="home-page">
@@ -16,9 +19,9 @@ export default async function Home() {
           Aktiver Standort: <strong>{standort.name}</strong>. Mitarbeiter, Gäste
           und betriebliche Vorgänge werden diesem Kontext eindeutig zugeordnet.
         </p>
-        <Link className="primary-link" href="/mitarbeiter">
-          Mitarbeiter verwalten
-        </Link>
+        <p>
+          Angemeldet als <strong>{mitarbeiter.name}</strong> ({mitarbeiter.rolle}).
+        </p>
       </div>
       <OpeningHours zeiten={oeffnungszeiten} />
     </main>

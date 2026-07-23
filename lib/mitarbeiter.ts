@@ -78,6 +78,10 @@ export async function updateMitarbeiter(
   }
 
   await assertStandortExists(input.standortId);
+  const bisher = await prisma.mitarbeiter.findUnique({ where: { id } });
+  if (bisher?.rolle === Rolle.inhaber && input.rolle !== Rolle.inhaber) {
+    await assertWeitererInhaber(id);
+  }
   return prisma.mitarbeiter.update({ where: { id }, data: input });
 }
 
@@ -86,7 +90,22 @@ export async function deleteMitarbeiter(id: string) {
     throw new MitarbeiterValidationError("Mitarbeiter-ID fehlt.");
   }
 
+  const mitarbeiter = await prisma.mitarbeiter.findUnique({ where: { id } });
+  if (mitarbeiter?.rolle === Rolle.inhaber) {
+    await assertWeitererInhaber(id);
+  }
   return prisma.mitarbeiter.delete({ where: { id } });
+}
+
+async function assertWeitererInhaber(ausgeschlosseneId: string) {
+  const weitereInhaber = await prisma.mitarbeiter.count({
+    where: { rolle: Rolle.inhaber, id: { not: ausgeschlosseneId } },
+  });
+  if (weitereInhaber === 0) {
+    throw new MitarbeiterValidationError(
+      "Der letzte Inhaber kann weder gelöscht noch herabgestuft werden.",
+    );
+  }
 }
 
 async function assertStandortExists(standortId: string) {

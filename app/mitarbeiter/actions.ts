@@ -8,6 +8,7 @@ import {
   updateMitarbeiter,
   validateMitarbeiterInput,
 } from "@/lib/mitarbeiter";
+import { requireBerechtigung } from "@/lib/berechtigungen";
 
 export type MitarbeiterActionState = {
   error?: string;
@@ -19,6 +20,7 @@ export async function createMitarbeiterAction(
   formData: FormData,
 ): Promise<MitarbeiterActionState> {
   try {
+    await requireBerechtigung("mitarbeiter_verwalten", "/mitarbeiter");
     const input = inputFromFormData(formData);
     await createMitarbeiter(input);
     revalidatePath("/mitarbeiter");
@@ -33,6 +35,7 @@ export async function updateMitarbeiterAction(
   formData: FormData,
 ): Promise<MitarbeiterActionState> {
   try {
+    await requireBerechtigung("mitarbeiter_verwalten", "/mitarbeiter");
     const id = String(formData.get("id") ?? "");
     const input = inputFromFormData(formData);
     await updateMitarbeiter(id, input);
@@ -44,7 +47,16 @@ export async function updateMitarbeiterAction(
 }
 
 export async function deleteMitarbeiterAction(formData: FormData) {
+  const aktiverMitarbeiter = await requireBerechtigung(
+    "mitarbeiter_verwalten",
+    "/mitarbeiter",
+  );
   const id = String(formData.get("id") ?? "");
+  if (id === aktiverMitarbeiter.id) {
+    throw new MitarbeiterValidationError(
+      "Der aktive Mitarbeiter kann sich nicht selbst löschen.",
+    );
+  }
   await deleteMitarbeiter(id);
   revalidatePath("/mitarbeiter");
 }

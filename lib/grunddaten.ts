@@ -22,6 +22,13 @@ const manager = [
   },
 ] as const;
 
+const inhaber = {
+  id: "inhaber-marcello",
+  name: "Marco",
+  rolle: Rolle.inhaber,
+  standortId: "kreuzberg",
+} as const;
+
 const oeffnungszeiten = [
   ...[
     Wochentag.dienstag,
@@ -65,6 +72,12 @@ export async function seedGrunddaten() {
       update: {},
     });
   }
+
+  await prisma.mitarbeiter.upsert({
+    where: { id: inhaber.id },
+    create: inhaber,
+    update: { name: inhaber.name },
+  });
 
   for (const zeit of oeffnungszeiten) {
     validateZeitfenster(zeit.oeffnetMinute, zeit.schliesstMinute);
