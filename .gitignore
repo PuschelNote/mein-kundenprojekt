@@ -1,0 +1,33 @@
+# dependencies
+/node_modules/
+
+# Next.js
+/.next/
+/out/
+
+# production
+/build/
+
+# environment and local secrets
+.env*
+!.env.example
+
+# Prisma / SQLite local databases
+/dev.db
+/dev.db-journal
+/dev.db-shm
+/dev.db-wal
+/prisma/*.db
+/prisma/*.db-journal
+/prisma/*.db-shm
+/prisma/*.db-wal
+/generated/prisma/
+
+# testing and tooling
+/coverage/
+*.tsbuildinfo
+next-env.d.ts
+
+# operating systems
+.DS_Store
+Thumbs.db
