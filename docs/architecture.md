@@ -147,6 +147,13 @@ Zentrale Anwendung / API
 - Der Inhaber darf nach explizitem Standortwechsel beide Karten administrieren;
   alle anderen Mitarbeiter-Sessions bleiben an ihren Standort gebunden.
 - Neue Bestellungen sind ab 30 Minuten vor Standortschließung gesperrt.
+- Bestellungen werden unter `/bestellungen` über `lib/bestellungen.ts` atomar
+  geschrieben; `/kueche` liest dieselben standortgebundenen Datensätze als
+  interne, regelmäßig aktualisierte Küchenwarteschlange.
+- Ein partieller SQLite-Unique-Index auf `Bestellung.tischId` schützt die
+  aktiven Zustände `offen` und `serviert` auch bei parallelen Schreibzugriffen.
+- Bestellpositionen behalten ihren erstmalig übernommenen Centpreis. Bereits
+  bezahlte oder stornierte Bestellungen sind unveränderlich.
 - Preis- und Kartenänderungen sind ausschließlich für die Rolle `inhaber`
   zulässig.
 - Berechtigungen werden serverseitig vor schreibenden Operationen geprüft. Eine

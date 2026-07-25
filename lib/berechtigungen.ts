@@ -8,6 +8,7 @@ import { getAktiverStandort, safeReturnTo } from "@/lib/standort";
 export const BERECHTIGUNGEN = [
   "reservierungen_verwalten",
   "bestellungen_aufnehmen",
+  "kueche_sehen",
   "tischstatus_sehen",
   "tischstatus_verwalten",
   "tischstammdaten_verwalten",
@@ -24,6 +25,7 @@ const rollenBerechtigungen: Record<Rolle, ReadonlySet<Berechtigung>> = {
   [Rolle.bedienung]: new Set([
     "reservierungen_verwalten",
     "bestellungen_aufnehmen",
+    "kueche_sehen",
     "tischstatus_sehen",
     "tischstatus_verwalten",
     "speisekarte_sehen",
@@ -31,6 +33,7 @@ const rollenBerechtigungen: Record<Rolle, ReadonlySet<Berechtigung>> = {
   [Rolle.manager]: new Set([
     "reservierungen_verwalten",
     "bestellungen_aufnehmen",
+    "kueche_sehen",
     "tischstatus_sehen",
     "tischstatus_verwalten",
     "tischstammdaten_verwalten",

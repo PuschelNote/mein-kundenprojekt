@@ -15,6 +15,12 @@ export async function AppHeader() {
         Bella Vista
       </Link>
       <nav aria-label="Hauptnavigation">
+        {mitarbeiter && hatBerechtigung(mitarbeiter.rolle, "bestellungen_aufnehmen") ? (
+          <Link href="/bestellungen">Bestellungen</Link>
+        ) : null}
+        {mitarbeiter && hatBerechtigung(mitarbeiter.rolle, "kueche_sehen") ? (
+          <Link href="/kueche">Küche</Link>
+        ) : null}
         {mitarbeiter && hatBerechtigung(mitarbeiter.rolle, "speisekarte_sehen") ? (
           <Link href="/speisekarte">Speisekarte</Link>
         ) : null}

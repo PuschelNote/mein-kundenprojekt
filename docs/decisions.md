@@ -477,3 +477,37 @@ lautlos umschreiben._
   außer Kreuzberg ab. Spandauer Kartenabfragen filtern Grill zusätzlich aus.
 - **Konsequenz:** Grillgerichte können in Spandau weder angelegt, geändert noch
   angezeigt werden. Die gleiche Regel kann Phase 4 für Bestellpositionen verwenden.
+
+## 2026-07-25 — Interne Webansicht ist die vorläufige Küchenausgabe
+
+- **Status:** angenommen mit offenem Integrationspunkt
+- **Kontext:** Die direkte Küchenübergabe ist verbindlich, das endgültige Medium
+  aus Display, Drucker oder beidem sowie ein Quittierungsprotokoll sind noch offen.
+- **Entscheidung:** `/kueche` zeigt die offenen Bestellungen des aktiven Standorts
+  als Bons, aktualisiert sich alle zehn Sekunden und erlaubt den Übergang zu
+  `serviert`. Es wird keine externe Hardware-Schnittstelle erfunden.
+- **Konsequenz:** Der Ablauf ist innerhalb der App vollständig nutzbar. Medium,
+  Quittierung und Offline-Übertragung bleiben bewusste spätere Entscheidungen.
+
+## 2026-07-25 — Aktive Tischbestellungen werden datenbankseitig eindeutig
+
+- **Status:** angenommen
+- **Kontext:** Eine vorgelagerte Existenzprüfung allein verhindert bei zwei
+  gleichzeitigen Requests keine doppelte aktive Bestellung am selben Tisch.
+- **Entscheidung:** Ein partieller eindeutiger SQLite-Index umfasst pro Tisch die
+  Zustände `offen` und `serviert`. `bezahlt` und `storniert` geben den Tisch frei.
+  Der erlaubte Statusfluss ist offen zu serviert zu bezahlt; aus aktiven Zuständen
+  darf storniert werden, abgeschlossene Zustände bleiben unveränderlich.
+- **Konsequenz:** Die zentrale Invariante gilt auch bei konkurrierenden Requests.
+  Finanzielle Nebenwirkungen des Bezahlens folgen gesammelt in Phase 5.
+
+## 2026-07-25 — Bestehende Bestellpositionen behalten ihren Aufnahmepreis
+
+- **Status:** angenommen
+- **Kontext:** Eine offene Bestellung kann bearbeitet werden, nachdem der
+  Kartenpreis eines enthaltenen Gerichts geändert wurde.
+- **Entscheidung:** Beim Bearbeiten behält jedes bereits enthaltene Gericht den
+  zuvor historisierten Einzelpreis. Erst neu hinzugefügte Gerichte übernehmen
+  ihren dann aktuellen Kartenpreis.
+- **Konsequenz:** Karten- und Bestelländerungen schreiben historische Preise nicht
+  rückwirkend um; die Abrechnung in Phase 5 bleibt reproduzierbar.

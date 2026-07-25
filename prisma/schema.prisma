@@ -48,6 +48,13 @@ enum GerichtKategorie {
   grill
 }
 
+enum BestellungStatus {
+  offen
+  serviert
+  bezahlt
+  storniert
+}
+
 model Standort {
   id                       String                    @id
   name                     String                    @unique
@@ -56,6 +63,7 @@ model Standort {
   tische                   Tisch[]
   reservierungen           Reservierung[]
   gerichte                 Gericht[]
+  bestellungen             Bestellung[]
 }
 
 model StandardOeffnungszeit {
@@ -80,6 +88,7 @@ model Mitarbeiter {
   geaendertAm DateTime @updatedAt
   erstellteReservierungen  Reservierung[] @relation("ReservierungErsteller")
   geaenderteReservierungen Reservierung[] @relation("ReservierungBearbeiter")
+  aufgenommeneBestellungen Bestellung[]
 
   @@index([standortId])
   @@index([rolle])
@@ -95,6 +104,7 @@ model Gast {
   erstelltAm            DateTime @default(now())
   geaendertAm           DateTime @updatedAt
   reservierungen        Reservierung[]
+  bestellungen          Bestellung[]
 
   @@index([name])
 }
@@ -112,6 +122,7 @@ model Tisch {
   standortId    String
   standort      Standort        @relation(fields: [standortId], references: [id], onDelete: Restrict)
   reservierungen Reservierung[]
+  bestellungen   Bestellung[]
 
   @@unique([standortId, nummer])
   @@unique([standortId, rasterZeile, rasterSpalte])
@@ -157,7 +168,43 @@ model Gericht {
   standort         Standort         @relation(fields: [standortId], references: [id], onDelete: Restrict)
   erstelltAm       DateTime         @default(now())
   geaendertAm      DateTime         @updatedAt
+  bestellpositionen Bestellposition[]
 
   @@unique([standortId, nameNormalisiert])
   @@index([standortId, kategorie])
+}
+
+model Bestellung {
+  id               String            @id
+  status           BestellungStatus  @default(offen)
+  standortId       String
+  standort         Standort          @relation(fields: [standortId], references: [id], onDelete: Restrict)
+  tischId          String
+  tisch            Tisch             @relation(fields: [tischId], references: [id], onDelete: Restrict)
+  gastId           String?
+  gast             Gast?             @relation(fields: [gastId], references: [id], onDelete: Restrict)
+  aufgenommenVonId String
+  aufgenommenVon   Mitarbeiter       @relation(fields: [aufgenommenVonId], references: [id], onDelete: Restrict)
+  positionen       Bestellposition[]
+  erstelltAm       DateTime          @default(now())
+  geaendertAm      DateTime          @updatedAt
+
+  @@index([standortId, status, erstelltAm])
+  @@index([tischId])
+  @@index([gastId])
+  @@index([aufgenommenVonId])
+}
+
+model Bestellposition {
+  id                  String      @id
+  bestellungId        String
+  bestellung          Bestellung @relation(fields: [bestellungId], references: [id], onDelete: Cascade)
+  gerichtId           String
+  gericht             Gericht    @relation(fields: [gerichtId], references: [id], onDelete: Restrict)
+  menge               Int
+  sonderwunsch        String?
+  einzelpreisCent     Int
+
+  @@index([bestellungId])
+  @@index([gerichtId])
 }

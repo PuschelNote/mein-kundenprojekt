@@ -60,14 +60,14 @@ _Stand: 25.07.2026_
 
 | ID | Feature | Status | Anforderung / Akzeptanzkern |
 |---|---|---|---|
-| BV-007 | Bestellung aufnehmen | validated | Eine Bestellung besitzt ID, Tisch, Standort, optional verknüpften Gast und den aufnehmenden Mitarbeiter. |
-| BV-036 | Bestellpositionen verwalten | validated | Eine Bestellung enthält mindestens eine Position mit Gericht, Menge und optionalem Sonderwunsch. |
-| BV-037 | Einzelpreis historisieren | validated | Jede Bestellposition speichert den gültigen Einzelpreis zum Bestellzeitpunkt; spätere Preisänderungen verändern sie nicht. |
-| BV-038 | Nur eine aktive Bestellung pro Tisch zulassen | validated | Ein Tisch besitzt gleichzeitig höchstens eine Bestellung, die noch nicht bezahlt oder storniert ist. |
-| BV-008 | Bestellung an die Küche übermitteln | validated | Aufgenommene Bestellungen werden direkt an die noch festzulegende Küchenausgabe übertragen. |
-| BV-009 | Bestellstatus verwalten | validated | Zulässige Status sind `offen`, `serviert`, `bezahlt` und `storniert`; `serviert` beendet die Bestellung noch nicht. |
-| BV-039 | Aufnehmenden Mitarbeiter nachweisen | validated | Jede Bestellung speichert den verantwortlichen Mitarbeiter für die spätere Trinkgeld-Aufteilung. |
-| BV-012 | Küchenannahmeschluss erzwingen | validated | Ab 30 Minuten vor der regulären Schließzeit des gewählten Standorts kann keine neue Bestellung angelegt werden. |
+| BV-007 | Bestellung aufnehmen | done | `/bestellungen` legt eine Bestellung atomar mit Standort, verfügbarem Tisch, optional per exakter Telefonnummer zugeordnetem bekannten Gast und aufnehmendem Mitarbeiter an. |
+| BV-036 | Bestellpositionen verwalten | done | Offene Bestellungen enthalten mindestens eine validierte Position; Gerichte, Mengen von 1 bis 99 und optionale Sonderwünsche bis 300 Zeichen können bearbeitet werden. |
+| BV-037 | Einzelpreis historisieren | done | Jede Position übernimmt bei ihrer erstmaligen Aufnahme den Centpreis des Gerichts; bestehende Positionen behalten ihn bei Karten- und Bestelländerungen. |
+| BV-038 | Nur eine aktive Bestellung pro Tisch zulassen | done | Ein partieller eindeutiger Datenbankindex erlaubt je Tisch höchstens eine Bestellung im Status `offen` oder `serviert`, auch bei konkurrierenden Schreibzugriffen. |
+| BV-008 | Bestellung an die Küche übermitteln | done | `/kueche` zeigt offene Bons des aktiven Standorts mit Positionen und Sonderwünschen und aktualisiert sich alle zehn Sekunden; das endgültige Ausgabemedium bleibt offen. |
+| BV-009 | Bestellstatus verwalten | done | Kontrollierte Übergänge führen von `offen` über `serviert` zu `bezahlt` oder aus aktiven Zuständen zu `storniert`; abgeschlossene Bestellungen sind unveränderlich. |
+| BV-039 | Aufnehmenden Mitarbeiter nachweisen | done | Jede Bestellung persistiert und zeigt den serverseitig validierten aufnehmenden Mitarbeiter und den Aufnahmezeitpunkt. |
+| BV-012 | Küchenannahmeschluss erzwingen | done | Neue Bestellungen werden anhand Berliner Ortszeit außerhalb der regulären Öffnung sowie ab exakt 30 Minuten vor Standortschließung serverseitig abgewiesen. |
 
 ## Phase 5 — Kern: Abrechnung und Bella-Card
 

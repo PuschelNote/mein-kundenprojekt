@@ -5,6 +5,21 @@
   color: #26211d;
 }
 
+.order-form { display: grid; gap: 1rem; }
+.order-form fieldset { border: 1px solid var(--line); border-radius: 1rem; padding: 1rem; }
+.order-position { display: grid; grid-template-columns: 2fr .5fr 2fr auto; gap: .65rem; margin-top: .75rem; }
+.order-list { display: grid; gap: 1rem; }
+.order-card, .kitchen-ticket { background: var(--surface); border: 1px solid var(--line); border-radius: 1rem; padding: 1.2rem; }
+.order-card.serviert { border-left: .45rem solid #2f7d5b; }
+.order-card.storniert, .order-card.bezahlt { opacity: .72; }
+.status-actions { display: flex; flex-wrap: wrap; gap: .65rem; margin-top: 1rem; }
+.kitchen-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr)); gap: 1rem; }
+.kitchen-ticket { border-top: .5rem solid #b3532b; }
+.kitchen-ticket ol { padding-left: 1.4rem; }
+.kitchen-ticket li { margin: .8rem 0; }
+.kitchen-ticket li p { color: #8b2d20; font-weight: 700; margin: .25rem 0 0; }
+@media (max-width: 760px) { .order-position { grid-template-columns: 1fr; } }
+
 * {
   box-sizing: border-box;
 }
