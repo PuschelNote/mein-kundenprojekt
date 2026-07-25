@@ -363,3 +363,28 @@ lautlos umschreiben._
   ohne Zugriff auf die allgemeine Gastverwaltung zu erhalten. Bei einem Fehler
   bleibt weder ein unvollständiger neuer Gast noch eine Reservierung zurück;
   bekannte Telefonnummern erzeugen keine doppelten Gastprofile.
+
+## 2026-07-25 — Reservierungsstornierung ist ein reversibler Statuswechsel
+
+- **Status:** angenommen
+- **Kontext:** Die Spec definiert für Reservierungen ausschließlich `offen` und
+  `storniert`. Stornierungsgründe sowie Auswirkungen auf spätere Tischstatus-,
+  Bestell- oder Abrechnungsabläufe sind noch nicht festgelegt.
+- **Entscheidung:** `BV-027` löscht Reservierungen nicht physisch. Alle Rollen mit
+  `reservierungen_verwalten` dürfen Reservierungen ihres aktiven Standorts auf
+  `storniert` setzen und bei einer Fehlbedienung wieder auf `offen` stellen. Ein
+  Stornierungsgrund wird ohne fachliche Vorgabe nicht erfunden.
+- **Konsequenz:** Reservierungen bleiben nachvollziehbar. Folgeeffekte auf noch
+  nicht implementierte Module werden erst nach fachlicher Klärung ergänzt.
+
+## 2026-07-25 — Reservierungsänderungen speichern den letzten Bearbeiter
+
+- **Status:** angenommen
+- **Kontext:** `BV-013` verlangt neben unveränderlichem Ersteller und
+  Erstellzeitpunkt auch Zeitpunkt und Mitarbeiter der letzten Änderung.
+- **Entscheidung:** `geaendertAm` wird durch Prisma bei jeder Bearbeitung und jedem
+  Statuswechsel aktualisiert; `geaendertVonId` referenziert den serverseitig
+  autorisierten Mitarbeiter. Bestehende Reservierungen dürfen bis zu ihrer ersten
+  Änderung noch keinen letzten Bearbeiter besitzen.
+- **Konsequenz:** Die Reservierungsliste zeigt Ersteller sowie letzte Änderung.
+  Standortfremde Datensätze können weder bearbeitet noch im Status verändert werden.

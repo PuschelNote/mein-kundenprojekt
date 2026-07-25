@@ -68,7 +68,8 @@ model Mitarbeiter {
   standort   Standort @relation(fields: [standortId], references: [id], onDelete: Restrict)
   erstelltAm DateTime @default(now())
   geaendertAm DateTime @updatedAt
-  reservierungen Reservierung[]
+  erstellteReservierungen  Reservierung[] @relation("ReservierungErsteller")
+  geaenderteReservierungen Reservierung[] @relation("ReservierungBearbeiter")
 
   @@index([standortId])
   @@index([rolle])
@@ -116,7 +117,9 @@ model Reservierung {
   gastId          String
   gast            Gast                @relation(fields: [gastId], references: [id], onDelete: Restrict)
   erstelltVonId   String
-  erstelltVon     Mitarbeiter         @relation(fields: [erstelltVonId], references: [id], onDelete: Restrict)
+  erstelltVon     Mitarbeiter         @relation("ReservierungErsteller", fields: [erstelltVonId], references: [id], onDelete: Restrict)
+  geaendertVonId  String?
+  geaendertVon    Mitarbeiter?        @relation("ReservierungBearbeiter", fields: [geaendertVonId], references: [id], onDelete: Restrict)
   erstelltAm      DateTime            @default(now())
   geaendertAm     DateTime            @updatedAt
 
@@ -124,4 +127,5 @@ model Reservierung {
   @@index([tischId])
   @@index([gastId])
   @@index([erstelltVonId])
+  @@index([geaendertVonId])
 }

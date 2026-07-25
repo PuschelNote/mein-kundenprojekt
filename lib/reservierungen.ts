@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import type { Rolle } from "@/generated/prisma/enums";
+import { ReservierungStatus, type Rolle } from "@/generated/prisma/enums";
 import { assertBerechtigung } from "@/lib/berechtigungen";
 import { normalisiereTelefonnummer } from "@/lib/gaeste";
 import { prisma } from "@/lib/prisma";
@@ -8,7 +8,7 @@ export type ReservierungInput = {
   tischId: string;
   gastName: string;
   gastTelefon: string;
-  gastTelefonNormalisiert: string;
+  gastTelefonNormalisiert: string | null;
   datum: string;
   uhrzeitMinute: number;
   personenzahl: number;
@@ -29,6 +29,7 @@ export function validateReservierungInput(input: {
   datum?: unknown;
   uhrzeit?: unknown;
   personenzahl?: unknown;
+  gastTelefonOptional?: boolean;
 }): ReservierungInput {
   const tischId = typeof input.tischId === "string" ? input.tischId.trim() : "";
   const gastName = typeof input.gastName === "string" ? input.gastName.trim() : "";
@@ -58,13 +59,15 @@ export function validateReservierungInput(input: {
     );
   }
 
-  let gastTelefonNormalisiert: string;
-  try {
-    gastTelefonNormalisiert = normalisiereTelefonnummer(input.gastTelefon);
-  } catch {
-    throw new ReservierungValidationError(
-      "Bitte eine gültige Gast-Telefonnummer angeben.",
-    );
+  let gastTelefonNormalisiert: string | null = null;
+  if (gastTelefon || !input.gastTelefonOptional) {
+    try {
+      gastTelefonNormalisiert = normalisiereTelefonnummer(input.gastTelefon);
+    } catch {
+      throw new ReservierungValidationError(
+        "Bitte eine gültige Gast-Telefonnummer angeben.",
+      );
+    }
   }
 
   const [stunden, minuten] = uhrzeit.split(":").map(Number);
@@ -85,6 +88,12 @@ export async function createReservierung(
   input: ReservierungInput,
 ) {
   assertBerechtigung(mitarbeiter.rolle, "reservierungen_verwalten");
+  if (!input.gastTelefonNormalisiert) {
+    throw new ReservierungValidationError(
+      "Bitte eine gültige Gast-Telefonnummer angeben.",
+    );
+  }
+  const gastTelefonNormalisiert = input.gastTelefonNormalisiert;
   if (!standortId || mitarbeiter.standortId !== standortId) {
     throw new ReservierungValidationError(
       "Mitarbeiter und Reservierung müssen zum aktiven Standort gehören.",
@@ -92,24 +101,22 @@ export async function createReservierung(
   }
 
   return prisma.$transaction(async (tx) => {
-    const [gespeicherterMitarbeiter, tisch, vorhandenerGast] = await Promise.all([
-      tx.mitarbeiter.findFirst({
+    const gespeicherterMitarbeiter = await tx.mitarbeiter.findFirst({
         where: {
           id: mitarbeiter.id,
           standortId,
           rolle: mitarbeiter.rolle,
         },
         select: { id: true },
-      }),
-      tx.tisch.findFirst({
+      });
+    const tisch = await tx.tisch.findFirst({
         where: { id: input.tischId, standortId },
         select: { id: true },
-      }),
-      tx.gast.findUnique({
-        where: { telefonNormalisiert: input.gastTelefonNormalisiert },
+      });
+    const vorhandenerGast = await tx.gast.findUnique({
+        where: { telefonNormalisiert: gastTelefonNormalisiert },
         select: { id: true },
-      }),
-    ]);
+      });
 
     if (!gespeicherterMitarbeiter) {
       throw new ReservierungValidationError("Der aktive Mitarbeiter ist ungültig.");
@@ -132,7 +139,7 @@ export async function createReservierung(
           id: randomUUID(),
           name: input.gastName,
           telefon: input.gastTelefon,
-          telefonNormalisiert: input.gastTelefonNormalisiert,
+          telefonNormalisiert: gastTelefonNormalisiert,
         },
         select: { id: true },
       });
@@ -154,6 +161,127 @@ export async function createReservierung(
   });
 }
 
+export async function updateReservierung(
+  id: string,
+  mitarbeiter: ReservierungMitarbeiter,
+  standortId: string,
+  input: ReservierungInput,
+) {
+  assertReservierungKontext(id, mitarbeiter, standortId);
+
+  return prisma.$transaction(async (tx) => {
+    const reservierung = await tx.reservierung.findFirst({
+          where: { id, standortId },
+          select: { id: true, gastId: true },
+        });
+    const gespeicherterMitarbeiter = await tx.mitarbeiter.findFirst({
+          where: {
+            id: mitarbeiter.id,
+            standortId,
+            rolle: mitarbeiter.rolle,
+          },
+          select: { id: true },
+        });
+    const tisch = await tx.tisch.findFirst({
+          where: { id: input.tischId, standortId },
+          select: { id: true },
+        });
+    const vorhandenerGast = input.gastTelefonNormalisiert
+          ? await tx.gast.findUnique({
+              where: { telefonNormalisiert: input.gastTelefonNormalisiert },
+              select: { id: true },
+            })
+          : null;
+
+    if (!reservierung) {
+      throw new ReservierungValidationError(
+        "Die Reservierung gehört nicht zum aktiven Standort.",
+      );
+    }
+    if (!gespeicherterMitarbeiter) {
+      throw new ReservierungValidationError("Der aktive Mitarbeiter ist ungültig.");
+    }
+    if (!tisch) {
+      throw new ReservierungValidationError(
+        "Der gewählte Tisch gehört nicht zum aktiven Standort.",
+      );
+    }
+
+    let gastId = input.gastTelefonNormalisiert
+      ? vorhandenerGast?.id
+      : reservierung.gastId;
+    if (!gastId && input.gastTelefonNormalisiert) {
+      if (input.gastName.length < 2) {
+        throw new ReservierungValidationError(
+          "Für einen neuen Gast wird ein Name mit mindestens 2 Zeichen benötigt.",
+        );
+      }
+      const neuerGast = await tx.gast.create({
+        data: {
+          id: randomUUID(),
+          name: input.gastName,
+          telefon: input.gastTelefon,
+          telefonNormalisiert: input.gastTelefonNormalisiert,
+        },
+        select: { id: true },
+      });
+      gastId = neuerGast.id;
+    }
+
+    return tx.reservierung.update({
+      where: { id: reservierung.id },
+      data: {
+        datum: input.datum,
+        uhrzeitMinute: input.uhrzeitMinute,
+        personenzahl: input.personenzahl,
+        tischId: tisch.id,
+        gastId,
+        geaendertVonId: gespeicherterMitarbeiter.id,
+      },
+    });
+  });
+}
+
+export async function updateReservierungStatus(
+  id: string,
+  status: unknown,
+  mitarbeiter: ReservierungMitarbeiter,
+  standortId: string,
+) {
+  assertReservierungKontext(id, mitarbeiter, standortId);
+  if (status !== ReservierungStatus.offen && status !== ReservierungStatus.storniert) {
+    throw new ReservierungValidationError("Der Reservierungsstatus ist ungültig.");
+  }
+
+  return prisma.$transaction(async (tx) => {
+    const reservierung = await tx.reservierung.findFirst({
+        where: { id, standortId },
+        select: { id: true },
+      });
+    const gespeicherterMitarbeiter = await tx.mitarbeiter.findFirst({
+        where: {
+          id: mitarbeiter.id,
+          standortId,
+          rolle: mitarbeiter.rolle,
+        },
+        select: { id: true },
+      });
+    if (!reservierung) {
+      throw new ReservierungValidationError(
+        "Die Reservierung gehört nicht zum aktiven Standort.",
+      );
+    }
+    if (!gespeicherterMitarbeiter) {
+      throw new ReservierungValidationError("Der aktive Mitarbeiter ist ungültig.");
+    }
+
+    return tx.reservierung.update({
+      where: { id: reservierung.id },
+      data: { status, geaendertVonId: gespeicherterMitarbeiter.id },
+    });
+  });
+}
+
 export function listTischeFuerReservierung(standortId: string) {
   return prisma.tisch.findMany({
     where: { standortId },
@@ -168,9 +296,26 @@ export function listReservierungen(standortId: string) {
       gast: { select: { name: true } },
       tisch: { select: { nummer: true } },
       erstelltVon: { select: { name: true } },
+      geaendertVon: { select: { name: true } },
     },
     orderBy: [{ datum: "asc" }, { uhrzeitMinute: "asc" }],
   });
+}
+
+function assertReservierungKontext(
+  id: string,
+  mitarbeiter: ReservierungMitarbeiter,
+  standortId: string,
+) {
+  assertBerechtigung(mitarbeiter.rolle, "reservierungen_verwalten");
+  if (!id) {
+    throw new ReservierungValidationError("Reservierungs-ID fehlt.");
+  }
+  if (!standortId || mitarbeiter.standortId !== standortId) {
+    throw new ReservierungValidationError(
+      "Mitarbeiter und Reservierung müssen zum aktiven Standort gehören.",
+    );
+  }
 }
 
 export function formatiereUhrzeit(minute: number) {

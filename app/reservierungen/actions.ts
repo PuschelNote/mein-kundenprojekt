@@ -5,6 +5,8 @@ import { requireBerechtigung } from "@/lib/berechtigungen";
 import {
   createReservierung,
   ReservierungValidationError,
+  updateReservierung,
+  updateReservierungStatus,
   validateReservierungInput,
 } from "@/lib/reservierungen";
 
@@ -22,14 +24,7 @@ export async function createReservierungAction(
       "reservierungen_verwalten",
       "/reservierungen",
     );
-    const input = validateReservierungInput({
-      tischId: formData.get("tischId"),
-      gastName: formData.get("gastName"),
-      gastTelefon: formData.get("gastTelefon"),
-      datum: formData.get("datum"),
-      uhrzeit: formData.get("uhrzeit"),
-      personenzahl: formData.get("personenzahl"),
-    });
+    const input = inputFromFormData(formData);
     await createReservierung(mitarbeiter, mitarbeiter.standortId, input);
     revalidatePath("/reservierungen");
     return { success: "Reservierung wurde angelegt." };
@@ -40,4 +35,65 @@ export async function createReservierungAction(
     console.error("Reservierung konnte nicht gespeichert werden");
     return { error: "Speichern fehlgeschlagen. Bitte erneut versuchen." };
   }
+}
+
+export async function updateReservierungAction(
+  _state: ReservierungActionState,
+  formData: FormData,
+): Promise<ReservierungActionState> {
+  try {
+    const mitarbeiter = await requireBerechtigung(
+      "reservierungen_verwalten",
+      "/reservierungen",
+    );
+    const id = String(formData.get("id") ?? "");
+    const input = inputFromFormData(formData, true);
+    await updateReservierung(id, mitarbeiter, mitarbeiter.standortId, input);
+    revalidatePath("/reservierungen");
+    return { success: "Reservierung wurde aktualisiert." };
+  } catch (error) {
+    return actionError(error);
+  }
+}
+
+export async function updateReservierungStatusAction(
+  _state: ReservierungActionState,
+  formData: FormData,
+): Promise<ReservierungActionState> {
+  try {
+    const mitarbeiter = await requireBerechtigung(
+      "reservierungen_verwalten",
+      "/reservierungen",
+    );
+    await updateReservierungStatus(
+      String(formData.get("id") ?? ""),
+      formData.get("status"),
+      mitarbeiter,
+      mitarbeiter.standortId,
+    );
+    revalidatePath("/reservierungen");
+    return { success: "Reservierungsstatus wurde aktualisiert." };
+  } catch (error) {
+    return actionError(error);
+  }
+}
+
+function inputFromFormData(formData: FormData, gastTelefonOptional = false) {
+  return validateReservierungInput({
+    tischId: formData.get("tischId"),
+    gastName: formData.get("gastName"),
+    gastTelefon: formData.get("gastTelefon"),
+    datum: formData.get("datum"),
+    uhrzeit: formData.get("uhrzeit"),
+    personenzahl: formData.get("personenzahl"),
+    gastTelefonOptional,
+  });
+}
+
+function actionError(error: unknown): ReservierungActionState {
+  if (error instanceof ReservierungValidationError) {
+    return { error: error.message };
+  }
+  console.error("Reservierung konnte nicht gespeichert werden");
+  return { error: "Speichern fehlgeschlagen. Bitte erneut versuchen." };
 }

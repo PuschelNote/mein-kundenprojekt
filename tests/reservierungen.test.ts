@@ -7,6 +7,8 @@ import {
   createReservierung,
   formatiereUhrzeit,
   ReservierungValidationError,
+  updateReservierung,
+  updateReservierungStatus,
   validateReservierungInput,
 } from "../lib/reservierungen";
 
@@ -99,6 +101,59 @@ describe("Reservierungspersistenz und Standorttrennung", () => {
     assert.equal(
       await prisma.gast.count({ where: { telefonNormalisiert: telefon } }),
       1,
+    );
+
+    const inhaber = await prisma.mitarbeiter.findUniqueOrThrow({
+      where: { id: "inhaber-marcello" },
+    });
+    const updated = await updateReservierung(
+      reservierung.id,
+      inhaber,
+      "kreuzberg",
+      validateReservierungInput({
+        tischId: "tisch-kreuzberg-2",
+        gastTelefon: "",
+        gastTelefonOptional: true,
+        datum: "2026-08-16",
+        uhrzeit: "20:30",
+        personenzahl: 5,
+      }),
+    );
+    assert.equal(updated.tischId, "tisch-kreuzberg-2");
+    assert.equal(updated.gastId, gast.id);
+    assert.equal(updated.erstelltVonId, mitarbeiter.id);
+    assert.equal(updated.geaendertVonId, inhaber.id);
+
+    const storniert = await updateReservierungStatus(
+      reservierung.id,
+      "storniert",
+      mitarbeiter,
+      "kreuzberg",
+    );
+    assert.equal(storniert.status, "storniert");
+    assert.equal(storniert.geaendertVonId, mitarbeiter.id);
+
+    const wiederGeoeffnet = await updateReservierungStatus(
+      reservierung.id,
+      "offen",
+      inhaber,
+      "kreuzberg",
+    );
+    assert.equal(wiederGeoeffnet.status, "offen");
+    assert.equal(wiederGeoeffnet.geaendertVonId, inhaber.id);
+
+    await assert.rejects(
+      updateReservierungStatus(
+        reservierung.id,
+        "storniert",
+        {
+          id: "manager-spandau-renate",
+          rolle: Rolle.manager,
+          standortId: "spandau",
+        },
+        "spandau",
+      ),
+      ReservierungValidationError,
     );
 
     await prisma.reservierung.delete({ where: { id: reservierung.id } });

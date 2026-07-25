@@ -32,8 +32,8 @@ _Stand: 25.07.2026_
 | BV-004 | Reservierung anlegen | done | Geschützte Anlage unter `/reservierungen` ordnet bekannte Gäste exakt per Telefonnummer zu oder legt unbekannte Gäste mit Name und Telefonnummer atomar mit der Reservierung an; Tisch, lokaler Termin, Personenzahl, Standort und Ersteller werden gespeichert. |
 | BV-025 | Standort bei Reservierung erzwingen | done | Der validierte Standortkontext wird serverseitig übernommen; Mitarbeiter und Tisch müssen demselben Standort angehören, manipulierte Zuordnungen werden abgewiesen. |
 | BV-026 | Reservierung einem Tisch zuweisen | done | Jede Reservierung referenziert genau einen Tisch desselben Standorts; mehrere Termine pro Tisch bleiben möglich, solange Überschneidungsregeln ungeklärt sind. |
-| BV-027 | Reservierung ändern und stornieren | validated | Mitarbeiter können bestehende Reservierungen ändern; der Status ist `offen` oder `storniert`. |
-| BV-013 | Reservierungsänderungen protokollieren | validated | Ersteller, Erstellzeitpunkt, letzter Änderungszeitpunkt und ändernder Mitarbeiter werden automatisch gespeichert. |
+| BV-027 | Reservierung ändern und stornieren | done | Berechtigte Mitarbeiter können standortgebundene Reservierungen vollständig neu validiert bearbeiten, stornieren und wieder öffnen; physisches Löschen findet nicht statt. |
+| BV-013 | Reservierungsänderungen protokollieren | done | Ersteller und Erstellzeitpunkt bleiben unverändert; letzter Änderungszeitpunkt und ändernder Mitarbeiter werden bei Bearbeitung und Statuswechsel automatisch gespeichert und angezeigt. |
 
 ## Phase 2 — Kern: Tische und Restaurantübersicht
 

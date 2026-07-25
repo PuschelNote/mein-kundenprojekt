@@ -85,7 +85,7 @@ Zentrale Anwendung / API
 | `app/mitarbeiter-waehlen/` | Prototypische Mitarbeiter-Session für den aktiven Standort |
 | `app/nicht-erlaubt/` | Verständliche Zielseite bei fehlender Capability |
 | `app/gaeste/` | Geschützte Gastverwaltung für Manager und Inhaber |
-| `app/reservierungen/` | Standortbezogene Reservierungsliste und geschützte Anlage per Server Action |
+| `app/reservierungen/` | Standortbezogene Reservierungsliste sowie geschützte Anlage, Bearbeitung und Statuswechsel per Server Actions |
 | `app/standort/` | Explizite Standortauswahl und serverseitiger Kontextwechsel |
 | `components/app-header.tsx` | Globale Anzeige des aktiven Standorts und Wechselmöglichkeit |
 | `components/opening-hours.tsx` | Vollständiger Wochenplan mit geöffneten und geschlossenen Tagen |
@@ -129,6 +129,8 @@ Zentrale Anwendung / API
 - Gastauflösung und Reservierungsanlage laufen in einer Transaktion: Eine bekannte
   normalisierte Telefonnummer wird verknüpft, eine unbekannte Nummer erzeugt nur
   zusammen mit einem gültigen Gastnamen ein neues Gastprofil.
+- Bearbeitungen und Statuswechsel erhalten Erstellerdaten unverändert und setzen
+  automatisch letzten Änderungszeitpunkt sowie verantwortlichen Mitarbeiter.
 - Bis zur finalen Tischliste werden stabile, ausdrücklich als vorläufig markierte
   Grunddaten verwendet. Ihre Kapazitäten lösen noch keine Reservierungsablehnung aus.
 - Grillgerichte sind ausschließlich Kreuzberg zugeordnet und in Spandau weder

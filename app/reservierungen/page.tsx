@@ -4,8 +4,13 @@ import {
   listReservierungen,
   listTischeFuerReservierung,
 } from "@/lib/reservierungen";
-import { createReservierungAction } from "./actions";
+import {
+  createReservierungAction,
+  updateReservierungAction,
+  updateReservierungStatusAction,
+} from "./actions";
 import { ReservierungForm } from "./reservierung-form";
+import { ReservierungStatusForm } from "./reservierung-status-form";
 
 export default async function ReservierungenPage() {
   const mitarbeiter = await requireBerechtigung(
@@ -46,9 +51,13 @@ export default async function ReservierungenPage() {
           <div className="empty-state">Noch keine Reservierungen vorhanden.</div>
         ) : (
           reservierungen.map((reservierung) => (
-            <article className="reservation-card" key={reservierung.id}>
+            <article
+              className={`reservation-card ${reservierung.status}`}
+              key={reservierung.id}
+            >
               <div>
                 <h3>{reservierung.gast.name}</h3>
+                <span className="reservation-status">{reservierung.status}</span>
               </div>
               <dl>
                 <div><dt>Termin</dt><dd>{reservierung.datum} · {formatiereUhrzeit(reservierung.uhrzeitMinute)} Uhr</dd></div>
@@ -56,6 +65,35 @@ export default async function ReservierungenPage() {
                 <div><dt>Personen</dt><dd>{reservierung.personenzahl}</dd></div>
                 <div><dt>Erfasst von</dt><dd>{reservierung.erstelltVon.name}</dd></div>
               </dl>
+              <p className="reservation-audit">
+                Erstellt {reservierung.erstelltAm.toLocaleString("de-DE")}
+                {reservierung.geaendertVon
+                  ? ` · zuletzt geändert von ${reservierung.geaendertVon.name} am ${reservierung.geaendertAm.toLocaleString("de-DE")}`
+                  : " · noch nicht geändert"}
+              </p>
+              <details>
+                <summary>Bearbeiten</summary>
+                <p className="panel-hint">
+                  Gastfelder leer lassen, um den zugeordneten Gast beizubehalten.
+                </p>
+                <ReservierungForm
+                  action={updateReservierungAction}
+                  tische={tische}
+                  submitLabel="Änderungen speichern"
+                  reservierung={{
+                    id: reservierung.id,
+                    tischId: reservierung.tischId,
+                    datum: reservierung.datum,
+                    uhrzeit: formatiereUhrzeit(reservierung.uhrzeitMinute),
+                    personenzahl: reservierung.personenzahl,
+                  }}
+                />
+              </details>
+              <ReservierungStatusForm
+                action={updateReservierungStatusAction}
+                id={reservierung.id}
+                status={reservierung.status}
+              />
             </article>
           ))
         )}
