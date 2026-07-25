@@ -1,6 +1,6 @@
 # Backlog — Bella Vista Restaurant-App
 
-_Stand: 23.07.2026_
+_Stand: 25.07.2026_
 
 ## Konvention
 
@@ -28,7 +28,7 @@ _Stand: 23.07.2026_
 |---|---|---|---|
 | BV-005 | Gast anlegen und bearbeiten | done | Geschütztes CRUD unter `/gaeste` verwaltet Name, eindeutige normalisierte Telefonnummer, Besuchszähler, Notizen und abgeleiteten Bella-Card-Status. |
 | BV-023 | Gast über Telefonnummer erkennen | done | Geschützte exakte Suche erkennt vorhandene Gäste trotz üblicher Telefonnummern-Schreibweisen und liefert die stabile Gast-ID für spätere Reservierungen. |
-| BV-024 | Gastpräferenzen und Allergien dokumentieren | validated | Freitextnotizen speichern beispielsweise Allergien, „kein Knoblauch“ oder bevorzugte Sitzbereiche. |
+| BV-024 | Gastpräferenzen und Allergien dokumentieren | done | Manager und Inhaber können Freitextnotizen mit Präferenzen und Allergien anlegen, ändern, leeren und einsehen; serverseitige Validierung und Persistenztests sichern das Feld ab. |
 | BV-004 | Reservierung anlegen | validated | Nur Mitarbeiter können eine Reservierung mit Standort, Tisch, Datum, Uhrzeit, Personenzahl und Gast anlegen; Selbstreservierung durch Gäste ist ausgeschlossen. |
 | BV-025 | Standort bei Reservierung erzwingen | validated | Ohne explizite Auswahl von Kreuzberg oder Spandau kann keine Reservierung gespeichert werden. |
 | BV-026 | Reservierung einem Tisch zuweisen | validated | Jede Reservierung belegt genau einen Tisch; ein Tisch kann zu unterschiedlichen Zeiten mehrere Reservierungen besitzen. |

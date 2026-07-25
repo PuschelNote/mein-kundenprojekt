@@ -36,6 +36,31 @@ describe("Gast-Validierung", () => {
     );
   });
 
+  it("normalisiert Notizen und begrenzt ihre Länge", () => {
+    const mitNotiz = validateGastInput({
+      name: "Testgast",
+      telefon: "+49301234567",
+      notizen: "  Haselnussallergie, bevorzugt Terrasse  ",
+    });
+    const ohneNotiz = validateGastInput({
+      name: "Testgast",
+      telefon: "+49301234567",
+      notizen: "   ",
+    });
+
+    assert.equal(mitNotiz.notizen, "Haselnussallergie, bevorzugt Terrasse");
+    assert.equal(ohneNotiz.notizen, null);
+    assert.throws(
+      () =>
+        validateGastInput({
+          name: "Testgast",
+          telefon: "+49301234567",
+          notizen: "a".repeat(1001),
+        }),
+      GastValidationError,
+    );
+  });
+
   it("leitet den Bella-Card-Status aus Besuchen ab", () => {
     assert.equal(istBellaCardAktiv(9), false);
     assert.equal(istBellaCardAktiv(10), true);
@@ -64,6 +89,17 @@ describe("Gast-Persistenz", () => {
       }),
     );
     assert.equal(updated.name, "Testgast Neu");
+    assert.equal(updated.notizen, "Terrasse");
+
+    const cleared = await updateGast(
+      created.id,
+      validateGastInput({
+        name: "Testgast Neu",
+        telefon: testTelefon,
+        notizen: " ",
+      }),
+    );
+    assert.equal(cleared.notizen, null);
 
     await deleteGast(created.id);
     gastId = undefined;

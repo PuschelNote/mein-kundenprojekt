@@ -305,3 +305,17 @@ lautlos umschreiben._
 - **Konsequenz:** Telefonnummern erscheinen nicht in der URL. Die Server Action
   prüft `gastdaten_sehen` erneut, sodass ein manipulierter Direktaufruf keine
   Autorisierung umgeht.
+
+# 2026-07-25 — Gastpräferenzen und Allergien bleiben Freitext
+
+- **Status:** angenommen
+- **Kontext:** `BV-024` verlangt Notizen zu Allergien und Präferenzen, definiert
+  jedoch keine strukturierten Kategorien. Das Gastmodell aus `BV-005` besitzt
+  bereits ein optionales Notizfeld.
+- **Entscheidung:** Präferenzen und Allergien werden gemeinsam als optionaler,
+  getrimmter Freitext mit höchstens 1000 Zeichen gespeichert. Eine leere Eingabe
+  wird als `null` persistiert. Bis zur Klärung des dokumentierten Rollenwiderspruchs
+  bleibt der Zugriff gemäß der restriktiveren Rollenmatrix auf Manager und Inhaber
+  beschränkt.
+- **Konsequenz:** Es ist keine Datenbankmigration erforderlich. Strukturierte
+  Allergieklassifikation und Zugriff für Bedienungen sind nicht Teil von `BV-024`.

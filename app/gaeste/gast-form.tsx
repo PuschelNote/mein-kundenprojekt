@@ -51,13 +51,13 @@ export function GastForm({
         />
       </label>
       <label className="guest-notes-field">
-        Notizen
+        Präferenzen und Allergien
         <textarea
           name="notizen"
           maxLength={1000}
           rows={3}
           defaultValue={gast?.notizen ?? ""}
-          placeholder="Zum Beispiel Allergien oder Sitzplatzwünsche"
+          placeholder="Zum Beispiel: Haselnussallergie, kein Knoblauch, bevorzugt Terrasse"
         />
       </label>
       <button type="submit" disabled={pending}>
