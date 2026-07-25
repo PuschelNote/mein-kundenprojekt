@@ -388,3 +388,56 @@ lautlos umschreiben._
   Änderung noch keinen letzten Bearbeiter besitzen.
 - **Konsequenz:** Die Reservierungsliste zeigt Ersteller sowie letzte Änderung.
   Standortfremde Datensätze können weder bearbeitet noch im Status verändert werden.
+
+## 2026-07-25 — Tischübersicht kombiniert schematischen Grundriss und Liste
+
+- **Status:** angenommen
+- **Kontext:** Ein exakter baulicher Grundriss liegt nicht vor. Für den operativen
+  Restaurantbetrieb soll trotzdem auf einen Blick erkennbar sein, welche Tische
+  frei, besetzt oder reserviert sind.
+- **Entscheidung:** Jeder Tisch erhält eine feste Position in einem einfachen
+  standortbezogenen Raster. `/tische` visualisiert dieses Raster als schematischen,
+  nicht maßstabsgetreuen Grundriss. Nummer und ausgeschriebener Status sind direkt
+  sichtbar; Farbe dient nur als zusätzliche Kennzeichnung. Eine semantische Liste
+  bleibt für Details, kleine Bildschirme und Stammdatenpflege erhalten.
+- **Konsequenz:** Phase 2 benötigt Positionsfelder und eindeutige Positionen je
+  Standort. Ein Drag-and-drop-Editor, bauliche Genauigkeit und freie Planerstellung
+  bleiben außerhalb des Scopes.
+
+## 2026-07-25 — Manager pflegen Tischstammdaten ihres Standorts
+
+- **Status:** angenommen
+- **Kontext:** Die Spec erlaubt allen Rollen, Tischstatus zu sehen, nennt aber
+  keine Rolle für Nummern, Kapazitäten, Bereiche und saisonale Verfügbarkeit.
+  Der Inhaber ist im aktuellen Mitarbeitermodell Kreuzberg zugeordnet und könnte
+  im Spandauer Standortkontext keine Stammdaten pflegen.
+- **Entscheidung:** Alle Mitarbeiter dürfen den operativen Tischstatus ändern.
+  Manager und Inhaber erhalten zusätzlich `tischstammdaten_verwalten`; die
+  serverseitige Mitarbeiter- und Standortprüfung bleibt für jede Operation Pflicht.
+- **Konsequenz:** Giuseppe kann Kreuzberg und Renate Spandau pflegen. Bedienungen
+  können den Betriebsstatus führen, aber weder Stammdaten noch Grundriss ändern.
+
+## 2026-07-25 — Terrassenverfügbarkeit ist explizit und reservierungssicher
+
+- **Status:** angenommen
+- **Kontext:** Terrassenplätze sind laut Spec nur saisonal verfügbar; Kalender,
+  Wettersteuerung und Umgang mit bestehenden Reservierungen sind nicht vorgegeben.
+- **Entscheidung:** Terrassentische besitzen einen manuell pflegbaren
+  Verfügbarkeitsstatus. Innentische bleiben immer verfügbar. Eine Deaktivierung
+  wird blockiert, solange ab dem aktuellen Berliner Kalendertag offene
+  Reservierungen bestehen. Nicht verfügbare Tische bleiben sichtbar, sind aber
+  für neue Reservierungen serverseitig gesperrt.
+- **Konsequenz:** Bestehende Reservierungen werden nie still verändert oder
+  gelöscht. Automatische Saison- und Wetterlogik bleibt außerhalb des Scopes.
+
+## 2026-07-25 — SQLite-Integrationstests laufen dateiweise
+
+- **Status:** angenommen
+- **Kontext:** Reservierungs- und Tischtests schreiben in dieselbe lokale
+  SQLite-Testdatenbank. Parallele Testdateien können konkurrierende
+  Schreibtransaktionen starten und dadurch Lock-Timeouts erzeugen.
+- **Entscheidung:** Der eingebaute Node-Test-Runner wird für dieses lokale
+  SQLite-Setup mit `--test-concurrency=1` ausgeführt. Einzelne Testabläufe und
+  Domänenoperationen bleiben unverändert.
+- **Konsequenz:** Die Testsuite ist deterministisch und etwas langsamer. Bei einer
+  späteren isolierten Datenbank pro Testdatei kann die Parallelität wieder erhöht werden.

@@ -39,11 +39,11 @@ _Stand: 25.07.2026_
 
 | ID | Feature | Status | Anforderung / Akzeptanzkern |
 |---|---|---|---|
-| BV-003 | Tische als Liste anzeigen | validated | Pro Standort erscheint eine einfache Tischliste; ein grafischer Raumplan ist ausdrücklich nicht erforderlich. |
-| BV-028 | Tische standortbezogen verwalten | validated | Jeder Tisch besitzt ID, sichtbare Nummer und Standort; dieselbe Nummer darf an beiden Standorten vorkommen. |
-| BV-029 | Tischkapazität pflegen | validated | Für jeden Tisch wird die maximale Personenzahl gespeichert und angezeigt. |
-| BV-030 | Tischbereich pflegen | validated | Ein Tisch gehört zu `innen` oder `terrasse`; Terrassenplätze können saisonal verfügbar sein. |
-| BV-031 | Tischstatus führen | validated | Der Status eines Tisches ist `frei`, `besetzt` oder `reserviert` und wird standortbezogen angezeigt. |
+| BV-003 | Tische als Grundriss und Liste anzeigen | done | `/tische` zeigt pro Standort einen schematischen Rastergrundriss mit ausgeschriebenem Status und eine ergänzende responsive Liste für Details und Bedienung. |
+| BV-028 | Tische standortbezogen verwalten | done | Manager und Inhaber können Tische des aktiven Standorts anlegen, bearbeiten und – ohne Reservierungsbezug – entfernen; Nummer und Rasterposition sind je Standort eindeutig. |
+| BV-029 | Tischkapazität pflegen | done | Kapazitäten von 1 bis 100 Personen werden domänenseitig validiert, gespeichert und in Grundriss, Liste sowie Reservierungsauswahl angezeigt. |
+| BV-030 | Tischbereich pflegen | done | Bereich ist `innen` oder `terrasse`; Terrassentische können ohne offene zukünftige Reservierung deaktiviert werden und stehen dann für neue Reservierungen nicht zur Auswahl. |
+| BV-031 | Tischstatus führen | done | Alle Mitarbeiter können den standortbezogenen Status `frei`, `besetzt` oder `reserviert` serverseitig validiert ändern; Grundriss und Liste zeigen ihn als Text und Farbe. |
 | BV-032 | Vorläufige Tischbestände nutzen | done | Idempotente, als vorläufig markierte Grunddaten stellen 16 Tische in Kreuzberg und 11 in Spandau mit stabilen IDs bereit. |
 
 ## Phase 3 — Kern: Standortbezogene Speisekarten
@@ -106,7 +106,6 @@ Implementierung noch nicht präzise genug:
 | Gastnotizen | Die Rollenmatrix erlaubt Gastdaten nur Manager/Inhaber; die Anekdote sagt, jeder Mitarbeiter solle Vorlieben sehen. | BV-022, BV-024 |
 | Bella-Card-Rabatt | Die Geschäftsregel verlangt automatische 15 %, die Rollenmatrix spricht zusätzlich von „Rabatt vergeben“ durch Manager/Inhaber. Ist eine manuelle Freigabe oder Ausnahme vorgesehen? | BV-022, BV-041 |
 | Reservierungsüberschneidung | Dauer einer Reservierung, Überlappungsregeln und Verhalten bei zu großer Personenzahl fehlen. | BV-004, BV-026 |
-| Terrassensaison | Wer Terrassenplätze wann aktiviert und was mit bestehenden Reservierungen geschieht, ist offen. | BV-030 |
 | Küchenausgabe | Display, Drucker oder anderes Ziel sowie Quittierung und Offline-Verhalten sind noch festzulegen. | BV-008 |
 | Gast an Bestellung | Die Bestellung enthält eine Gast-ID, aber es ist nicht festgelegt, ob sie Pflicht oder optional ist. | BV-007, BV-040 |
 | Stornierung | Rechte, Gründe und Auswirkungen einer Stornierung auf Tischstatus, Küche und Abrechnung fehlen. | BV-027, BV-009 |

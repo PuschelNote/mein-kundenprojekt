@@ -10,7 +10,7 @@
     "postinstall": "prisma generate",
     "lint": "eslint .",
     "pretest": "npm run db:seed",
-    "test": "tsx --test tests/**/*.test.ts",
+    "test": "tsx --test --test-concurrency=1 tests/**/*.test.ts",
     "db:check": "tsx scripts/check-db.ts",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",

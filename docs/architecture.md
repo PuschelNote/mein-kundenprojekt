@@ -69,7 +69,7 @@ Zentrale Anwendung / API
 
 | Modul | Verantwortung |
 |---|---|
-| Standorte & Tische | Öffnungszeiten, Feiertags-Overrides, Bereiche, Tischstatus |
+| Standorte & Tische | Öffnungszeiten, Feiertags-Overrides, Bereiche, Tischstatus und schematische Grundrisspositionen |
 | Reservierungen | Standortpflicht, Tischzuordnung, Gastbezug, Änderungsprotokoll |
 | Speisekarte | Standortkarten, Kategorien, Saison-/Tageskennzeichen, Preise |
 | Bestellungen | Positionen, Sonderwünsche, Statusfluss, Küchenausgabe |
@@ -86,12 +86,14 @@ Zentrale Anwendung / API
 | `app/nicht-erlaubt/` | Verständliche Zielseite bei fehlender Capability |
 | `app/gaeste/` | Geschützte Gastverwaltung für Manager und Inhaber |
 | `app/reservierungen/` | Standortbezogene Reservierungsliste sowie geschützte Anlage, Bearbeitung und Statuswechsel per Server Actions |
+| `app/tische/` | Schematischer Standortgrundriss, Tischliste, Statussteuerung und geschützte Stammdatenpflege |
 | `app/standort/` | Explizite Standortauswahl und serverseitiger Kontextwechsel |
 | `components/app-header.tsx` | Globale Anzeige des aktiven Standorts und Wechselmöglichkeit |
 | `components/opening-hours.tsx` | Vollständiger Wochenplan mit geöffneten und geschlossenen Tagen |
 | `lib/mitarbeiter.ts` | Validierung, Standortprüfung und CRUD-Anwendungslogik |
 | `lib/gaeste.ts` | Gastvalidierung, Telefonnummern-Normalisierung und CRUD-Logik |
 | `lib/reservierungen.ts` | Reservierungsvalidierung, Standortabgleich, Tisch-/Gastbezug und Persistenz |
+| `lib/tische.ts` | Tischvalidierung, Rasterpositionen, Rollen-/Standortprüfung, Verfügbarkeit und Persistenz |
 | `lib/gast-status.ts` | Client- und serverseitig nutzbare Ableitung des Bella-Card-Status |
 | `lib/grunddaten.ts` | Idempotente, nicht-destruktive Anlage von Standorten, Managern und Standardzeiten |
 | `lib/berechtigungen.ts` | Capability-Matrix, Mitarbeiter-Session und serverseitige Guards |
@@ -115,6 +117,8 @@ Zentrale Anwendung / API
   vertrauenswürdig.
 - Tischidentität ist nicht standortübergreifend aus der sichtbaren Nummer
   ableitbar; intern wird eine eindeutige Tisch-ID verwendet.
+- Tischnummer und Rasterposition sind innerhalb eines Standorts eindeutig. Nur
+  verfügbare Tische dürfen neu einer Reservierung zugeordnet werden.
 - Ein Tisch hat höchstens eine aktive Bestellung gleichzeitig.
 - Eine Bestellposition speichert den Einzelpreis zum Bestellzeitpunkt.
 - Der Besuchszähler steigt genau einmal beim Übergang einer Bestellung auf

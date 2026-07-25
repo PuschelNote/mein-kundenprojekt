@@ -95,12 +95,16 @@ model Tisch {
   kapazitaet    Int
   status        TischStatus     @default(frei)
   bereich       TischBereich
+  verfuegbar    Boolean         @default(true)
+  rasterZeile   Int
+  rasterSpalte  Int
   vorlaeufig    Boolean         @default(true)
   standortId    String
   standort      Standort        @relation(fields: [standortId], references: [id], onDelete: Restrict)
   reservierungen Reservierung[]
 
   @@unique([standortId, nummer])
+  @@unique([standortId, rasterZeile, rasterSpalte])
   @@index([standortId])
 }
 

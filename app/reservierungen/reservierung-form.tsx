@@ -8,6 +8,7 @@ type TischOption = {
   nummer: number;
   kapazitaet: number;
   bereich: "innen" | "terrasse";
+  verfuegbar: boolean;
   vorlaeufig: boolean;
 };
 
@@ -60,9 +61,14 @@ export function ReservierungForm({
         <select name="tischId" required defaultValue={reservierung?.tischId ?? ""}>
           <option value="" disabled>Tisch auswählen</option>
           {tische.map((tisch) => (
-            <option value={tisch.id} key={tisch.id}>
+            <option
+              value={tisch.id}
+              key={tisch.id}
+              disabled={!tisch.verfuegbar && reservierung?.tischId !== tisch.id}
+            >
               Tisch {tisch.nummer} · {tisch.kapazitaet} Plätze · {tisch.bereich}
               {tisch.vorlaeufig ? " · vorläufig" : ""}
+              {!tisch.verfuegbar ? " · nicht verfügbar" : ""}
             </option>
           ))}
         </select>

@@ -30,7 +30,9 @@ Beide Standorte laufen aktuell komplett auf Papier: Zettel, Notizbücher, Tasche
 - Kreuzberg: ca. 15–18 Tische, ca. 80 Plätze (Zweiertische am Fenster, Vier- und Sechsertische in der Mitte, Terrasse im Sommer)
 - Spandau: ca. 10–12 Tische, ca. 50 Plätze (2 Außentische bei gutem Wetter)
 - Exakte Liste folgt noch vom Inhaber – Platzhalter
-- Kein fester Grundriss vorhanden → Tischübersicht als einfache Liste, kein Raumplan
+- Kein exakter Grundriss vorhanden → schematische Grundrissübersicht mit fester
+  Tischanordnung und deutlich sichtbarem Status; keine maßstabsgetreue Raumplanung.
+  Eine ergänzende Liste bleibt für Details, Bedienbarkeit und Stammdatenpflege erhalten.
 
 ### Speisekarte
 - Pro Standort eigene Karte (Standort-ID)

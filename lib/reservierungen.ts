@@ -110,7 +110,7 @@ export async function createReservierung(
         select: { id: true },
       });
     const tisch = await tx.tisch.findFirst({
-        where: { id: input.tischId, standortId },
+        where: { id: input.tischId, standortId, verfuegbar: true },
         select: { id: true },
       });
     const vorhandenerGast = await tx.gast.findUnique({
@@ -171,33 +171,36 @@ export async function updateReservierung(
 
   return prisma.$transaction(async (tx) => {
     const reservierung = await tx.reservierung.findFirst({
-          where: { id, standortId },
-          select: { id: true, gastId: true },
-        });
-    const gespeicherterMitarbeiter = await tx.mitarbeiter.findFirst({
-          where: {
-            id: mitarbeiter.id,
-            standortId,
-            rolle: mitarbeiter.rolle,
-          },
-          select: { id: true },
-        });
-    const tisch = await tx.tisch.findFirst({
-          where: { id: input.tischId, standortId },
-          select: { id: true },
-        });
-    const vorhandenerGast = input.gastTelefonNormalisiert
-          ? await tx.gast.findUnique({
-              where: { telefonNormalisiert: input.gastTelefonNormalisiert },
-              select: { id: true },
-            })
-          : null;
-
+      where: { id, standortId },
+      select: { id: true, gastId: true, tischId: true },
+    });
     if (!reservierung) {
       throw new ReservierungValidationError(
         "Die Reservierung gehört nicht zum aktiven Standort.",
       );
     }
+    const gespeicherterMitarbeiter = await tx.mitarbeiter.findFirst({
+      where: {
+        id: mitarbeiter.id,
+        standortId,
+        rolle: mitarbeiter.rolle,
+      },
+      select: { id: true },
+    });
+    const tisch = await tx.tisch.findFirst({
+      where: {
+        id: input.tischId,
+        standortId,
+        OR: [{ verfuegbar: true }, { id: reservierung.tischId }],
+      },
+      select: { id: true },
+    });
+    const vorhandenerGast = input.gastTelefonNormalisiert
+      ? await tx.gast.findUnique({
+          where: { telefonNormalisiert: input.gastTelefonNormalisiert },
+          select: { id: true },
+        })
+      : null;
     if (!gespeicherterMitarbeiter) {
       throw new ReservierungValidationError("Der aktive Mitarbeiter ist ungültig.");
     }

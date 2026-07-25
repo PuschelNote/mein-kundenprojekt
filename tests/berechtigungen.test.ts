@@ -13,11 +13,16 @@ describe("Rollenbasierte Berechtigungen", () => {
       assert.equal(hatBerechtigung(rolle, "reservierungen_verwalten"), true);
       assert.equal(hatBerechtigung(rolle, "bestellungen_aufnehmen"), true);
       assert.equal(hatBerechtigung(rolle, "tischstatus_sehen"), true);
+      assert.equal(hatBerechtigung(rolle, "tischstatus_verwalten"), true);
     }
   });
 
   it("verweigert Bedienungen sensible Funktionen", () => {
     assert.equal(hatBerechtigung(Rolle.bedienung, "gastdaten_sehen"), false);
+    assert.equal(
+      hatBerechtigung(Rolle.bedienung, "tischstammdaten_verwalten"),
+      false,
+    );
     assert.equal(
       hatBerechtigung(Rolle.bedienung, "bella_card_rabatt_vergeben"),
       false,
@@ -39,6 +44,10 @@ describe("Rollenbasierte Berechtigungen", () => {
       true,
     );
     assert.equal(hatBerechtigung(Rolle.manager, "mitarbeiter_verwalten"), true);
+    assert.equal(
+      hatBerechtigung(Rolle.manager, "tischstammdaten_verwalten"),
+      true,
+    );
     assert.equal(
       hatBerechtigung(Rolle.manager, "speisekarte_preise_bearbeiten"),
       false,
