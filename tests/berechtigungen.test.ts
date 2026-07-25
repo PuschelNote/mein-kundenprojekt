@@ -5,6 +5,7 @@ import {
   assertBerechtigung,
   BerechtigungsFehler,
   hatBerechtigung,
+  istMitarbeiterFuerStandortGueltig,
 } from "../lib/berechtigungen";
 
 describe("Rollenbasierte Berechtigungen", () => {
@@ -14,6 +15,7 @@ describe("Rollenbasierte Berechtigungen", () => {
       assert.equal(hatBerechtigung(rolle, "bestellungen_aufnehmen"), true);
       assert.equal(hatBerechtigung(rolle, "tischstatus_sehen"), true);
       assert.equal(hatBerechtigung(rolle, "tischstatus_verwalten"), true);
+      assert.equal(hatBerechtigung(rolle, "speisekarte_sehen"), true);
     }
   });
 
@@ -66,6 +68,25 @@ describe("Rollenbasierte Berechtigungen", () => {
     assert.throws(
       () => assertBerechtigung(Rolle.bedienung, "mitarbeiter_verwalten"),
       BerechtigungsFehler,
+    );
+  });
+
+  it("erlaubt nur dem Inhaber einen anderen aktiven Standort", () => {
+    assert.equal(
+      istMitarbeiterFuerStandortGueltig(
+        Rolle.inhaber,
+        "kreuzberg",
+        "spandau",
+      ),
+      true,
+    );
+    assert.equal(
+      istMitarbeiterFuerStandortGueltig(
+        Rolle.manager,
+        "kreuzberg",
+        "spandau",
+      ),
+      false,
     );
   });
 });

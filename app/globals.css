@@ -458,6 +458,146 @@ button {
   margin-top: 1rem;
 }
 
+.menu-create-panel {
+  margin-bottom: 2rem;
+}
+
+.dish-form {
+  display: grid;
+  grid-template-columns: minmax(12rem, 1fr) minmax(16rem, 2fr) repeat(2, minmax(10rem, 1fr));
+  align-items: end;
+  gap: 1rem;
+}
+
+.dish-form label {
+  display: grid;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.dish-form input,
+.dish-form textarea,
+.dish-form select {
+  width: 100%;
+  border: 1px solid #b9ac9e;
+  border-radius: 0.55rem;
+  background: white;
+  padding: 0.7rem 0.8rem;
+}
+
+.dish-form textarea {
+  resize: vertical;
+}
+
+.dish-form .checkbox-field {
+  display: flex;
+  align-items: center;
+  min-height: 2.7rem;
+  gap: 0.5rem;
+}
+
+.dish-form .checkbox-field input {
+  width: auto;
+}
+
+.dish-form button {
+  border: 0;
+  border-radius: 0.55rem;
+  background: #273c2c;
+  color: white;
+  padding: 0.75rem 1rem;
+  font-weight: 700;
+}
+
+.menu-empty {
+  margin-top: 2rem;
+}
+
+.menu-categories {
+  display: grid;
+  gap: 2.5rem;
+}
+
+.menu-category > h2 {
+  margin: 0 0 1rem;
+  border-bottom: 2px solid #a33a2b;
+  padding-bottom: 0.55rem;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.8rem;
+}
+
+.dish-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.dish-card {
+  display: grid;
+  align-content: start;
+  gap: 0.8rem;
+  border: 1px solid #ded5c8;
+  border-radius: 1rem;
+  background: #fffdf9;
+  box-shadow: 0 0.6rem 2rem rgb(73 50 31 / 8%);
+  padding: 1.25rem 1.5rem;
+}
+
+.dish-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.dish-heading h3,
+.dish-card p {
+  margin: 0;
+}
+
+.dish-heading h3 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.3rem;
+}
+
+.dish-heading strong {
+  white-space: nowrap;
+  color: #8d2f24;
+}
+
+.dish-card > p {
+  color: #635950;
+  line-height: 1.5;
+}
+
+.dish-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.dish-badges span {
+  border-radius: 999px;
+  background: #efe6cf;
+  color: #6f5012;
+  padding: 0.3rem 0.55rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.dish-card details summary {
+  cursor: pointer;
+  color: #8d2f24;
+  font-weight: 700;
+}
+
+.dish-card details .dish-form {
+  grid-template-columns: 1fr;
+  margin-top: 1rem;
+}
+
 .location-page {
   display: grid;
   min-height: calc(100vh - 4.5rem);
@@ -1146,5 +1286,10 @@ button {
 
   .table-badges {
     justify-content: flex-start;
+  }
+
+  .dish-form,
+  .dish-list {
+    grid-template-columns: 1fr;
   }
 }

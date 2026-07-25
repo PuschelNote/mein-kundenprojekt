@@ -441,3 +441,39 @@ lautlos umschreiben._
   Domänenoperationen bleiben unverändert.
 - **Konsequenz:** Die Testsuite ist deterministisch und etwas langsamer. Bei einer
   späteren isolierten Datenbank pro Testdatei kann die Parallelität wieder erhöht werden.
+
+## 2026-07-25 — Inhaber-Session gilt standortübergreifend
+
+- **Status:** angenommen
+- **Kontext:** Nur der Inhaber darf laut Spec Speisekarten und Preise ändern. Der
+  vorhandene Inhaber-Datensatz ist Kreuzberg zugeordnet, muss aber auch die
+  Spandauer Karte nach expliziter Standortwahl pflegen können.
+- **Entscheidung:** Eine aktive Inhaber-Session bleibt beim bewussten
+  Standortwechsel erhalten und ist unabhängig von der Mitarbeiter-Standortrelation
+  gültig. Bedienungs- und Manager-Sessions werden weiterhin beim Wechsel gelöscht
+  und ausschließlich für ihren Mitarbeiterstandort akzeptiert.
+- **Konsequenz:** Kartenpflege beider Standorte ist ohne doppelten Inhaber-Datensatz
+  möglich. Jede Operation verwendet weiterhin den expliziten Standortkontext und
+  prüft die Inhaber-Capability serverseitig.
+
+## 2026-07-25 — Speisekartenpreise werden in Cent gespeichert
+
+- **Status:** angenommen
+- **Kontext:** Binäre Fließkommazahlen können Geldwerte ungenau darstellen;
+  spätere Bestellpositionen müssen den gültigen Preis exakt historisieren.
+- **Entscheidung:** `Gericht.preisCent` ist eine positive ganze Zahl. Formulare
+  akzeptieren Komma oder Punkt mit höchstens zwei Nachkommastellen und wandeln
+  exakt in Cent um. Gerichte besitzen außerdem einen normalisierten, je Standort
+  eindeutigen Namen.
+- **Konsequenz:** Anzeige und spätere Preisübernahme sind reproduzierbar. Steuer-,
+  Rundungs- und Belegregeln bleiben bis zur fachlichen Klärung außerhalb des Scopes.
+
+## 2026-07-25 — Grillverbot wird beim Schreiben und Lesen erzwungen
+
+- **Status:** angenommen
+- **Kontext:** Spandau besitzt baulich keinen Grill. Ein UI-Verbot allein würde
+  manipulierte Serveraufrufe oder fehlerhafte Bestandsdaten nicht absichern.
+- **Entscheidung:** Die Domänenlogik lehnt Kategorie `grill` für jeden Standort
+  außer Kreuzberg ab. Spandauer Kartenabfragen filtern Grill zusätzlich aus.
+- **Konsequenz:** Grillgerichte können in Spandau weder angelegt, geändert noch
+  angezeigt werden. Die gleiche Regel kann Phase 4 für Bestellpositionen verwenden.

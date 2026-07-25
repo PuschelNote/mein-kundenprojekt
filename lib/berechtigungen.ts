@@ -11,6 +11,7 @@ export const BERECHTIGUNGEN = [
   "tischstatus_sehen",
   "tischstatus_verwalten",
   "tischstammdaten_verwalten",
+  "speisekarte_sehen",
   "gastdaten_sehen",
   "bella_card_rabatt_vergeben",
   "speisekarte_preise_bearbeiten",
@@ -25,6 +26,7 @@ const rollenBerechtigungen: Record<Rolle, ReadonlySet<Berechtigung>> = {
     "bestellungen_aufnehmen",
     "tischstatus_sehen",
     "tischstatus_verwalten",
+    "speisekarte_sehen",
   ]),
   [Rolle.manager]: new Set([
     "reservierungen_verwalten",
@@ -32,6 +34,7 @@ const rollenBerechtigungen: Record<Rolle, ReadonlySet<Berechtigung>> = {
     "tischstatus_sehen",
     "tischstatus_verwalten",
     "tischstammdaten_verwalten",
+    "speisekarte_sehen",
     "gastdaten_sehen",
     "bella_card_rabatt_vergeben",
     "mitarbeiter_verwalten",
@@ -43,6 +46,14 @@ export class BerechtigungsFehler extends Error {}
 
 export function hatBerechtigung(rolle: Rolle, berechtigung: Berechtigung) {
   return rollenBerechtigungen[rolle]?.has(berechtigung) ?? false;
+}
+
+export function istMitarbeiterFuerStandortGueltig(
+  rolle: Rolle,
+  mitarbeiterStandortId: string,
+  aktiverStandortId: string,
+) {
+  return rolle === Rolle.inhaber || mitarbeiterStandortId === aktiverStandortId;
 }
 
 export function assertBerechtigung(
@@ -67,10 +78,21 @@ export async function getAktiverMitarbeiter() {
     return null;
   }
 
-  return prisma.mitarbeiter.findFirst({
-    where: { id: mitarbeiterId, standortId: standort.id },
+  const mitarbeiter = await prisma.mitarbeiter.findUnique({
+    where: { id: mitarbeiterId },
     include: { standort: true },
   });
+  if (
+    !mitarbeiter ||
+    !istMitarbeiterFuerStandortGueltig(
+      mitarbeiter.rolle,
+      mitarbeiter.standortId,
+      standort.id,
+    )
+  ) {
+    return null;
+  }
+  return mitarbeiter;
 }
 
 export async function requireAktiverMitarbeiter(returnTo = "/") {

@@ -50,11 +50,11 @@ _Stand: 25.07.2026_
 
 | ID | Feature | Status | Anforderung / Akzeptanzkern |
 |---|---|---|---|
-| BV-006 | Standortbezogene Speisekarten anzeigen | validated | Jeder Standort besitzt eine eigene Karte; Gerichte anderer Standorte werden nicht angeboten. |
-| BV-033 | Gerichtsdaten führen | validated | Ein Gericht besitzt Name, Beschreibung, Preis und eine Kategorie: Antipasti, Pasta, Risotto, Dessert, Getränke oder Grill. |
-| BV-015 | Speisekarte und Preise pflegen | validated | Der Inhaber kann Gerichte und Preise ausschließlich in der App anlegen und ändern; die bisherige Excel-Liste wird ersetzt. |
-| BV-034 | Grillgerichte auf Kreuzberg beschränken | validated | Gerichte der Kategorie `Grill` sind in Spandau weder sichtbar noch bestellbar. |
-| BV-035 | Tages- und Saisongerichte kennzeichnen | validated | Gerichte können pro Standort als Tagesgericht oder saisonal markiert werden. Die direkte Pflege wechselnder Karten folgt in BV-018. |
+| BV-006 | Standortbezogene Speisekarten anzeigen | done | `/speisekarte` gruppiert ausschließlich Gerichte des explizit aktiven Standorts nach Kategorie; alle Mitarbeiterrollen besitzen Lesezugriff. |
+| BV-033 | Gerichtsdaten führen | done | Name, Beschreibung, ganzzahliger Centpreis, feste Kategorie, Standort und Zeitstempel werden validiert persistiert; Namen sind je Standort normalisiert eindeutig. |
+| BV-015 | Speisekarte und Preise pflegen | done | Ausschließlich der Inhaber kann Gerichte und Preise beider explizit gewählter Standortkarten in der App anlegen und bearbeiten; Manager und Bedienungen bleiben read-only. |
+| BV-034 | Grillgerichte auf Kreuzberg beschränken | done | Domänenvalidierung verbietet Grill in Spandau; Spandauer Leseabfragen schließen Grill zusätzlich defensiv aus. |
+| BV-035 | Tages- und Saisongerichte kennzeichnen | done | Tages- und Saisonkennzeichen sind am Gericht pflegbar und in der Karte sichtbar; Aktivierung und Terminplanung bleiben Scope von BV-018. |
 
 ## Phase 4 — Kern: Bestellungen und Küche
 

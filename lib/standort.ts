@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { MITARBEITER_COOKIE } from "@/lib/session-constants";
+import { Rolle } from "@/generated/prisma/enums";
 
 export const STANDORT_COOKIE = "bella-vista-standort";
 export const STANDORT_IDS = ["kreuzberg", "spandau"] as const;
@@ -62,6 +63,13 @@ export async function setAktiverStandort(value: unknown) {
   }
 
   const cookieStore = await cookies();
+  const mitarbeiterId = cookieStore.get(MITARBEITER_COOKIE)?.value;
+  const aktiverMitarbeiter = mitarbeiterId
+    ? await prisma.mitarbeiter.findUnique({
+        where: { id: mitarbeiterId },
+        select: { rolle: true },
+      })
+    : null;
   cookieStore.set(STANDORT_COOKIE, standort.id, {
     httpOnly: true,
     maxAge: 60 * 60 * 24 * 365,
@@ -69,7 +77,9 @@ export async function setAktiverStandort(value: unknown) {
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
   });
-  cookieStore.delete(MITARBEITER_COOKIE);
+  if (aktiverMitarbeiter?.rolle !== Rolle.inhaber) {
+    cookieStore.delete(MITARBEITER_COOKIE);
+  }
 
   return standort;
 }

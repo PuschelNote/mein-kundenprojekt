@@ -86,6 +86,7 @@ Zentrale Anwendung / API
 | `app/nicht-erlaubt/` | Verständliche Zielseite bei fehlender Capability |
 | `app/gaeste/` | Geschützte Gastverwaltung für Manager und Inhaber |
 | `app/reservierungen/` | Standortbezogene Reservierungsliste sowie geschützte Anlage, Bearbeitung und Statuswechsel per Server Actions |
+| `app/speisekarte/` | Standortkarte für alle Rollen sowie geschützte Inhaberpflege von Gerichten und Preisen |
 | `app/tische/` | Schematischer Standortgrundriss, Tischliste, Statussteuerung und geschützte Stammdatenpflege |
 | `app/standort/` | Explizite Standortauswahl und serverseitiger Kontextwechsel |
 | `components/app-header.tsx` | Globale Anzeige des aktiven Standorts und Wechselmöglichkeit |
@@ -93,6 +94,8 @@ Zentrale Anwendung / API
 | `lib/mitarbeiter.ts` | Validierung, Standortprüfung und CRUD-Anwendungslogik |
 | `lib/gaeste.ts` | Gastvalidierung, Telefonnummern-Normalisierung und CRUD-Logik |
 | `lib/reservierungen.ts` | Reservierungsvalidierung, Standortabgleich, Tisch-/Gastbezug und Persistenz |
+| `lib/gerichte.ts` | Gerichtvalidierung, Centpreise, Standortabfragen, Grillregel und Inhaberpflege |
+| `lib/gericht-kategorien.ts` | Client-sichere Kategorie-Reihenfolge und deutsche Anzeigelabels |
 | `lib/tische.ts` | Tischvalidierung, Rasterpositionen, Rollen-/Standortprüfung, Verfügbarkeit und Persistenz |
 | `lib/gast-status.ts` | Client- und serverseitig nutzbare Ableitung des Bella-Card-Status |
 | `lib/grunddaten.ts` | Idempotente, nicht-destruktive Anlage von Standorten, Managern und Standardzeiten |
@@ -139,6 +142,10 @@ Zentrale Anwendung / API
   Grunddaten verwendet. Ihre Kapazitäten lösen noch keine Reservierungsablehnung aus.
 - Grillgerichte sind ausschließlich Kreuzberg zugeordnet und in Spandau weder
   sichtbar noch bestellbar.
+- Gerichtspreise werden als positive ganzzahlige Centwerte gespeichert; Namen
+  sind normalisiert je Standort eindeutig.
+- Der Inhaber darf nach explizitem Standortwechsel beide Karten administrieren;
+  alle anderen Mitarbeiter-Sessions bleiben an ihren Standort gebunden.
 - Neue Bestellungen sind ab 30 Minuten vor Standortschließung gesperrt.
 - Preis- und Kartenänderungen sind ausschließlich für die Rolle `inhaber`
   zulässig.

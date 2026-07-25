@@ -39,6 +39,15 @@ enum ReservierungStatus {
   storniert
 }
 
+enum GerichtKategorie {
+  antipasti
+  pasta
+  risotto
+  dessert
+  getraenke
+  grill
+}
+
 model Standort {
   id                       String                    @id
   name                     String                    @unique
@@ -46,6 +55,7 @@ model Standort {
   standardOeffnungszeiten StandardOeffnungszeit[]
   tische                   Tisch[]
   reservierungen           Reservierung[]
+  gerichte                 Gericht[]
 }
 
 model StandardOeffnungszeit {
@@ -132,4 +142,22 @@ model Reservierung {
   @@index([gastId])
   @@index([erstelltVonId])
   @@index([geaendertVonId])
+}
+
+model Gericht {
+  id               String           @id
+  name             String
+  nameNormalisiert String
+  beschreibung     String
+  preisCent        Int
+  kategorie        GerichtKategorie
+  istTagesgericht  Boolean          @default(false)
+  istSaisongericht Boolean          @default(false)
+  standortId       String
+  standort         Standort         @relation(fields: [standortId], references: [id], onDelete: Restrict)
+  erstelltAm       DateTime         @default(now())
+  geaendertAm      DateTime         @updatedAt
+
+  @@unique([standortId, nameNormalisiert])
+  @@index([standortId, kategorie])
 }
