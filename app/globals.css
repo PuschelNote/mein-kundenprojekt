@@ -167,7 +167,8 @@ a {
 
 button,
 input,
-select {
+select,
+textarea {
   font: inherit;
 }
 
@@ -334,6 +335,96 @@ button {
 .section-heading h2,
 .employee-card h3 {
   margin-top: 0;
+}
+
+.panel-hint {
+  margin: -0.5rem 0 1.25rem;
+  color: #635950;
+}
+
+.reservation-form {
+  display: grid;
+  grid-template-columns: repeat(2, 1.3fr) 1.5fr repeat(3, minmax(8rem, 1fr)) auto;
+  align-items: end;
+  gap: 1rem;
+}
+
+.reservation-form label {
+  display: grid;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.reservation-form input,
+.reservation-form select {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid #b9ac9e;
+  border-radius: 0.55rem;
+  background: white;
+  padding: 0.7rem 0.8rem;
+}
+
+.reservation-form button {
+  border: 0;
+  border-radius: 0.55rem;
+  background: #273c2c;
+  color: white;
+  padding: 0.75rem 1rem;
+  font-weight: 700;
+}
+
+.reservation-list {
+  display: grid;
+  gap: 1rem;
+  margin-top: 2.5rem;
+}
+
+.reservation-card {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 2rem;
+  border: 1px solid #ded5c8;
+  border-radius: 1rem;
+  background: #fffdf9;
+  box-shadow: 0 0.6rem 2rem rgb(73 50 31 / 8%);
+  padding: 1.25rem 1.5rem;
+}
+
+.reservation-card h3,
+.reservation-card p,
+.reservation-card dl {
+  margin: 0;
+}
+
+.reservation-card p {
+  margin-top: 0.25rem;
+  color: #635950;
+}
+
+.reservation-card dl {
+  display: grid;
+  grid-template-columns: repeat(4, auto);
+  gap: 1.5rem;
+}
+
+.reservation-card dl > div {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.reservation-card dt {
+  color: #74685e;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.reservation-card dd {
+  margin: 0;
 }
 
 .employee-form {
@@ -678,6 +769,18 @@ button {
 
   .guest-form {
     grid-template-columns: 1fr;
+  }
+
+  .reservation-form {
+    grid-template-columns: 1fr;
+  }
+
+  .reservation-card {
+    flex-direction: column;
+  }
+
+  .reservation-card dl {
+    grid-template-columns: 1fr 1fr;
   }
 
   .guest-search {

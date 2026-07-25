@@ -306,7 +306,7 @@ lautlos umschreiben._
   prüft `gastdaten_sehen` erneut, sodass ein manipulierter Direktaufruf keine
   Autorisierung umgeht.
 
-# 2026-07-25 — Gastpräferenzen und Allergien bleiben Freitext
+## 2026-07-25 — Gastpräferenzen und Allergien bleiben Freitext
 
 - **Status:** angenommen
 - **Kontext:** `BV-024` verlangt Notizen zu Allergien und Präferenzen, definiert
@@ -319,3 +319,47 @@ lautlos umschreiben._
   beschränkt.
 - **Konsequenz:** Es ist keine Datenbankmigration erforderlich. Strukturierte
   Allergieklassifikation und Zugriff für Bedienungen sind nicht Teil von `BV-024`.
+
+## 2026-07-25 — Reservierungen verwenden lokale Datums- und Zeitwerte
+
+- **Status:** angenommen
+- **Kontext:** Reservierungen gelten an einem Berliner Restaurantstandort. Ein
+  UTC-Zeitstempel würde für eine fachlich lokale Uhrzeit unnötige Zeitzonen- und
+  Sommerzeitumrechnung einführen.
+- **Entscheidung:** Das Datum wird als validierter ISO-Kalendertag `YYYY-MM-DD`
+  und die Uhrzeit als Minuten seit Mitternacht gespeichert. Die Reservierungs-ID
+  wird bereits beim Schreibvorgang als UUID erzeugt. Standort, Tisch, Gast und
+  Ersteller sind verpflichtende Relationen.
+- **Konsequenz:** Sortierung und Anzeige sind ohne Zeitzonenumrechnung stabil.
+  Zeitüberschneidungen, Öffnungszeiten und Kapazitätsüberschreitungen werden in
+  `BV-004` nicht abgewiesen, solange die fachlichen Regeln dazu offen sind.
+
+## 2026-07-25 — Vorläufige Tischbestände sind stabile Grunddaten
+
+- **Status:** angenommen
+- **Kontext:** Reservierungen benötigen eine Tischrelation, die finale Tischliste
+  des Inhabers liegt aber noch nicht vor. Die Spec nennt nur Größenordnungen.
+- **Entscheidung:** Das Seed legt idempotent 16 vorläufige Tische für Kreuzberg
+  und 11 für Spandau mit stabilen technischen IDs, sichtbaren Nummern, Bereich
+  und plausiblen Platzhalterkapazitäten an. Vorläufigkeit wird explizit gespeichert
+  und in der Reservierungsauswahl angezeigt.
+- **Konsequenz:** `BV-004` kann standortgetreu genutzt werden. Die Werte dürfen
+  nicht als finale Bestandsaufnahme behandelt werden; Pflege und fachliche
+  Saisonregeln bleiben Scope der Tischfeatures.
+
+## 2026-07-25 — Gastauflösung und Neuanlage im Reservierungsablauf
+
+- **Status:** angenommen
+- **Kontext:** Alle Mitarbeiterrollen dürfen Reservierungen verwalten, die
+  allgemeine Gastverwaltung ist laut Rollenmatrix jedoch Manager und Inhaber
+  vorbehalten.
+- **Entscheidung:** Im Reservierungsformular geben Mitarbeiter die vollständige
+  Telefonnummer und bei neuen Gästen zusätzlich den Namen ein. Die Serverlogik
+  normalisiert die Nummer und verknüpft exakt einen vorhandenen Gast. Ist die
+  Nummer unbekannt, werden Gast und Reservierung gemeinsam in einer Transaktion
+  angelegt. Es werden keine Suchtrefferliste, Notizen, Treuedaten oder gespeicherten
+  Telefonnummern aus Gastprofilen an Bedienungen ausgegeben.
+- **Konsequenz:** Bedienungen können den erlaubten Reservierungsablauf ausführen,
+  ohne Zugriff auf die allgemeine Gastverwaltung zu erhalten. Bei einem Fehler
+  bleibt weder ein unvollständiger neuer Gast noch eine Reservierung zurück;
+  bekannte Telefonnummern erzeugen keine doppelten Gastprofile.

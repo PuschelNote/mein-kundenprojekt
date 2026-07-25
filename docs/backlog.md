@@ -29,9 +29,9 @@ _Stand: 25.07.2026_
 | BV-005 | Gast anlegen und bearbeiten | done | Geschütztes CRUD unter `/gaeste` verwaltet Name, eindeutige normalisierte Telefonnummer, Besuchszähler, Notizen und abgeleiteten Bella-Card-Status. |
 | BV-023 | Gast über Telefonnummer erkennen | done | Geschützte exakte Suche erkennt vorhandene Gäste trotz üblicher Telefonnummern-Schreibweisen und liefert die stabile Gast-ID für spätere Reservierungen. |
 | BV-024 | Gastpräferenzen und Allergien dokumentieren | done | Manager und Inhaber können Freitextnotizen mit Präferenzen und Allergien anlegen, ändern, leeren und einsehen; serverseitige Validierung und Persistenztests sichern das Feld ab. |
-| BV-004 | Reservierung anlegen | validated | Nur Mitarbeiter können eine Reservierung mit Standort, Tisch, Datum, Uhrzeit, Personenzahl und Gast anlegen; Selbstreservierung durch Gäste ist ausgeschlossen. |
-| BV-025 | Standort bei Reservierung erzwingen | validated | Ohne explizite Auswahl von Kreuzberg oder Spandau kann keine Reservierung gespeichert werden. |
-| BV-026 | Reservierung einem Tisch zuweisen | validated | Jede Reservierung belegt genau einen Tisch; ein Tisch kann zu unterschiedlichen Zeiten mehrere Reservierungen besitzen. |
+| BV-004 | Reservierung anlegen | done | Geschützte Anlage unter `/reservierungen` ordnet bekannte Gäste exakt per Telefonnummer zu oder legt unbekannte Gäste mit Name und Telefonnummer atomar mit der Reservierung an; Tisch, lokaler Termin, Personenzahl, Standort und Ersteller werden gespeichert. |
+| BV-025 | Standort bei Reservierung erzwingen | done | Der validierte Standortkontext wird serverseitig übernommen; Mitarbeiter und Tisch müssen demselben Standort angehören, manipulierte Zuordnungen werden abgewiesen. |
+| BV-026 | Reservierung einem Tisch zuweisen | done | Jede Reservierung referenziert genau einen Tisch desselben Standorts; mehrere Termine pro Tisch bleiben möglich, solange Überschneidungsregeln ungeklärt sind. |
 | BV-027 | Reservierung ändern und stornieren | validated | Mitarbeiter können bestehende Reservierungen ändern; der Status ist `offen` oder `storniert`. |
 | BV-013 | Reservierungsänderungen protokollieren | validated | Ersteller, Erstellzeitpunkt, letzter Änderungszeitpunkt und ändernder Mitarbeiter werden automatisch gespeichert. |
 
@@ -44,7 +44,7 @@ _Stand: 25.07.2026_
 | BV-029 | Tischkapazität pflegen | validated | Für jeden Tisch wird die maximale Personenzahl gespeichert und angezeigt. |
 | BV-030 | Tischbereich pflegen | validated | Ein Tisch gehört zu `innen` oder `terrasse`; Terrassenplätze können saisonal verfügbar sein. |
 | BV-031 | Tischstatus führen | validated | Der Status eines Tisches ist `frei`, `besetzt` oder `reserviert` und wird standortbezogen angezeigt. |
-| BV-032 | Vorläufige Tischbestände nutzen | validated | Bis zur finalen Liste des Inhabers unterstützt das System Platzhalter für ca. 15–18 Tische in Kreuzberg und 10–12 in Spandau. |
+| BV-032 | Vorläufige Tischbestände nutzen | done | Idempotente, als vorläufig markierte Grunddaten stellen 16 Tische in Kreuzberg und 11 in Spandau mit stabilen IDs bereit. |
 
 ## Phase 3 — Kern: Standortbezogene Speisekarten
 

@@ -1,6 +1,6 @@
 # Architektur — Bella Vista Restaurant-App
 
-_Stand: 23.07.2026_
+_Stand: 25.07.2026_
 
 ## Zweck
 
@@ -85,11 +85,13 @@ Zentrale Anwendung / API
 | `app/mitarbeiter-waehlen/` | Prototypische Mitarbeiter-Session für den aktiven Standort |
 | `app/nicht-erlaubt/` | Verständliche Zielseite bei fehlender Capability |
 | `app/gaeste/` | Geschützte Gastverwaltung für Manager und Inhaber |
+| `app/reservierungen/` | Standortbezogene Reservierungsliste und geschützte Anlage per Server Action |
 | `app/standort/` | Explizite Standortauswahl und serverseitiger Kontextwechsel |
 | `components/app-header.tsx` | Globale Anzeige des aktiven Standorts und Wechselmöglichkeit |
 | `components/opening-hours.tsx` | Vollständiger Wochenplan mit geöffneten und geschlossenen Tagen |
 | `lib/mitarbeiter.ts` | Validierung, Standortprüfung und CRUD-Anwendungslogik |
 | `lib/gaeste.ts` | Gastvalidierung, Telefonnummern-Normalisierung und CRUD-Logik |
+| `lib/reservierungen.ts` | Reservierungsvalidierung, Standortabgleich, Tisch-/Gastbezug und Persistenz |
 | `lib/gast-status.ts` | Client- und serverseitig nutzbare Ableitung des Bella-Card-Status |
 | `lib/grunddaten.ts` | Idempotente, nicht-destruktive Anlage von Standorten, Managern und Standardzeiten |
 | `lib/berechtigungen.ts` | Capability-Matrix, Mitarbeiter-Session und serverseitige Guards |
@@ -122,6 +124,13 @@ Zentrale Anwendung / API
   der Bella-Card-Status wird aus dem Besuchszähler abgeleitet.
 - Gast-Erkennung verwendet ausschließlich einen exakten Vergleich des
   normalisierten Werts und gibt höchstens ein Profil zurück.
+- Reservierungen speichern lokales Datum und Uhrzeit getrennt; Mitarbeiter,
+  Tisch und Reservierung müssen serverseitig demselben Standort zugeordnet sein.
+- Gastauflösung und Reservierungsanlage laufen in einer Transaktion: Eine bekannte
+  normalisierte Telefonnummer wird verknüpft, eine unbekannte Nummer erzeugt nur
+  zusammen mit einem gültigen Gastnamen ein neues Gastprofil.
+- Bis zur finalen Tischliste werden stabile, ausdrücklich als vorläufig markierte
+  Grunddaten verwendet. Ihre Kapazitäten lösen noch keine Reservierungsablehnung aus.
 - Grillgerichte sind ausschließlich Kreuzberg zugeordnet und in Spandau weder
   sichtbar noch bestellbar.
 - Neue Bestellungen sind ab 30 Minuten vor Standortschließung gesperrt.

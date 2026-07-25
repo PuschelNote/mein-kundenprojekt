@@ -23,11 +23,29 @@ enum Wochentag {
   sonntag
 }
 
+enum TischStatus {
+  frei
+  besetzt
+  reserviert
+}
+
+enum TischBereich {
+  innen
+  terrasse
+}
+
+enum ReservierungStatus {
+  offen
+  storniert
+}
+
 model Standort {
   id                       String                    @id
   name                     String                    @unique
   mitarbeiter              Mitarbeiter[]
   standardOeffnungszeiten StandardOeffnungszeit[]
+  tische                   Tisch[]
+  reservierungen           Reservierung[]
 }
 
 model StandardOeffnungszeit {
@@ -50,6 +68,7 @@ model Mitarbeiter {
   standort   Standort @relation(fields: [standortId], references: [id], onDelete: Restrict)
   erstelltAm DateTime @default(now())
   geaendertAm DateTime @updatedAt
+  reservierungen Reservierung[]
 
   @@index([standortId])
   @@index([rolle])
@@ -64,6 +83,45 @@ model Gast {
   notizen               String?
   erstelltAm            DateTime @default(now())
   geaendertAm           DateTime @updatedAt
+  reservierungen        Reservierung[]
 
   @@index([name])
+}
+
+model Tisch {
+  id            String          @id
+  nummer        Int
+  kapazitaet    Int
+  status        TischStatus     @default(frei)
+  bereich       TischBereich
+  vorlaeufig    Boolean         @default(true)
+  standortId    String
+  standort      Standort        @relation(fields: [standortId], references: [id], onDelete: Restrict)
+  reservierungen Reservierung[]
+
+  @@unique([standortId, nummer])
+  @@index([standortId])
+}
+
+model Reservierung {
+  id              String              @id
+  datum           String
+  uhrzeitMinute   Int
+  personenzahl    Int
+  status          ReservierungStatus  @default(offen)
+  standortId      String
+  standort        Standort            @relation(fields: [standortId], references: [id], onDelete: Restrict)
+  tischId         String
+  tisch           Tisch               @relation(fields: [tischId], references: [id], onDelete: Restrict)
+  gastId          String
+  gast            Gast                @relation(fields: [gastId], references: [id], onDelete: Restrict)
+  erstelltVonId   String
+  erstelltVon     Mitarbeiter         @relation(fields: [erstelltVonId], references: [id], onDelete: Restrict)
+  erstelltAm      DateTime            @default(now())
+  geaendertAm     DateTime            @updatedAt
+
+  @@index([standortId, datum, uhrzeitMinute])
+  @@index([tischId])
+  @@index([gastId])
+  @@index([erstelltVonId])
 }

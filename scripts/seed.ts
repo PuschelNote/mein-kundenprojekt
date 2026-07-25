@@ -3,7 +3,7 @@ import { prisma } from "../lib/prisma";
 
 try {
   await seedGrunddaten();
-  console.log("Standorte, Manager und Standardöffnungszeiten angelegt.");
+  console.log("Standorte, Mitarbeiter, Öffnungszeiten und vorläufige Tische angelegt.");
 } finally {
   await prisma.$disconnect();
 }

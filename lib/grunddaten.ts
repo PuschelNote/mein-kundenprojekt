@@ -1,4 +1,4 @@
-import { Rolle, Wochentag } from "@/generated/prisma/enums";
+import { Rolle, TischBereich, Wochentag } from "@/generated/prisma/enums";
 import { validateZeitfenster } from "@/lib/oeffnungszeiten";
 import { prisma } from "@/lib/prisma";
 
@@ -56,6 +56,25 @@ const oeffnungszeiten = [
   })),
 ];
 
+const tische = [
+  ...Array.from({ length: 16 }, (_, index) => ({
+    id: `tisch-kreuzberg-${index + 1}`,
+    nummer: index + 1,
+    kapazitaet: [2, 4, 4, 6][index % 4],
+    bereich: index >= 13 ? TischBereich.terrasse : TischBereich.innen,
+    standortId: "kreuzberg",
+    vorlaeufig: true,
+  })),
+  ...Array.from({ length: 11 }, (_, index) => ({
+    id: `tisch-spandau-${index + 1}`,
+    nummer: index + 1,
+    kapazitaet: [2, 4, 4, 6][index % 4],
+    bereich: index >= 9 ? TischBereich.terrasse : TischBereich.innen,
+    standortId: "spandau",
+    vorlaeufig: true,
+  })),
+];
+
 export async function seedGrunddaten() {
   for (const standort of standorte) {
     await prisma.standort.upsert({
@@ -89,6 +108,14 @@ export async function seedGrunddaten() {
         },
       },
       create: zeit,
+      update: {},
+    });
+  }
+
+  for (const tisch of tische) {
+    await prisma.tisch.upsert({
+      where: { id: tisch.id },
+      create: tisch,
       update: {},
     });
   }
