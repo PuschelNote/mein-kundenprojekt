@@ -539,3 +539,33 @@ lautlos umschreiben._
 - **Konsequenz:** Wiederholte Bezahlversuche werden abgewiesen. Bedienungen können
   den Bestellablauf abschließen, ohne zusätzliche Gastprofil- oder Besuchsdaten
   zu erhalten; eine manuelle Rabattoberfläche ist nicht erforderlich.
+
+## 2026-07-26 — Die einfache interne Abrechnung verwendet Euro und Cent
+
+- **Status:** angenommen
+- **Kontext:** Die App wird für zwei Berliner Restaurants entwickelt. Phase 5
+  benötigt eine eindeutige Geldanzeige und Rundungsregel, während Steuerlogik,
+  Trinkgeldbuchung und rechtliche Beleganforderungen noch nicht spezifiziert sind.
+- **Entscheidung:** Kartenpreise, historische Positionspreise und Rechnungswerte
+  werden als ganzzahlige Centbeträge gespeichert und in der Oberfläche als Euro
+  im deutschen Zahlenformat dargestellt. Der automatische Bella-Card-Rabatt wird
+  kaufmännisch auf ganze Cent gerundet. Diese Entscheidung präzisiert die in der
+  Entscheidung „Speisekartenpreise werden in Cent gespeichert“ noch offen
+  gelassene Rundungsfrage.
+- **Konsequenz:** `BV-010`, `BV-041` und `BV-042` besitzen eine reproduzierbare
+  interne Geldberechnung. Die Anzeige ist noch kein steuerlicher oder rechtlicher
+  Zahlungsbeleg; Steuer-, Trinkgeld- und Belegregeln bleiben ausdrücklich offen.
+
+## 2026-07-26 — Phasen 0 bis 5 bilden den lokalen Kernbetrieb ab
+
+- **Status:** angenommen als Lieferstand
+- **Kontext:** Standort- und Mitarbeiterkontext, Gäste, Reservierungen, Tische,
+  Speisekarten, Bestellungen, Küchenansicht, Abrechnung und Bella-Card sind
+  implementiert und durch die gemeinsame Testsuite abgesichert.
+- **Entscheidung:** Die zugehörigen Backlog-IDs der Phasen 0 bis 5 gelten als
+  `done`. Der nächste zusammenhängende Umsetzungsschwerpunkt ist Phase 6 mit
+  Offline-Betrieb, Synchronisation und sichtbarer Konfliktbehandlung.
+- **Konsequenz:** Der aktuelle Stand ist ein lokal nutzbarer Einzelgeräte-Prototyp,
+  aber noch kein betriebsreifes Mehrgeräte- oder Offline-Synchronisationssystem.
+  Vor Phase 6 sind Zielplattform, Offline-Authentifizierung, Synchronisationsmodell
+  und Konfliktregeln konzeptionell festzulegen.

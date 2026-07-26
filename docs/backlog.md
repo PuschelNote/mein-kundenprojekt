@@ -81,6 +81,9 @@ _Stand: 26.07.2026_
 
 ## Phase 6 — Betriebsreife: Offline und Datenintegrität
 
+_Nächste aktive Phase. Die lokale Einzelgeräte-Persistenz ist vorhanden, erfüllt
+aber noch keine Offline-Synchronisation zwischen mehreren Geräten._
+
 | ID | Feature | Status | Anforderung / Akzeptanzkern |
 |---|---|---|---|
 | BV-014 | Kernabläufe offline bereitstellen | validated | Gäste, Reservierungen, Tischstatus und Bestellungen bleiben bei Internetausfall nutzbar; die App bricht nicht zusammen. |
@@ -104,22 +107,23 @@ Implementierung noch nicht präzise genug:
 | Thema | Klärungsbedarf | Betroffene IDs |
 |---|---|---|
 | Gastnotizen | Die Rollenmatrix erlaubt Gastdaten nur Manager/Inhaber; die Anekdote sagt, jeder Mitarbeiter solle Vorlieben sehen. | BV-022, BV-024 |
-| Bella-Card-Rabatt | Die Geschäftsregel verlangt automatische 15 %, die Rollenmatrix spricht zusätzlich von „Rabatt vergeben“ durch Manager/Inhaber. Ist eine manuelle Freigabe oder Ausnahme vorgesehen? | BV-022, BV-041 |
 | Reservierungsüberschneidung | Dauer einer Reservierung, Überlappungsregeln und Verhalten bei zu großer Personenzahl fehlen. | BV-004, BV-026 |
 | Küchenausgabe | Display, Drucker oder anderes Ziel sowie Quittierung und Offline-Verhalten sind noch festzulegen. | BV-008 |
 | Gast an Bestellung | Die Bestellung enthält eine Gast-ID, aber es ist nicht festgelegt, ob sie Pflicht oder optional ist. | BV-007, BV-040 |
 | Stornierung | Rechte, Gründe und Auswirkungen einer Stornierung auf Tischstatus, Küche und Abrechnung fehlen. | BV-027, BV-009 |
-| Geld und Belege | Währung, Rundung, Steuern, Trinkgeldbuchung und Beleganforderungen sind nicht beschrieben. | BV-010, BV-042 |
+| Steuern und Belege | Steuerlogik, Trinkgeldbuchung sowie rechtliche und technische Beleganforderungen sind nicht beschrieben. Euro-Anzeige und Cent-Rundung sind für die einfache interne Abrechnung entschieden. | BV-010, BV-042 |
 
-## Empfohlene Umsetzungsreihenfolge
+## Lieferstand und nächste Umsetzungsreihenfolge
 
-1. Phase 0 schafft Identität, Standorttrennung und Berechtigungen.
-2. Phase 1 liefert mit Gästen und Reservierungen den ersten eigenständig nutzbaren
-   Kernablauf und verhindert die bekannte Standort-Doppelbuchung.
-3. Phase 2 ergänzt die operative Tischübersicht.
-4. Phasen 3 und 4 digitalisieren Karte, Bestellaufnahme und Küchenübergabe.
-5. Phase 5 schließt den Ablauf mit Abrechnung und Treueprogramm.
-6. Phase 6 macht die Kernabläufe robust für den Restaurantbetrieb.
+1. **Abgeschlossen:** Phasen 0–5 bilden den lokalen Kernablauf von Identität,
+   Standortwahl und Reservierung über Tische, Karte und Küche bis zur Abrechnung
+   mit Bella-Card vollständig ab.
+2. **Als Nächstes:** Phase 6 macht diese Kernabläufe offline- und
+   synchronisationsfähig. Vor der Implementierung sind Zielplattform,
+   Authentifizierung im Offline-Betrieb, Synchronisationsmodell und Konfliktregeln
+   in einem Konzept festzulegen.
+3. **Danach:** Validierte spätere Features werden nach fachlicher Priorität
+   umgesetzt; hypothetische Features benötigen zuvor eine Validierung.
 
-Vor der Implementierung sind außerdem Zielplattform, Technologie-Stack und die
-offenen Architekturfragen aus [`architecture.md`](architecture.md) zu entscheiden.
+Der initiale Technologie-Stack ist umgesetzt. Die für Phase 6 noch offenen
+Architekturfragen stehen in [`architecture.md`](architecture.md).
