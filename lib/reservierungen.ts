@@ -1,9 +1,10 @@
 import { randomUUID } from "node:crypto";
-import { ReservierungStatus, Wochentag, type Rolle } from "@/generated/prisma/enums";
+import { ReservierungStatus, type Rolle } from "@/generated/prisma/enums";
 import type { Prisma } from "@/generated/prisma/client";
 import { assertBerechtigung, istMitarbeiterFuerStandortGueltig, mitarbeiterStandortBedingung } from "@/lib/berechtigungen";
 import { normalisiereTelefonnummer } from "@/lib/gaeste";
 import { prisma } from "@/lib/prisma";
+import { getEffektiveOeffnungszeit } from "@/lib/oeffnungszeiten";
 
 export type ReservierungInput = {
   standortId: string;
@@ -330,6 +331,14 @@ export function listOeffnungstageFuerReservierungsstandorte(standortIds: string[
   });
 }
 
+export function listFeiertagsOeffnungszeitenFuerReservierung(standortIds: string[], vonDatum: string) {
+  return prisma.feiertagsOeffnungszeit.findMany({
+    where: { standortId: { in: standortIds }, datum: { gte: vonDatum } },
+    select: { standortId: true, datum: true, geschlossen: true },
+    orderBy: { datum: "asc" },
+  });
+}
+
 export function listReservierungen(standortId: string) {
   return prisma.reservierung.findMany({
     where: { standortId },
@@ -394,11 +403,7 @@ async function assertReservierungsfenster(
   if (input.datum < lokaleZeit.datum || (input.datum === lokaleZeit.datum && input.uhrzeitMinute < lokaleZeit.minute)) {
     throw new ReservierungValidationError("Reservierungen in der Vergangenheit sind nicht möglich.");
   }
-  const wochentag = wochentagFuerDatum(input.datum);
-  const oeffnungszeit = await tx.standardOeffnungszeit.findUnique({
-    where: { standortId_wochentag: { standortId, wochentag } },
-    select: { oeffnetMinute: true, schliesstMinute: true },
-  });
+  const oeffnungszeit = await getEffektiveOeffnungszeit(standortId, input.datum, tx);
   const endeMinute = input.uhrzeitMinute + RESERVIERUNGSDAUER_MINUTEN;
   if (!oeffnungszeit || input.uhrzeitMinute < oeffnungszeit.oeffnetMinute || endeMinute > oeffnungszeit.schliesstMinute) {
     throw new ReservierungValidationError("Das zweistündige Reservierungsfenster muss vollständig innerhalb der Öffnungszeiten liegen.");
@@ -423,9 +428,4 @@ export function berlinDatumUndMinute(now: Date) {
   const parts = new Intl.DateTimeFormat("de-DE", { timeZone: "Europe/Berlin", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).formatToParts(now);
   const wert = Object.fromEntries(parts.map((part) => [part.type, part.value]));
   return { datum: `${wert.year}-${wert.month}-${wert.day}`, minute: Number(wert.hour) * 60 + Number(wert.minute) };
-}
-
-function wochentagFuerDatum(datum: string): Wochentag {
-  const index = new Date(`${datum}T12:00:00.000Z`).getUTCDay();
-  return [Wochentag.sonntag, Wochentag.montag, Wochentag.dienstag, Wochentag.mittwoch, Wochentag.donnerstag, Wochentag.freitag, Wochentag.samstag][index];
 }

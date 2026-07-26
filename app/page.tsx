@@ -19,6 +19,7 @@ export default async function Home() {
   ]);
   const kannGaesteSehen = hatBerechtigung(mitarbeiter.rolle, "gastdaten_sehen");
   const kannMitarbeiterVerwalten = hatBerechtigung(mitarbeiter.rolle, "mitarbeiter_verwalten");
+  const kannOeffnungszeitenVerwalten = hatBerechtigung(mitarbeiter.rolle, "oeffnungszeiten_verwalten");
 
   return (
     <main className="dashboard-page">
@@ -74,6 +75,7 @@ export default async function Home() {
             <div className="dashboard-quick-links admin-links">
               {kannGaesteSehen ? <Link href="/gaeste"><span>Gäste</span><small>Profile und Bella-Card</small></Link> : null}
               {kannMitarbeiterVerwalten ? <Link href="/mitarbeiter"><span>Mitarbeiter</span><small>Rollen und Zugänge</small></Link> : null}
+              {kannOeffnungszeitenVerwalten ? <Link href="/oeffnungszeiten"><span>Öffnungszeiten</span><small>Feiertage und Abweichungen</small></Link> : null}
             </div>
           </> : null}
         </div>

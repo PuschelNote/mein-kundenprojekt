@@ -1,10 +1,11 @@
 import { randomUUID } from "node:crypto";
-import { BestellungStatus, GerichtKategorie, type Rolle, type Wochentag } from "@/generated/prisma/enums";
+import { BestellungStatus, GerichtKategorie, type Rolle } from "@/generated/prisma/enums";
 import { assertBerechtigung, istMitarbeiterFuerStandortGueltig, mitarbeiterStandortBedingung } from "@/lib/berechtigungen";
 import { normalisiereTelefonnummer } from "@/lib/gaeste";
 import { istBellaCardAktiv } from "@/lib/gast-status";
 import { prisma } from "@/lib/prisma";
 import { lokalesDatumBerlin } from "@/lib/tische";
+import { getEffektiveOeffnungszeit } from "@/lib/oeffnungszeiten";
 
 export type BestellungMitarbeiter = { id: string; rolle: Rolle; standortId: string | null };
 export type BestellpositionInput = { gerichtId: string; menge: number; sonderwunsch: string | null };
@@ -216,10 +217,9 @@ export async function listBestelloptionen(standortId: string, now = new Date()) 
 }
 
 export async function assertKuechenannahmeOffen(standortId: string, now = new Date()) {
-  const parts = new Intl.DateTimeFormat("de-DE", { timeZone: "Europe/Berlin", weekday: "long", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).formatToParts(now);
-  const weekday = parts.find((p) => p.type === "weekday")?.value.toLocaleLowerCase("de-DE") as Wochentag;
+  const parts = new Intl.DateTimeFormat("de-DE", { timeZone: "Europe/Berlin", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).formatToParts(now);
   const minute = Number(parts.find((p) => p.type === "hour")?.value) * 60 + Number(parts.find((p) => p.type === "minute")?.value);
-  const zeit = await prisma.standardOeffnungszeit.findUnique({ where: { standortId_wochentag: { standortId, wochentag: weekday } } });
+  const zeit = await getEffektiveOeffnungszeit(standortId, lokalesDatumBerlin(now));
   if (!zeit || minute < zeit.oeffnetMinute || minute >= zeit.schliesstMinute - 30) {
     throw new BestellungValidationError("Neue Bestellungen sind nur während der Küchenannahmezeit möglich.");
   }

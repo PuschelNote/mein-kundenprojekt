@@ -60,10 +60,26 @@ model Standort {
   name                     String                    @unique
   mitarbeiter              Mitarbeiter[]
   standardOeffnungszeiten StandardOeffnungszeit[]
+  feiertagsOeffnungszeiten FeiertagsOeffnungszeit[]
   tische                   Tisch[]
   reservierungen           Reservierung[]
   gerichte                 Gericht[]
   bestellungen             Bestellung[]
+}
+
+model FeiertagsOeffnungszeit {
+  id              String   @id @default(cuid())
+  standortId      String
+  standort        Standort @relation(fields: [standortId], references: [id], onDelete: Cascade)
+  datum           String
+  geschlossen     Boolean  @default(false)
+  oeffnetMinute   Int?
+  schliesstMinute Int?
+  erstelltAm      DateTime @default(now())
+  geaendertAm     DateTime @updatedAt
+
+  @@unique([standortId, datum])
+  @@index([standortId, datum])
 }
 
 model StandardOeffnungszeit {

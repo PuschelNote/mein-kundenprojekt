@@ -18,6 +18,7 @@ _Stand: 26.07.2026_
 | BV-001 | Mitarbeiter und Rollen verwalten | done | Mitarbeiter besitzen ID, Name und genau eine Rolle; Manager und Inhaber besitzen eine feste Standortzuordnung, Bedienungen dürfen standortoffen sein. CRUD unter `/mitarbeiter`; Validierungs- und Persistenztests sind grün. |
 | BV-002 | Verbindlichen Standortkontext führen | done | Kreuzberg und Spandau besitzen eindeutige IDs; ein serverseitig validierter Cookie-Kontext erzwingt eine explizite Auswahl und wird global angezeigt. |
 | BV-020 | Standardöffnungszeiten hinterlegen | done | Kreuzberg ist Di–So 17–23 Uhr, Spandau Do–So 17–22 Uhr geöffnet; geschlossene Tage und Wochenpläne werden standortbezogen angezeigt. |
+| BV-016 | Feiertags-Overrides verwalten | done | Ausschließlich der Inhaber kann pro Standort und Datum eine abweichende Öffnungszeit oder einen Schließtag setzen und wieder löschen. Exakte Overrides gewinnen vor Standardzeiten und steuern Reservierungskalender, serverseitige Reservierungsprüfung und Küchenannahmeschluss; ohne Override gilt der reguläre Wochenplan. |
 | BV-021 | Mitarbeiter Standorten zuordnen | done | Giuseppe ist Manager in Kreuzberg und Renate in Spandau; bekannte Bedienungen ohne geklärten Einsatzort bleiben standortoffen und werden separat angezeigt. |
 | BV-022 | Rollenbasierte Zugriffe erzwingen | done | Zentrale deny-by-default Capability-Matrix und serverseitige Guards setzen die Rollenrechte durch. Mitarbeiterwahl ist als Prototyp noch nicht durch PIN oder Passwort abgesichert. |
 | BV-045 | Technisches Projektgrundgerüst einrichten | done | Next.js mit TypeScript, ESLint, Prisma und lokaler SQLite-Verbindung ist eingerichtet; Prisma-Generierung, Datenbankcheck, Lint und Production-Build laufen erfolgreich. |
@@ -112,7 +113,6 @@ aber noch keine Offline-Synchronisation zwischen mehreren Geräten._
 
 | ID | Phase | Feature | Status | Anforderung / Akzeptanzkern |
 |---|---|---|---|---|
-| BV-016 | Später | Feiertags-Overrides | validated | Der Inhaber kann Öffnungszeiten pro Standort und Datum überschreiben; ohne Override gelten die Standardzeiten. |
 | BV-017 | Später | Getrennte Zahlung pro Person | hypo | Positionen einer Tischbestellung können mehreren Einzelabrechnungen zugeordnet werden. |
 | BV-018 | Später | Tageskarten direkt pflegen | hypo | Wechselnde Tages- und Saisongerichte lassen sich pro Standort direkt in der App anlegen, ändern und deaktivieren. |
 | BV-019 | Später | Catering-Aufträge verwalten | hypo | Ein Auftrag besitzt Kundenname, Datum, Beschreibung, Angebotssumme und Status. |

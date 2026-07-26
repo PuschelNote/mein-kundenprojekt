@@ -3,6 +3,7 @@ import {
   formatiereUhrzeit,
   berlinDatumUndMinute,
   listOeffnungstageFuerReservierungsstandorte,
+  listFeiertagsOeffnungszeitenFuerReservierung,
   listReservierungen,
   listReservierungsstandorte,
   listTischeFuerReservierungsstandorte,
@@ -23,17 +24,22 @@ export default async function ReservierungenPage() {
   ]);
   const darfAlleStandorteWaehlen = mitarbeiter.rolle === "inhaber" || (mitarbeiter.rolle === "bedienung" && mitarbeiter.standortId === null);
   const standortIds = darfAlleStandorteWaehlen ? ["kreuzberg", "spandau"] : [standort.id];
-  const [standorte, tische, reservierungen, oeffnungstage] = await Promise.all([
+  const minDatum = berlinDatumUndMinute(new Date()).datum;
+  const [standorte, tische, reservierungen, oeffnungstage, feiertage] = await Promise.all([
     listReservierungsstandorte(standortIds),
     listTischeFuerReservierungsstandorte(standortIds),
     listReservierungen(standort.id),
     listOeffnungstageFuerReservierungsstandorte(standortIds),
+    listFeiertagsOeffnungszeitenFuerReservierung(standortIds, minDatum),
   ]);
   const oeffnungstageNachStandort = Object.groupBy(oeffnungstage, (eintrag) => eintrag.standortId);
   const oeffnungstageProp = Object.fromEntries(
     Object.entries(oeffnungstageNachStandort).map(([id, eintraege]) => [id, eintraege?.map((eintrag) => eintrag.wochentag) ?? []]),
   );
-  const minDatum = berlinDatumUndMinute(new Date()).datum;
+  const feiertageProp: Record<string, Record<string, boolean>> = {};
+  for (const eintrag of feiertage) {
+    (feiertageProp[eintrag.standortId] ??= {})[eintrag.datum] = !eintrag.geschlossen;
+  }
 
   return (
     <main className="admin-page">
@@ -53,7 +59,7 @@ export default async function ReservierungenPage() {
           Reservierung angelegt. Jede Reservierung gilt für zwei Stunden und muss
           vollständig innerhalb der regulären Öffnungszeiten liegen.
         </p>
-        <ReservierungForm action={createReservierungAction} standorte={standorte} aktiverStandortId={standort.id} tische={tische} oeffnungstage={oeffnungstageProp} minDatum={minDatum} />
+        <ReservierungForm action={createReservierungAction} standorte={standorte} aktiverStandortId={standort.id} tische={tische} oeffnungstage={oeffnungstageProp} minDatum={minDatum} feiertage={feiertageProp} />
       </section>
 
       <section className="reservation-list" aria-labelledby="reservation-list-title">
@@ -97,6 +103,7 @@ export default async function ReservierungenPage() {
                   tische={tische}
                   oeffnungstage={oeffnungstageProp}
                   minDatum={minDatum}
+                  feiertage={feiertageProp}
                   submitLabel="Änderungen speichern"
                   reservierung={{
                     id: reservierung.id,

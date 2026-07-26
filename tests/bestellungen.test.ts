@@ -5,6 +5,7 @@ import { assertKuechenannahmeOffen, berechneRechnung, BestellungValidationError,
 import { createGericht, validateGerichtInput } from "../lib/gerichte";
 import { prisma } from "../lib/prisma";
 import { TischValidationError, updateTischStatus } from "../lib/tische";
+import { deleteFeiertagsOeffnungszeit, upsertFeiertagsOeffnungszeit, validateFeiertagsOeffnungszeitInput } from "../lib/oeffnungszeiten";
 
 const suffix = String(Date.now());
 let gerichtId = "";
@@ -47,6 +48,13 @@ describe("Bestellvalidierung", () => {
   it("erzwingt den Küchenannahmeschluss in Berliner Ortszeit", async () => {
     await assertKuechenannahmeOffen("kreuzberg", new Date("2026-07-25T18:00:00.000Z"));
     await assert.rejects(assertKuechenannahmeOffen("kreuzberg", new Date("2026-07-25T20:30:00.000Z")), BestellungValidationError);
+    const inhaber = await prisma.mitarbeiter.findUniqueOrThrow({ where: { id: "inhaber-marcello" } });
+    const override = await upsertFeiertagsOeffnungszeit(inhaber, validateFeiertagsOeffnungszeitInput({ standortId: "kreuzberg", datum: "2099-08-15", geschlossen: "on" }));
+    try {
+      await assert.rejects(assertKuechenannahmeOffen("kreuzberg", new Date("2099-08-15T18:00:00.000Z")), BestellungValidationError);
+    } finally {
+      await deleteFeiertagsOeffnungszeit(override.id, inhaber);
+    }
   });
 });
 

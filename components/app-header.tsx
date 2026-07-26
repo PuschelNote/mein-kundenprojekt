@@ -29,6 +29,7 @@ export async function AppHeader() {
     { href: "/speisekarte", label: "Speisekarte", shortLabel: "Karte", icon: "≡" },
     ...(hatBerechtigung(mitarbeiter.rolle, "gastdaten_sehen") ? [{ href: "/gaeste", label: "Gäste", icon: "○" }] : []),
     ...(hatBerechtigung(mitarbeiter.rolle, "mitarbeiter_verwalten") ? [{ href: "/mitarbeiter", label: "Mitarbeiter", shortLabel: "Team", icon: "◇" }] : []),
+    ...(hatBerechtigung(mitarbeiter.rolle, "oeffnungszeiten_verwalten") ? [{ href: "/oeffnungszeiten", label: "Öffnungszeiten", shortLabel: "Zeiten", icon: "◷" }] : []),
   ];
 
   return <aside className="app-sidebar">

@@ -794,3 +794,19 @@ lautlos umschreiben._
   erreichbar und die Oberfläche verhält sich über alle Bildschirmgrößen wie eine
   zusammenhängende App. Es ändern sich weder Features noch Geschäftslogik;
   Berechtigungen werden weiterhin an Seiten und Schreibgrenzen erzwungen.
+
+## 2026-07-26 — Feiertagszeiten ersetzen den Standard für ein konkretes Datum
+
+- **Status:** angenommen
+- **Kontext:** Standardöffnungszeiten bilden den regulären Wochenbetrieb ab,
+  während Marco an Feiertagen je Standort abweichend öffnen oder schließen muss.
+  Ein fehlender Eintrag darf nicht mit einem bewusst geschlossenen Tag
+  verwechselt werden.
+- **Entscheidung:** `FeiertagsOeffnungszeit` ist je Standort und lokalem Datum
+  eindeutig und speichert entweder ein valides Zeitfenster oder den expliziten
+  Zustand `geschlossen`. Ein exakter Eintrag gewinnt vollständig vor der
+  Standardzeit; ohne Eintrag gilt der reguläre Wochentag. Nur die Inhaberrolle
+  besitzt die neue Schreibberechtigung. Löschen stellt den Fallback wieder her.
+- **Konsequenz:** Reservierungskalender, Reservierungsvalidierung und
+  Küchenannahmeschluss verwenden dieselbe effektive Öffnungszeit. Änderungen an
+  Standarddaten sind nicht nötig und beide Standorte bleiben strikt getrennt.

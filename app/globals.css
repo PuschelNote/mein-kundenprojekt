@@ -164,6 +164,20 @@ details summary { cursor: pointer; color: var(--brand); font-size: .82rem; font-
   .onboarding-context > a:first-child { display: none; }
 }
 
+.holiday-form { display: grid; grid-template-columns: repeat(2, minmax(10rem, 1fr)); align-items: end; gap: .9rem; margin-top: 1rem; }
+.holiday-form label { display: grid; gap: .4rem; color: #434a43; font-size: .76rem; font-weight: 700; }
+.holiday-form input, .holiday-form select { min-height: 2.75rem; border: 1px solid #cfd3cc; border-radius: .6rem; background: white; padding: .7rem .8rem; }
+.holiday-form .checkbox-field { display: flex; align-items: center; }
+.holiday-form .checkbox-field input { min-height: auto; }
+.holiday-form > button { min-height: 2.7rem; border: 0; border-radius: .6rem; background: var(--green); color: white; padding: .7rem 1rem; font-weight: 750; }
+.holiday-list { display: grid; gap: .75rem; }
+.holiday-list .section-heading { margin-bottom: .25rem; }
+.holiday-card { display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 1rem; border: 1px solid var(--line); border-radius: var(--radius); background: white; box-shadow: var(--shadow); padding: 1rem 1.2rem; }
+.holiday-card > div { display: grid; gap: .2rem; }
+.holiday-card time { color: var(--muted); font-size: .82rem; }
+.holiday-delete-form button { border: 0; border-radius: .6rem; padding: .65rem .8rem; }
+@media (max-width: 680px) { .holiday-form { grid-template-columns: 1fr; } .holiday-card { grid-template-columns: 1fr; } }
+
 .order-form { display: grid; gap: 1rem; }
 .order-form fieldset { border: 1px solid var(--line); border-radius: 1rem; padding: 1rem; }
 .order-position { display: grid; grid-template-columns: 2fr .5fr 2fr auto; gap: .65rem; margin-top: .75rem; }

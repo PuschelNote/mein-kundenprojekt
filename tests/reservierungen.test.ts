@@ -42,6 +42,8 @@ describe("Reservierungsvalidierung", () => {
     assert.equal(istReservierungstagWaehbar("2026-07-28", "2026-07-26", kreuzberg), true);
     assert.equal(istReservierungstagWaehbar("2026-07-28", "2026-07-26", spandau), false);
     assert.equal(istReservierungstagWaehbar("2026-07-25", "2026-07-26", kreuzberg), false);
+    assert.equal(istReservierungstagWaehbar("2026-07-27", "2026-07-26", kreuzberg, { "2026-07-27": true }), true);
+    assert.equal(istReservierungstagWaehbar("2026-07-28", "2026-07-26", kreuzberg, { "2026-07-28": false }), false);
   });
 
   it("wandelt eine gültige lokale Uhrzeit in Minuten um", () => {

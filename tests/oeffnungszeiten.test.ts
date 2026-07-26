@@ -1,12 +1,20 @@
 import assert from "node:assert/strict";
-import { describe, it } from "node:test";
+import { after, describe, it } from "node:test";
+import { Rolle } from "../generated/prisma/enums";
+import { prisma } from "../lib/prisma";
 import {
   formatiereMinute,
   istRegulaerGeoeffnet,
   OeffnungszeitValidationError,
   type Zeitfenster,
   validateZeitfenster,
+  validateFeiertagsOeffnungszeitInput,
+  upsertFeiertagsOeffnungszeit,
+  getEffektiveOeffnungszeit,
+  deleteFeiertagsOeffnungszeit,
 } from "../lib/oeffnungszeiten";
+
+after(() => prisma.$disconnect());
 
 const kreuzberg: Zeitfenster[] = [
   { wochentag: "dienstag", oeffnetMinute: 17 * 60, schliesstMinute: 23 * 60 },
@@ -41,5 +49,23 @@ describe("Standardöffnungszeiten", () => {
       () => validateZeitfenster(23 * 60, 17 * 60),
       OeffnungszeitValidationError,
     );
+  });
+
+  it("verwendet Inhaber-Overrides vor Standardzeiten und stellt den Fallback wieder her", async () => {
+    const inhaber = await prisma.mitarbeiter.findUniqueOrThrow({ where: { id: "inhaber-marcello" } });
+    const datum = "2099-08-17";
+    const override = await upsertFeiertagsOeffnungszeit(inhaber, validateFeiertagsOeffnungszeitInput({ standortId: "kreuzberg", datum, oeffnet: "12:00", schliesst: "20:00" }));
+    assert.deepEqual(await getEffektiveOeffnungszeit("kreuzberg", datum), { oeffnetMinute: 720, schliesstMinute: 1200, quelle: "feiertag" });
+    await assert.rejects(upsertFeiertagsOeffnungszeit({ id: "manager-kreuzberg-giuseppe", rolle: Rolle.manager }, validateFeiertagsOeffnungszeitInput({ standortId: "kreuzberg", datum, geschlossen: "on" })));
+    await deleteFeiertagsOeffnungszeit(override.id, inhaber);
+    assert.equal(await getEffektiveOeffnungszeit("kreuzberg", datum), null);
+  });
+
+  it("bildet einen explizit geschlossenen Feiertag ab", async () => {
+    const inhaber = await prisma.mitarbeiter.findUniqueOrThrow({ where: { id: "inhaber-marcello" } });
+    const datum = "2099-08-15";
+    const override = await upsertFeiertagsOeffnungszeit(inhaber, validateFeiertagsOeffnungszeitInput({ standortId: "spandau", datum, geschlossen: "on" }));
+    assert.equal(await getEffektiveOeffnungszeit("spandau", datum), null);
+    await deleteFeiertagsOeffnungszeit(override.id, inhaber);
   });
 });

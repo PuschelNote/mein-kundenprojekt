@@ -135,6 +135,10 @@ Zentrale Anwendung / API
   bleibt unabhängig davon zwingend an den validierten aktiven Standort gebunden.
 - Reguläre Öffnungszeiten sind je Standort und Wochentag eindeutig. Ein fehlender
   Eintrag bedeutet „geschlossen“; Zeitfenster verwenden Minuten seit Mitternacht.
+- Feiertagsöffnungen sind je Standort und lokalem Datum eindeutig. Ein vorhandener
+  Datensatz ersetzt den Standard vollständig und enthält entweder `geschlossen`
+  oder ein valides Zeitfenster; ein fehlender Datensatz fällt auf den Wochentag
+  zurück. Reservierungen und Küchenannahme verwenden dieselbe zentrale Auflösung.
 - Standortgebundene Seiten und Operationen verwenden ausschließlich einen
   serverseitig validierten Standortkontext; Clientwerte allein sind nicht
   vertrauenswürdig.
@@ -178,7 +182,8 @@ Zentrale Anwendung / API
   desselben Tischs dürfen sich nicht überschneiden; ein Beginn exakt am Ende des
   vorherigen Fensters ist zulässig. Kapazität, Berliner Gegenwart und die
   regulären Standortöffnungszeiten werden bei Anlage und Bearbeitung innerhalb
-  der Schreibtransaktion geprüft. Feiertags-Overrides folgen separat mit BV-016.
+  der Schreibtransaktion geprüft. Feiertags-Overrides werden dabei vorrangig vor
+  den Standardzeiten ausgewertet.
 - Der Reservierungskalender liest die geöffneten Wochentage aus denselben
   standortbezogenen `StandardOeffnungszeit`-Datensätzen. Ausgegraute Tage sind
   eine Bedienhilfe; übermittelte Daten werden weiterhin serverseitig gegen

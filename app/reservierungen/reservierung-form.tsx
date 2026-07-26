@@ -23,6 +23,7 @@ export function ReservierungForm({
   tische,
   oeffnungstage,
   minDatum,
+  feiertage,
   reservierung,
   submitLabel = "Reservierung anlegen",
 }: {
@@ -35,6 +36,7 @@ export function ReservierungForm({
   tische: TischOption[];
   oeffnungstage: Record<string, string[]>;
   minDatum: string;
+  feiertage: Record<string, Record<string, boolean>>;
   reservierung?: {
     id: string;
     standortId: string;
@@ -104,6 +106,7 @@ export function ReservierungForm({
           offeneWochentage={oeffnungstage[standortId] ?? []}
           minDatum={minDatum}
           initialDatum={reservierung?.datum}
+          feiertage={feiertage[standortId] ?? {}}
         />
       </label>
       <label>

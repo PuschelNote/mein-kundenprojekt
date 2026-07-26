@@ -17,6 +17,7 @@ export const BERECHTIGUNGEN = [
   "bella_card_rabatt_vergeben",
   "speisekarte_preise_bearbeiten",
   "mitarbeiter_verwalten",
+  "oeffnungszeiten_verwalten",
 ] as const;
 
 export type Berechtigung = (typeof BERECHTIGUNGEN)[number];

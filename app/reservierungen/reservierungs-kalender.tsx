@@ -9,8 +9,10 @@ export function istReservierungstagWaehbar(
   datum: string,
   minDatum: string,
   offeneWochentage: readonly string[],
+  feiertage: Readonly<Record<string, boolean>> = {},
 ) {
   if (datum < minDatum) return false;
+  if (datum in feiertage) return feiertage[datum];
   const index = new Date(`${datum}T12:00:00.000Z`).getUTCDay();
   return offeneWochentage.includes(WOCHENTAGE[index]);
 }
@@ -23,10 +25,12 @@ export function ReservierungsKalender({
   offeneWochentage,
   minDatum,
   initialDatum,
+  feiertage,
 }: {
   offeneWochentage: readonly string[];
   minDatum: string;
   initialDatum?: string;
+  feiertage: Readonly<Record<string, boolean>>;
 }) {
   const startDatum = initialDatum ?? minDatum;
   const [ausgewaehlt, setAusgewaehlt] = useState(initialDatum ?? "");
@@ -62,7 +66,7 @@ export function ReservierungsKalender({
         {Array.from({ length: tageImMonat }, (_, index) => {
           const tag = index + 1;
           const datum = datumString(jahr, monat - 1, tag);
-          const waehbar = istReservierungstagWaehbar(datum, minDatum, offeneWochentage);
+          const waehbar = istReservierungstagWaehbar(datum, minDatum, offeneWochentage, feiertage);
           return (
             <button
               type="button"
