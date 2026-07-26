@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { after, before, describe, it } from "node:test";
-import { BestellungStatus } from "../generated/prisma/enums";
+import { BestellungStatus, TischStatus } from "../generated/prisma/enums";
 import { assertKuechenannahmeOffen, berechneRechnung, BestellungValidationError, createBestellung, updateBestellung, updateBestellungStatus, validateBestellungInput } from "../lib/bestellungen";
 import { createGericht, validateGerichtInput } from "../lib/gerichte";
 import { prisma } from "../lib/prisma";
@@ -10,6 +10,7 @@ let gerichtId = "";
 let fremdesGerichtId = "";
 const bestellungIds: string[] = [];
 const gastIds: string[] = [];
+const urspruenglicheTischstatus = new Map<string, TischStatus>();
 
 before(async () => {
   const inhaber = await prisma.mitarbeiter.findUniqueOrThrow({ where: { id: "inhaber-marcello" } });
@@ -19,6 +20,9 @@ before(async () => {
 
 after(async () => {
   await prisma.bestellung.deleteMany({ where: { id: { in: bestellungIds } } });
+  for (const [id, status] of urspruenglicheTischstatus) {
+    await prisma.tisch.update({ where: { id }, data: { status } });
+  }
   await prisma.gast.deleteMany({ where: { id: { in: gastIds } } });
   await prisma.gericht.deleteMany({ where: { id: { in: [gerichtId, fremdesGerichtId] } } });
   await prisma.$disconnect();
@@ -26,6 +30,10 @@ after(async () => {
 
 function input(tischId: string, id = gerichtId) {
   return validateBestellungInput({ tischId, gerichtIds: [id], mengen: ["2"], sonderwuensche: ["ohne Knoblauch"] });
+}
+
+function merkeTischstatus(tisch: { id: string; status: TischStatus }) {
+  if (!urspruenglicheTischstatus.has(tisch.id)) urspruenglicheTischstatus.set(tisch.id, tisch.status);
 }
 
 describe("Bestellvalidierung", () => {
@@ -60,11 +68,13 @@ describe("Bestellpersistenz und Standorttrennung", () => {
   it("historisiert Preis, Sonderwunsch und Mitarbeiter und verhindert eine zweite aktive Tischbestellung", async () => {
     const mitarbeiter = await prisma.mitarbeiter.findUniqueOrThrow({ where: { id: "manager-kreuzberg-giuseppe" } });
     const tisch = await prisma.tisch.findFirstOrThrow({ where: { standortId: "kreuzberg", verfuegbar: true } });
+    merkeTischstatus(tisch);
     const bestellung = await createBestellung(mitarbeiter, "kreuzberg", input(tisch.id), new Date("2026-07-25T18:00:00.000Z"));
     bestellungIds.push(bestellung.id);
     assert.equal(bestellung.aufgenommenVonId, mitarbeiter.id);
     assert.equal(bestellung.positionen[0].einzelpreisCent, 1290);
     assert.equal(bestellung.positionen[0].sonderwunsch, "ohne Knoblauch");
+    assert.equal((await prisma.tisch.findUniqueOrThrow({ where: { id: tisch.id } })).status, TischStatus.besetzt);
     await prisma.gericht.update({ where: { id: gerichtId }, data: { preisCent: 1490 } });
     assert.equal((await prisma.bestellposition.findFirstOrThrow({ where: { bestellungId: bestellung.id } })).einzelpreisCent, 1290);
     const bearbeitet = await updateBestellung(mitarbeiter, "kreuzberg", bestellung.id, input(tisch.id));
@@ -74,12 +84,15 @@ describe("Bestellpersistenz und Standorttrennung", () => {
   it("weist standortfremde Gerichte und unbekannte Gastnummern ab", async () => {
     const mitarbeiter = await prisma.mitarbeiter.findUniqueOrThrow({ where: { id: "manager-kreuzberg-giuseppe" } });
     const tisch = await prisma.tisch.findFirstOrThrow({ where: { standortId: "kreuzberg", verfuegbar: true, bestellungen: { none: { status: { in: ["offen", "serviert"] } } } } });
+    merkeTischstatus(tisch);
     await assert.rejects(createBestellung(mitarbeiter, "kreuzberg", input(tisch.id, fremdesGerichtId), new Date("2026-07-25T18:00:00.000Z")), BestellungValidationError);
     await assert.rejects(createBestellung(mitarbeiter, "kreuzberg", { ...input(tisch.id), gastTelefonNormalisiert: "+491111111111" }, new Date("2026-07-25T18:00:00.000Z")), BestellungValidationError);
+    assert.equal((await prisma.tisch.findUniqueOrThrow({ where: { id: tisch.id } })).status, tisch.status);
   });
   it("erlaubt nur offen zu serviert zu bezahlt und sperrt abgeschlossene Bestellungen", async () => {
     const mitarbeiter = await prisma.mitarbeiter.findUniqueOrThrow({ where: { id: "manager-kreuzberg-giuseppe" } });
     const tisch = await prisma.tisch.findFirstOrThrow({ where: { standortId: "kreuzberg", verfuegbar: true, bestellungen: { none: { status: { in: ["offen", "serviert"] } } } } });
+    merkeTischstatus(tisch);
     const bestellung = await createBestellung(mitarbeiter, "kreuzberg", input(tisch.id), new Date("2026-07-25T18:00:00.000Z"));
     bestellungIds.push(bestellung.id);
     await assert.rejects(updateBestellungStatus(mitarbeiter, "kreuzberg", bestellung.id, BestellungStatus.bezahlt), BestellungValidationError);
@@ -94,6 +107,7 @@ describe("Bestellpersistenz und Standorttrennung", () => {
     const gast = await prisma.gast.create({ data: { name: "Testgast Bella", telefon: `+49 155 10 ${suffix}`, telefonNormalisiert: `+4915510${suffix}`, besuchszaehler: 10 } });
     gastIds.push(gast.id);
     const tisch = await prisma.tisch.findFirstOrThrow({ where: { standortId: "kreuzberg", verfuegbar: true, bestellungen: { none: { status: { in: ["offen", "serviert"] } } } } });
+    merkeTischstatus(tisch);
     const bestellung = await createBestellung(mitarbeiter, "kreuzberg", { ...input(tisch.id), gastTelefonNormalisiert: gast.telefonNormalisiert }, new Date("2026-07-25T18:00:00.000Z"));
     bestellungIds.push(bestellung.id);
     const erwarteteAusgangssumme = bestellung.positionen[0].menge * bestellung.positionen[0].einzelpreisCent;
@@ -114,6 +128,7 @@ describe("Bestellpersistenz und Standorttrennung", () => {
     const gast = await prisma.gast.create({ data: { name: "Testgast Zehn", telefon: `+49 155 20 ${suffix}`, telefonNormalisiert: `+4915520${suffix}`, besuchszaehler: 9 } });
     gastIds.push(gast.id);
     const tisch = await prisma.tisch.findFirstOrThrow({ where: { standortId: "kreuzberg", verfuegbar: true, bestellungen: { none: { status: { in: ["offen", "serviert"] } } } } });
+    merkeTischstatus(tisch);
     const bestellung = await createBestellung(mitarbeiter, "kreuzberg", { ...input(tisch.id), gastTelefonNormalisiert: gast.telefonNormalisiert }, new Date("2026-07-25T18:00:00.000Z"));
     bestellungIds.push(bestellung.id);
     const erwarteteAusgangssumme = bestellung.positionen[0].menge * bestellung.positionen[0].einzelpreisCent;

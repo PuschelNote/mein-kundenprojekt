@@ -129,7 +129,14 @@ Zentrale Anwendung / API
   ableitbar; intern wird eine eindeutige Tisch-ID verwendet.
 - Tischnummer und Rasterposition sind innerhalb eines Standorts eindeutig. Nur
   verfügbare Tische dürfen neu einer Reservierung zugeordnet werden.
+- Die Tischübersicht lädt ausschließlich offene Reservierungen ab dem aktuellen
+  Berliner Kalendertag und ordnet sie in chronologischer Reihenfolge dem
+  standortgefilterten Tisch zu. Die Tischauswahl kann daher keine fremden
+  Standortdaten auflösen.
 - Ein Tisch hat höchstens eine aktive Bestellung gleichzeitig.
+- Bestellanlage und Wechsel des zugehörigen Tischstatus auf `besetzt` laufen in
+  derselben Datenbanktransaktion; ein fehlgeschlagener Schreibvorgang darf keinen
+  veränderten Tischstatus hinterlassen.
 - Eine Bestellposition speichert den Einzelpreis zum Bestellzeitpunkt.
 - Der Besuchszähler steigt genau einmal beim Übergang einer Bestellung auf
   `bezahlt`; wiederholte Verarbeitung muss idempotent sein.

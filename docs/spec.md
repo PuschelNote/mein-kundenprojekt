@@ -33,6 +33,9 @@ Beide Standorte laufen aktuell komplett auf Papier: Zettel, Notizbücher, Tasche
 - Kein exakter Grundriss vorhanden → schematische Grundrissübersicht mit fester
   Tischanordnung und deutlich sichtbarem Status; keine maßstabsgetreue Raumplanung.
   Eine ergänzende Liste bleibt für Details, Bedienbarkeit und Stammdatenpflege erhalten.
+- Tische im Grundriss sind auswählbar. Offene Reservierungen ab dem aktuellen Tag
+  werden am jeweiligen Tisch sichtbar; die Auswahl zeigt Gast, Termin und
+  Personenzahl, ohne den manuell geführten Tischstatus automatisch zu verändern.
 
 ### Speisekarte
 - Pro Standort eigene Karte (Standort-ID)
@@ -66,6 +69,9 @@ Beide Standorte laufen aktuell komplett auf Papier: Zettel, Notizbücher, Tasche
 - Aufgenommen von (welcher Mitarbeiter) → wichtig für Trinkgeld-Aufteilung!
 - Status: `offen` | `serviert` | `bezahlt` | `storniert`
 - Gesamtsumme (inkl. automatischem Bella-Card-Rabatt falls zutreffend)
+- Bei erfolgreicher Aufnahme einer neuen Bestellung wird der zugehörige Tisch
+  atomar auf `besetzt` gesetzt. Bezahlen und Stornieren ändern den Tischstatus
+  vorerst nicht automatisch.
 
 ### Bestellposition *(Verbindungsentität Bestellung ↔ Gericht)*
 - Bestell-ID, Gericht-ID

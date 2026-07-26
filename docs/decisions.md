@@ -605,3 +605,35 @@ lautlos umschreiben._
   standortoffene Grunddaten angelegt. Ihre Rolle erhält keine zusätzlichen Rechte.
   Manager eines anderen Standorts bleiben ungültig; ein Standortwechsel darf die
   Session einer standortoffenen Bedienung erhalten.
+
+## 2026-07-26 — Reservierungshinweis und Tischstatus bleiben getrennte Signale
+
+- **Status:** angenommen
+- **Kontext:** Mitarbeitende müssen im Grundriss erkennen, ob für einen Tisch
+  Reservierungen hinterlegt sind. Die Spec definiert jedoch keine Dauer einer
+  Reservierung und damit keinen Zeitpunkt, zu dem der manuelle Tischstatus
+  automatisch `reserviert` werden müsste.
+- **Entscheidung:** Der auswählbare Grundriss zeigt offene Reservierungen ab dem
+  aktuellen Berliner Kalendertag als zusätzliches Textsignal mit Anzahl und
+  nächstem Termin. Die Detailauswahl zeigt Gast, Termin und Personenzahl. Der
+  operative Status `frei`, `besetzt` oder `reserviert` wird dadurch nicht
+  automatisch verändert.
+- **Konsequenz:** Reservierungen sind sichtbar, ohne eine nicht spezifizierte
+  zeitliche Statusautomatik einzuführen. Nach Festlegung von Reservierungsdauer
+  und Überschneidungsregeln kann die Beziehung gezielt erweitert werden.
+
+## 2026-07-26 — Bestellaufnahme setzt den Tisch atomar auf besetzt
+
+- **Status:** angenommen
+- **Kontext:** Sobald Servicepersonal eine Bestellung für einen Tisch aufnimmt,
+  wird dieser Tisch tatsächlich bedient. Ein weiterhin als `frei` angezeigter
+  Tisch wäre operativ irreführend.
+- **Entscheidung:** Die Anlage einer Bestellung und der Statuswechsel des
+  zugehörigen Tischs auf `besetzt` laufen in derselben Datenbanktransaktion. Jede
+  Validierung von Mitarbeiter, Standort, Tisch, Gast und Gerichten findet vor dem
+  Statuswechsel statt. Bezahlen oder Stornieren setzt den Tisch mangels
+  bestätigter Abräum-/Freigaberegel nicht automatisch auf `frei`.
+- **Konsequenz:** Es gibt weder eine erfolgreich aufgenommene Bestellung mit
+  weiterhin freiem Tisch noch einen durch eine fehlgeschlagene Bestellung
+  fälschlich besetzten Tisch. Die Freigabe bleibt vorerst ein bewusster manueller
+  Tischstatus-Vorgang.

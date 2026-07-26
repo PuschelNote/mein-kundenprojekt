@@ -12,6 +12,7 @@ import {
 import {
   createTisch,
   deleteTisch,
+  listTische,
   TischValidationError,
   updateTisch,
   updateTischStatus,
@@ -196,6 +197,13 @@ describe("Tischpersistenz, Rechte und Standorttrennung", () => {
     );
     reservierungId = reservierung.id;
 
+    const grundriss = await listTische("kreuzberg", "2026-07-25");
+    const tischMitReservierung = grundriss.find((eintrag) => eintrag.id === tisch.id);
+    assert.equal(tischMitReservierung?.reservierungen.length, 1);
+    assert.equal(tischMitReservierung?.reservierungen[0].gast.name, "Terrassentest");
+    assert.equal(tischMitReservierung?.reservierungen[0].datum, "2099-08-15");
+    assert.ok(grundriss.every((eintrag) => eintrag.standortId === "kreuzberg"));
+
     await assert.rejects(
       updateTisch(
         tisch.id,
@@ -213,6 +221,8 @@ describe("Tischpersistenz, Rechte und Standorttrennung", () => {
 
     await prisma.reservierung.delete({ where: { id: reservierung.id } });
     reservierungId = undefined;
+    const ohneReservierung = await listTische("kreuzberg", "2026-07-25");
+    assert.equal(ohneReservierung.find((eintrag) => eintrag.id === tisch.id)?.reservierungen.length, 0);
     const deaktiviert = await updateTisch(
       tisch.id,
       manager,

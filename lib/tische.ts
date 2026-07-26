@@ -76,9 +76,22 @@ export function validateTischInput(input: {
   };
 }
 
-export function listTische(standortId: string) {
+export function listTische(standortId: string, heute = lokalesDatumBerlin()) {
   return prisma.tisch.findMany({
     where: { standortId },
+    include: {
+      reservierungen: {
+        where: { status: "offen", datum: { gte: heute } },
+        select: {
+          id: true,
+          datum: true,
+          uhrzeitMinute: true,
+          personenzahl: true,
+          gast: { select: { name: true } },
+        },
+        orderBy: [{ datum: "asc" }, { uhrzeitMinute: "asc" }],
+      },
+    },
     orderBy: [{ rasterZeile: "asc" }, { rasterSpalte: "asc" }],
   });
 }

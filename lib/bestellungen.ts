@@ -77,13 +77,15 @@ export async function createBestellung(mitarbeiter: BestellungMitarbeiter, stand
         if (!gericht) throw new BestellungValidationError("Ein Gericht gehört nicht zum aktiven Standort.");
         if (standortId !== "kreuzberg" && gericht.kategorie === GerichtKategorie.grill) throw new BestellungValidationError("Grillgerichte dürfen in Spandau nicht bestellt werden.");
       }
-      return tx.bestellung.create({
+      const bestellung = await tx.bestellung.create({
         data: {
           id: randomUUID(), standortId, tischId: tisch.id, gastId: gast?.id,
           aufgenommenVonId: person.id,
           positionen: { create: input.positionen.map((p) => ({ id: randomUUID(), ...p, einzelpreisCent: gerichtMap.get(p.gerichtId)!.preisCent })) },
         }, include: { positionen: true },
       });
+      await tx.tisch.update({ where: { id: tisch.id }, data: { status: "besetzt" } });
+      return bestellung;
     });
   } catch (error) {
     if (error instanceof BestellungValidationError) throw error;

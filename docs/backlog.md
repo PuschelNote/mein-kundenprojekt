@@ -61,6 +61,7 @@ _Stand: 26.07.2026_
 | ID | Feature | Status | Anforderung / Akzeptanzkern |
 |---|---|---|---|
 | BV-007 | Bestellung aufnehmen | done | `/bestellungen` legt eine Bestellung atomar mit Standort, verfügbarem Tisch, optional per exakter Telefonnummer zugeordnetem bekannten Gast und aufnehmendem Mitarbeiter an. |
+| BV-049 | Tisch bei Bestellaufnahme besetzen | done | Eine erfolgreich neu aufgenommene Bestellung setzt den zugehörigen Tisch innerhalb derselben Transaktion auf `besetzt`; abgewiesene Bestellungen verändern den Tischstatus nicht, Tests sind grün. |
 | BV-036 | Bestellpositionen verwalten | done | Offene Bestellungen enthalten mindestens eine validierte Position; Gerichte, Mengen von 1 bis 99 und optionale Sonderwünsche bis 300 Zeichen können bearbeitet werden. |
 | BV-037 | Einzelpreis historisieren | done | Jede Position übernimmt bei ihrer erstmaligen Aufnahme den Centpreis des Gerichts; bestehende Positionen behalten ihn bei Karten- und Bestelländerungen. |
 | BV-038 | Nur eine aktive Bestellung pro Tisch zulassen | done | Ein partieller eindeutiger Datenbankindex erlaubt je Tisch höchstens eine Bestellung im Status `offen` oder `serviert`, auch bei konkurrierenden Schreibzugriffen. |
@@ -85,6 +86,7 @@ _Stand: 26.07.2026_
 |---|---|---|---|
 | BV-046 | Rollenbasiertes Arbeitsdashboard | done | Nach expliziter Standort- und Mitarbeiterwahl zeigt `/` den aktiven Kontext, priorisiert direkte Reservierungsanlage und Bestellaufnahme, bietet responsive operative Schnellzugriffe und blendet Verwaltungsaktionen capability-basiert ein. |
 | BV-047 | Standortoffene Bedienungen | done | Sofia, Nico und Fatima werden idempotent ohne feste Standort-ID angelegt, sind nach expliziter Standortwahl an beiden Standorten verfügbar und handeln ausschließlich im aktiven Standortkontext. |
+| BV-048 | Tische auswählen und Reservierungen erkennen | done | Der standortbezogene Grundriss macht jeden Tisch per Maus und Tastatur auswählbar, kennzeichnet offene zukünftige Reservierungen und zeigt für den ausgewählten Tisch Gast, Termin und Personenzahl; Tests und lokaler Standortcheck sind grün. |
 
 ## Phase 6 — Betriebsreife: Offline und Datenintegrität
 
