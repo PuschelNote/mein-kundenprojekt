@@ -27,7 +27,7 @@ _Stand: 26.07.2026_
 
 | ID | Feature | Status | Anforderung / Akzeptanzkern |
 |---|---|---|---|
-| BV-005 | Gast anlegen und bearbeiten | done | Geschütztes CRUD unter `/gaeste` verwaltet Name, eindeutige normalisierte Telefonnummer, Besuchszähler, Notizen und abgeleiteten Bella-Card-Status. |
+| BV-005 | Gast anlegen und bearbeiten | done | Geschütztes CRUD unter `/gaeste` verwaltet Name, eindeutige normalisierte Telefonnummer, Besuchszähler, Notizen und abgeleiteten Bella-Card-Status. Gäste mit Reservierungs- oder Bestellhistorie werden nicht physisch gelöscht; die Oberfläche erklärt die Sperre ohne Serverfehler. |
 | BV-023 | Gast über Telefonnummer erkennen | done | Geschützte exakte Suche erkennt vorhandene Gäste trotz üblicher Telefonnummern-Schreibweisen und liefert die stabile Gast-ID für spätere Reservierungen. |
 | BV-024 | Gastpräferenzen und Allergien dokumentieren | done | Manager und Inhaber können Freitextnotizen mit Präferenzen und Allergien anlegen, ändern, leeren und einsehen; serverseitige Validierung und Persistenztests sichern das Feld ab. |
 | BV-004 | Reservierung anlegen | done | Geschützte Anlage unter `/reservierungen` ordnet bekannte Gäste exakt per Telefonnummer zu oder legt unbekannte Gäste mit Name und Telefonnummer atomar mit der Reservierung an; Tisch, lokaler Termin, Personenzahl, Standort und Ersteller werden gespeichert. |

@@ -60,7 +60,10 @@ export function validateGastInput(input: {
 }
 
 export function listGaeste() {
-  return prisma.gast.findMany({ orderBy: { name: "asc" } });
+  return prisma.gast.findMany({
+    include: { _count: { select: { reservierungen: true, bestellungen: true } } },
+    orderBy: { name: "asc" },
+  });
 }
 
 export function findGastByTelefon(value: unknown) {
@@ -85,7 +88,28 @@ export async function deleteGast(id: string) {
   if (!id) {
     throw new GastValidationError("Gast-ID fehlt.");
   }
-  return prisma.gast.delete({ where: { id } });
+  const verknuepfungen = await prisma.gast.findUnique({
+    where: { id },
+    select: { _count: { select: { reservierungen: true, bestellungen: true } } },
+  });
+  if (!verknuepfungen) {
+    throw new GastValidationError("Der Gast wurde nicht gefunden.");
+  }
+  if (verknuepfungen._count.reservierungen > 0 || verknuepfungen._count.bestellungen > 0) {
+    throw new GastValidationError(
+      "Der Gast kann nicht gelöscht werden, solange Reservierungen oder Bestellungen mit ihm verknüpft sind.",
+    );
+  }
+  try {
+    return await prisma.gast.delete({ where: { id } });
+  } catch (error) {
+    if (typeof error === "object" && error !== null && "code" in error && error.code === "P2003") {
+      throw new GastValidationError(
+        "Der Gast kann nicht gelöscht werden, solange Reservierungen oder Bestellungen mit ihm verknüpft sind.",
+      );
+    }
+    throw error;
+  }
 }
 
 async function assertTelefonnummerFrei(

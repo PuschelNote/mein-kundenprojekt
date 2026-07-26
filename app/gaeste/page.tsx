@@ -8,9 +8,9 @@ import {
 import { GastForm } from "./gast-form";
 import { GastSearch } from "./gast-search";
 
-export default async function GaestePage() {
+export default async function GaestePage({ searchParams }: { searchParams: Promise<{ loeschfehler?: string }> }) {
   await requireBerechtigung("gastdaten_sehen", "/gaeste");
-  const gaeste = await listGaeste();
+  const [gaeste, params] = await Promise.all([listGaeste(), searchParams]);
 
   return (
     <main className="admin-page">
@@ -20,6 +20,8 @@ export default async function GaestePage() {
           <p>Gastprofile, Präferenzen, Allergien und Treuestatus verwalten.</p>
         </div>
       </header>
+
+      {params.loeschfehler ? <p className="form-message error" role="alert">Der Gast kann nicht gelöscht werden, solange Reservierungen oder Bestellungen mit ihm verknüpft sind.</p> : null}
 
       <GastSearch />
 
@@ -59,12 +61,12 @@ export default async function GaestePage() {
                   gast={gast}
                 />
               </details>
-              <form action={deleteGastAction}>
+              {gast._count.reservierungen === 0 && gast._count.bestellungen === 0 ? <form action={deleteGastAction}>
                 <input type="hidden" name="id" value={gast.id} />
                 <button className="danger-button" type="submit">
                   Löschen
                 </button>
-              </form>
+              </form> : <p className="guest-delete-hint">Löschen nicht möglich: {gast._count.reservierungen} Reservierung(en) und {gast._count.bestellungen} Bestellung(en) sind verknüpft.</p>}
             </article>
           ))
         )}

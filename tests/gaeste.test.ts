@@ -138,4 +138,23 @@ describe("Gast-Persistenz", () => {
     await deleteGast(created.id);
     gastId = undefined;
   });
+
+  it("verhindert das Löschen eines Reservierungsgasts mit verständlicher Meldung", async () => {
+    const suffix = String(Date.now());
+    const created = await createGast(validateGastInput({ name: "Reservierungsgast", telefon: `+49309${suffix.slice(-7)}` }));
+    gastId = created.id;
+    const tischId = `test-gast-reservierung-tisch-${suffix}`;
+    const reservierungId = `test-gast-reservierung-${suffix}`;
+    await prisma.tisch.create({ data: { id: tischId, nummer: 940, kapazitaet: 4, bereich: "innen", rasterZeile: 94, rasterSpalte: 0, vorlaeufig: false, standortId: "kreuzberg" } });
+    await prisma.reservierung.create({ data: { id: reservierungId, datum: "2099-10-10", uhrzeitMinute: 18 * 60, personenzahl: 2, standortId: "kreuzberg", tischId, gastId: created.id, erstelltVonId: "manager-kreuzberg-giuseppe" } });
+    try {
+      await assert.rejects(deleteGast(created.id), (error: unknown) => error instanceof GastValidationError && error.message.includes("Reservierungen oder Bestellungen"));
+      assert.equal(await prisma.gast.count({ where: { id: created.id } }), 1);
+    } finally {
+      await prisma.reservierung.delete({ where: { id: reservierungId } });
+      await prisma.tisch.delete({ where: { id: tischId } });
+      await deleteGast(created.id);
+      gastId = undefined;
+    }
+  });
 });

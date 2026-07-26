@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { requireBerechtigung } from "@/lib/berechtigungen";
 import {
   createGast,
@@ -76,9 +77,16 @@ export async function updateGastAction(
 }
 
 export async function deleteGastAction(formData: FormData) {
-  await requireBerechtigung("gastdaten_sehen", "/gaeste");
-  await deleteGast(String(formData.get("id") ?? ""));
-  revalidatePath("/gaeste");
+  try {
+    await requireBerechtigung("gastdaten_sehen", "/gaeste");
+    await deleteGast(String(formData.get("id") ?? ""));
+    revalidatePath("/gaeste");
+  } catch (error) {
+    if (error instanceof GastValidationError) {
+      redirect("/gaeste?loeschfehler=verknuepft");
+    }
+    throw error;
+  }
 }
 
 function inputFromFormData(formData: FormData) {

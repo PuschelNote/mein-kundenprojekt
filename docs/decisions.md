@@ -896,3 +896,17 @@ lautlos umschreiben._
 - **Konsequenz:** Marco kann sich an beiden Standorten anmelden und im laufenden
   Betrieb zwischen ihnen wechseln. Manager bleiben weiterhin an ihren eigenen
   Standort gebunden.
+
+## 2026-07-26 — Verknüpfte Gastprofile werden nicht physisch gelöscht
+
+- **Status:** angenommen
+- **Kontext:** Das Löschen eines Gasts mit Reservierung oder Bestellung verletzte
+  die Datenbankreferenz und führte in der Oberfläche zu einem technischen Fehler.
+- **Entscheidung:** Gastprofile mit mindestens einer Reservierung oder Bestellung
+  bleiben zur Wahrung der Vorgangshistorie erhalten. Die Domäne prüft die
+  Verknüpfungen vor dem Löschen und übersetzt auch konkurrierende
+  Fremdschlüsselkonflikte in eine verständliche fachliche Meldung. Die Oberfläche
+  bietet die Löschaktion für solche Profile nicht an und zeigt den Grund.
+- **Konsequenz:** Reservierungen und Bestellungen werden niemals implizit mit
+  einem Gastprofil gelöscht. Unverknüpfte, irrtümlich angelegte Gäste können
+  weiterhin regulär entfernt werden.
