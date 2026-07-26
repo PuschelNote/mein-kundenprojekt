@@ -186,6 +186,10 @@ model Bestellung {
   aufgenommenVonId String
   aufgenommenVon   Mitarbeiter       @relation(fields: [aufgenommenVonId], references: [id], onDelete: Restrict)
   positionen       Bestellposition[]
+  ausgangssummeCent Int?
+  rabattCent        Int?
+  gesamtsummeCent   Int?
+  abgerechnetAm     DateTime?
   erstelltAm       DateTime          @default(now())
   geaendertAm      DateTime          @updatedAt
 

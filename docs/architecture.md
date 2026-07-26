@@ -1,6 +1,6 @@
 # Architektur — Bella Vista Restaurant-App
 
-_Stand: 25.07.2026_
+_Stand: 26.07.2026_
 
 ## Zweck
 
@@ -87,6 +87,8 @@ Zentrale Anwendung / API
 | `app/gaeste/` | Geschützte Gastverwaltung für Manager und Inhaber |
 | `app/reservierungen/` | Standortbezogene Reservierungsliste sowie geschützte Anlage, Bearbeitung und Statuswechsel per Server Actions |
 | `app/speisekarte/` | Standortkarte für alle Rollen sowie geschützte Inhaberpflege von Gerichten und Preisen |
+| `app/bestellungen/` | Standortbezogene Bestellaufnahme, Rechnungsvorschau, Statusfluss und gespeicherte Abrechnung |
+| `app/kueche/` | Standortbezogene Küchenbons und Übergang von offen zu serviert |
 | `app/tische/` | Schematischer Standortgrundriss, Tischliste, Statussteuerung und geschützte Stammdatenpflege |
 | `app/standort/` | Explizite Standortauswahl und serverseitiger Kontextwechsel |
 | `components/app-header.tsx` | Globale Anzeige des aktiven Standorts und Wechselmöglichkeit |
@@ -96,6 +98,7 @@ Zentrale Anwendung / API
 | `lib/reservierungen.ts` | Reservierungsvalidierung, Standortabgleich, Tisch-/Gastbezug und Persistenz |
 | `lib/gerichte.ts` | Gerichtvalidierung, Centpreise, Standortabfragen, Grillregel und Inhaberpflege |
 | `lib/gericht-kategorien.ts` | Client-sichere Kategorie-Reihenfolge und deutsche Anzeigelabels |
+| `lib/bestellungen.ts` | Bestellvalidierung, historische Positionspreise, Statusfluss sowie atomare Abrechnung, Rabatt- und Besuchslogik |
 | `lib/tische.ts` | Tischvalidierung, Rasterpositionen, Rollen-/Standortprüfung, Verfügbarkeit und Persistenz |
 | `lib/gast-status.ts` | Client- und serverseitig nutzbare Ableitung des Bella-Card-Status |
 | `lib/grunddaten.ts` | Idempotente, nicht-destruktive Anlage von Standorten, Managern und Standardzeiten |
@@ -127,6 +130,11 @@ Zentrale Anwendung / API
 - Der Besuchszähler steigt genau einmal beim Übergang einer Bestellung auf
   `bezahlt`; wiederholte Verarbeitung muss idempotent sein.
 - Ab zehn abgeschlossenen Besuchen werden 15 % Rabatt automatisch berechnet.
+- Der zehnte bezahlte Besuch aktiviert die Bella-Card für die folgende Abrechnung;
+  die Berechtigung wird vor der Besuchserhöhung geprüft.
+- Beim Bezahlen werden Ausgangssumme, kaufmännisch auf Cent gerundeter Rabatt,
+  Endsumme und Abrechnungszeitpunkt gemeinsam mit Status und Besuchserhöhung
+  transaktional gespeichert. Bezahlte Rechnungssnapshots sind unveränderlich.
 - Telefonnummern werden zusätzlich in normalisierter Form eindeutig gespeichert;
   der Bella-Card-Status wird aus dem Besuchszähler abgeleitet.
 - Gast-Erkennung verwendet ausschließlich einen exakten Vergleich des
@@ -189,7 +197,5 @@ Zentrale Anwendung / API
 - Synchronisationsmodell und konkrete Konfliktregeln
 - Authentifizierung, Gerätekopplung und Offline-Sitzungsdauer
 - Medium und Protokoll der Küchenausgabe (Display, Drucker oder beides)
-- Geldbeträge, Rundung, Steuerlogik und Beleganforderungen
+- Steuerlogik und Beleganforderungen
 - Reservierungsdauer sowie Regeln für Zeitüberschneidungen
-- Verantwortlichkeit für Bella-Card-Rabatt: automatisch laut Geschäftsregel oder
-  zusätzlich manuell durch Manager/Inhaber laut Berechtigungstabelle

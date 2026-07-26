@@ -1,6 +1,6 @@
 # Backlog — Bella Vista Restaurant-App
 
-_Stand: 25.07.2026_
+_Stand: 26.07.2026_
 
 ## Konvention
 
@@ -73,11 +73,11 @@ _Stand: 25.07.2026_
 
 | ID | Feature | Status | Anforderung / Akzeptanzkern |
 |---|---|---|---|
-| BV-010 | Tischrechnung berechnen | validated | Das System berechnet eine Gesamtsumme aus Mengen und historisierten Einzelpreisen aller Bestellpositionen. |
-| BV-040 | Besuch beim Bezahlen zählen | validated | Beim erstmaligen Übergang einer Bestellung auf `bezahlt` steigt der Besuchszähler des verknüpften Gasts automatisch genau einmal. |
-| BV-011 | Digitale Bella-Card aktivieren | validated | Ab zehn abgeschlossenen Besuchen wird der Bella-Card-Status eines Gasts aktiv. |
-| BV-041 | Bella-Card-Rabatt automatisch anwenden | validated | Bei aktiver Bella-Card werden automatisch 15 % von der gesamten Rechnung abgezogen. |
-| BV-042 | Rabattierte Abrechnung anzeigen | validated | Rechnung und Bestellsumme zeigen Ausgangssumme, Bella-Card-Rabatt und rabattierte Gesamtsumme nachvollziehbar an. |
+| BV-010 | Tischrechnung berechnen | done | Das System berechnet die Gesamtsumme in Cent aus Mengen und historisierten Einzelpreisen aller Bestellpositionen. |
+| BV-040 | Besuch beim Bezahlen zählen | done | Beim erstmaligen Übergang einer Bestellung auf `bezahlt` steigt der Besuchszähler des verknüpften Gasts innerhalb derselben Transaktion automatisch genau einmal. |
+| BV-011 | Digitale Bella-Card aktivieren | done | Ab zehn abgeschlossenen Besuchen wird der Bella-Card-Status eines Gasts aus dem Besuchszähler abgeleitet aktiv. |
+| BV-041 | Bella-Card-Rabatt automatisch anwenden | done | Bei aktiver Bella-Card werden automatisch 15 % der Ausgangssumme kaufmännisch auf Cent gerundet abgezogen. |
+| BV-042 | Rabattierte Abrechnung anzeigen | done | Vorschau und gespeicherte Abrechnung zeigen Ausgangssumme, Bella-Card-Rabatt und Gesamtsumme nachvollziehbar an; bezahlte Werte bleiben historisiert. |
 
 ## Phase 6 — Betriebsreife: Offline und Datenintegrität
 

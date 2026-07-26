@@ -34,6 +34,6 @@ export async function updateBestellungStatusAction(_: BestellungActionState, for
     const [mitarbeiter, standort] = await Promise.all([requireBerechtigung("bestellungen_aufnehmen", "/bestellungen"), requireAktiverStandort("/bestellungen")]);
     await updateBestellungStatus(mitarbeiter, standort.id, String(formData.get("id")), formData.get("status"));
     revalidatePath("/bestellungen"); revalidatePath("/kueche");
-    return { success: "Status wurde aktualisiert." };
+    return { success: formData.get("status") === "bezahlt" ? "Rechnung wurde bezahlt und der Besuch abgeschlossen." : "Status wurde aktualisiert." };
   } catch (error) { return result(error); }
 }

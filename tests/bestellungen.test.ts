@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { after, before, describe, it } from "node:test";
 import { BestellungStatus } from "../generated/prisma/enums";
-import { assertKuechenannahmeOffen, BestellungValidationError, createBestellung, updateBestellung, updateBestellungStatus, validateBestellungInput } from "../lib/bestellungen";
+import { assertKuechenannahmeOffen, berechneRechnung, BestellungValidationError, createBestellung, updateBestellung, updateBestellungStatus, validateBestellungInput } from "../lib/bestellungen";
 import { createGericht, validateGerichtInput } from "../lib/gerichte";
 import { prisma } from "../lib/prisma";
 
@@ -9,6 +9,7 @@ const suffix = String(Date.now());
 let gerichtId = "";
 let fremdesGerichtId = "";
 const bestellungIds: string[] = [];
+const gastIds: string[] = [];
 
 before(async () => {
   const inhaber = await prisma.mitarbeiter.findUniqueOrThrow({ where: { id: "inhaber-marcello" } });
@@ -18,6 +19,7 @@ before(async () => {
 
 after(async () => {
   await prisma.bestellung.deleteMany({ where: { id: { in: bestellungIds } } });
+  await prisma.gast.deleteMany({ where: { id: { in: gastIds } } });
   await prisma.gericht.deleteMany({ where: { id: { in: [gerichtId, fremdesGerichtId] } } });
   await prisma.$disconnect();
 });
@@ -34,6 +36,23 @@ describe("Bestellvalidierung", () => {
   it("erzwingt den Küchenannahmeschluss in Berliner Ortszeit", async () => {
     await assertKuechenannahmeOffen("kreuzberg", new Date("2026-07-25T18:00:00.000Z"));
     await assert.rejects(assertKuechenannahmeOffen("kreuzberg", new Date("2026-07-25T20:30:00.000Z")), BestellungValidationError);
+  });
+});
+
+describe("Rechnungsberechnung", () => {
+  it("summiert Mengen und historische Centpreise", () => {
+    assert.deepEqual(berechneRechnung([
+      { menge: 2, einzelpreisCent: 1290 },
+      { menge: 3, einzelpreisCent: 350 },
+    ], false), { ausgangssummeCent: 3630, rabattCent: 0, gesamtsummeCent: 3630 });
+  });
+
+  it("rundet 15 Prozent Bella-Card-Rabatt auf ganze Cent", () => {
+    assert.deepEqual(berechneRechnung([{ menge: 1, einzelpreisCent: 101 }], true), {
+      ausgangssummeCent: 101,
+      rabattCent: 15,
+      gesamtsummeCent: 86,
+    });
   });
 });
 
@@ -68,5 +87,40 @@ describe("Bestellpersistenz und Standorttrennung", () => {
     await updateBestellungStatus(mitarbeiter, "kreuzberg", bestellung.id, BestellungStatus.bezahlt);
     await assert.rejects(updateBestellung(mitarbeiter, "kreuzberg", bestellung.id, input(tisch.id)), BestellungValidationError);
     await assert.rejects(updateBestellungStatus(mitarbeiter, "kreuzberg", bestellung.id, BestellungStatus.storniert), BestellungValidationError);
+  });
+
+  it("speichert den Bella-Card-Rabatt und zählt einen Besuch genau einmal", async () => {
+    const mitarbeiter = await prisma.mitarbeiter.findUniqueOrThrow({ where: { id: "manager-kreuzberg-giuseppe" } });
+    const gast = await prisma.gast.create({ data: { name: "Testgast Bella", telefon: `+49 155 10 ${suffix}`, telefonNormalisiert: `+4915510${suffix}`, besuchszaehler: 10 } });
+    gastIds.push(gast.id);
+    const tisch = await prisma.tisch.findFirstOrThrow({ where: { standortId: "kreuzberg", verfuegbar: true, bestellungen: { none: { status: { in: ["offen", "serviert"] } } } } });
+    const bestellung = await createBestellung(mitarbeiter, "kreuzberg", { ...input(tisch.id), gastTelefonNormalisiert: gast.telefonNormalisiert }, new Date("2026-07-25T18:00:00.000Z"));
+    bestellungIds.push(bestellung.id);
+    const erwarteteAusgangssumme = bestellung.positionen[0].menge * bestellung.positionen[0].einzelpreisCent;
+    const erwarteterRabatt = Math.round(erwarteteAusgangssumme * 0.15);
+    await updateBestellungStatus(mitarbeiter, "kreuzberg", bestellung.id, BestellungStatus.serviert);
+    const bezahlt = await updateBestellungStatus(mitarbeiter, "kreuzberg", bestellung.id, BestellungStatus.bezahlt);
+    assert.equal(bezahlt.ausgangssummeCent, erwarteteAusgangssumme);
+    assert.equal(bezahlt.rabattCent, erwarteterRabatt);
+    assert.equal(bezahlt.gesamtsummeCent, erwarteteAusgangssumme - erwarteterRabatt);
+    assert.ok(bezahlt.abgerechnetAm);
+    assert.equal((await prisma.gast.findUniqueOrThrow({ where: { id: gast.id } })).besuchszaehler, 11);
+    await assert.rejects(updateBestellungStatus(mitarbeiter, "kreuzberg", bestellung.id, BestellungStatus.bezahlt), BestellungValidationError);
+    assert.equal((await prisma.gast.findUniqueOrThrow({ where: { id: gast.id } })).besuchszaehler, 11);
+  });
+
+  it("aktiviert mit dem zehnten Besuch die Bella-Card erst für die folgende Rechnung", async () => {
+    const mitarbeiter = await prisma.mitarbeiter.findUniqueOrThrow({ where: { id: "manager-kreuzberg-giuseppe" } });
+    const gast = await prisma.gast.create({ data: { name: "Testgast Zehn", telefon: `+49 155 20 ${suffix}`, telefonNormalisiert: `+4915520${suffix}`, besuchszaehler: 9 } });
+    gastIds.push(gast.id);
+    const tisch = await prisma.tisch.findFirstOrThrow({ where: { standortId: "kreuzberg", verfuegbar: true, bestellungen: { none: { status: { in: ["offen", "serviert"] } } } } });
+    const bestellung = await createBestellung(mitarbeiter, "kreuzberg", { ...input(tisch.id), gastTelefonNormalisiert: gast.telefonNormalisiert }, new Date("2026-07-25T18:00:00.000Z"));
+    bestellungIds.push(bestellung.id);
+    const erwarteteAusgangssumme = bestellung.positionen[0].menge * bestellung.positionen[0].einzelpreisCent;
+    await updateBestellungStatus(mitarbeiter, "kreuzberg", bestellung.id, BestellungStatus.serviert);
+    const bezahlt = await updateBestellungStatus(mitarbeiter, "kreuzberg", bestellung.id, BestellungStatus.bezahlt);
+    assert.equal(bezahlt.rabattCent, 0);
+    assert.equal(bezahlt.gesamtsummeCent, erwarteteAusgangssumme);
+    assert.equal((await prisma.gast.findUniqueOrThrow({ where: { id: gast.id } })).besuchszaehler, 10);
   });
 });

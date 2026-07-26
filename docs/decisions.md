@@ -511,3 +511,31 @@ lautlos umschreiben._
   ihren dann aktuellen Kartenpreis.
 - **Konsequenz:** Karten- und Bestelländerungen schreiben historische Preise nicht
   rückwirkend um; die Abrechnung in Phase 5 bleibt reproduzierbar.
+
+## 2026-07-26 — Bezahlte Rechnungen werden als unveränderlicher Snapshot gespeichert
+
+- **Status:** angenommen
+- **Kontext:** Kartenpreise und Besuchszähler können sich nach einer Abrechnung
+  ändern. Eine spätere dynamische Neuberechnung könnte deshalb andere Werte als
+  beim Bezahlvorgang anzeigen.
+- **Entscheidung:** Beim Übergang `serviert → bezahlt` speichert die Bestellung
+  Ausgangssumme, Rabatt, Endsumme und Abrechnungszeitpunkt. Die Ausgangssumme
+  verwendet ausschließlich historisierte Positionspreise. Ein Rabatt von 15
+  Prozent wird kaufmännisch auf ganze Cent gerundet.
+- **Konsequenz:** Bezahlte Rechnungen bleiben reproduzierbar und unveränderlich.
+  Steuer-, Beleg- und getrennte Zahlungsregeln bleiben außerhalb von Phase 5.
+
+## 2026-07-26 — Rabatt und Besuchszählung sind Teil derselben Bezahltransaktion
+
+- **Status:** angenommen
+- **Kontext:** Ein wiederholter oder teilweise fehlgeschlagener Bezahlvorgang darf
+  weder einen Besuch doppelt zählen noch Rechnung und Gaststatus auseinanderlaufen
+  lassen.
+- **Entscheidung:** Rabattberechnung, Rechnungssnapshot, Statuswechsel und die
+  optionale Erhöhung des Besuchszählers laufen atomar in einer Transaktion. Die
+  Rabattberechtigung verwendet die vor dem Bezahlen bereits abgeschlossenen
+  Besuche; der zehnte Besuch aktiviert die Bella-Card für die folgende Rechnung.
+  Der Rabatt wird gemäß Spec automatisch angewendet und nicht manuell vergeben.
+- **Konsequenz:** Wiederholte Bezahlversuche werden abgewiesen. Bedienungen können
+  den Bestellablauf abschließen, ohne zusätzliche Gastprofil- oder Besuchsdaten
+  zu erhalten; eine manuelle Rabattoberfläche ist nicht erforderlich.

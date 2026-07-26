@@ -2,12 +2,27 @@ import { randomUUID } from "node:crypto";
 import { BestellungStatus, GerichtKategorie, type Rolle, type Wochentag } from "@/generated/prisma/enums";
 import { assertBerechtigung } from "@/lib/berechtigungen";
 import { normalisiereTelefonnummer } from "@/lib/gaeste";
+import { istBellaCardAktiv } from "@/lib/gast-status";
 import { prisma } from "@/lib/prisma";
 
 export type BestellungMitarbeiter = { id: string; rolle: Rolle; standortId: string };
 export type BestellpositionInput = { gerichtId: string; menge: number; sonderwunsch: string | null };
 export type BestellungInput = { tischId: string; gastTelefonNormalisiert: string | null; positionen: BestellpositionInput[] };
 export class BestellungValidationError extends Error {}
+
+export type Rechnungsposition = { menge: number; einzelpreisCent: number };
+export type Rechnung = { ausgangssummeCent: number; rabattCent: number; gesamtsummeCent: number };
+
+export function berechneRechnung(positionen: Rechnungsposition[], bellaCardAktiv: boolean): Rechnung {
+  const ausgangssummeCent = positionen.reduce((summe, position) => {
+    if (!Number.isInteger(position.menge) || position.menge < 1 || !Number.isInteger(position.einzelpreisCent) || position.einzelpreisCent < 0) {
+      throw new BestellungValidationError("Die Rechnung enthält ungültige Bestellpositionen.");
+    }
+    return summe + position.menge * position.einzelpreisCent;
+  }, 0);
+  const rabattCent = bellaCardAktiv ? Math.round(ausgangssummeCent * 0.15) : 0;
+  return { ausgangssummeCent, rabattCent, gesamtsummeCent: ausgangssummeCent - rabattCent };
+}
 
 export function validateBestellungInput(input: {
   tischId?: unknown;
@@ -111,7 +126,16 @@ export async function updateBestellungStatus(mitarbeiter: BestellungMitarbeiter,
   return prisma.$transaction(async (tx) => {
     const [person, bestellung] = await Promise.all([
       tx.mitarbeiter.findFirst({ where: { id: mitarbeiter.id, rolle: mitarbeiter.rolle, ...(mitarbeiter.rolle === "inhaber" ? {} : { standortId }) }, select: { id: true } }),
-      tx.bestellung.findFirst({ where: { id, standortId }, select: { id: true, status: true } }),
+      tx.bestellung.findFirst({
+        where: { id, standortId },
+        select: {
+          id: true,
+          status: true,
+          gastId: true,
+          gast: { select: { besuchszaehler: true } },
+          positionen: { select: { menge: true, einzelpreisCent: true } },
+        },
+      }),
     ]);
     if (!person) throw new BestellungValidationError("Der aktive Mitarbeiter ist ungültig.");
     if (!bestellung) throw new BestellungValidationError("Die Bestellung gehört nicht zum aktiven Standort.");
@@ -120,6 +144,18 @@ export async function updateBestellungStatus(mitarbeiter: BestellungMitarbeiter,
       ? [BestellungStatus.serviert, BestellungStatus.storniert]
       : [BestellungStatus.bezahlt, BestellungStatus.storniert];
     if (!erlaubt.includes(status as BestellungStatus)) throw new BestellungValidationError("Dieser Statuswechsel ist nicht zulässig.");
+    if (status === BestellungStatus.bezahlt) {
+      const rechnung = berechneRechnung(bestellung.positionen, istBellaCardAktiv(bestellung.gast?.besuchszaehler ?? 0));
+      const bezahlt = await tx.bestellung.updateMany({
+        where: { id, standortId, status: BestellungStatus.serviert },
+        data: { status: BestellungStatus.bezahlt, ...rechnung, abgerechnetAm: new Date() },
+      });
+      if (bezahlt.count !== 1) throw new BestellungValidationError("Die Bestellung wurde bereits abgeschlossen.");
+      if (bestellung.gastId) {
+        await tx.gast.update({ where: { id: bestellung.gastId }, data: { besuchszaehler: { increment: 1 } } });
+      }
+      return tx.bestellung.findUniqueOrThrow({ where: { id } });
+    }
     return tx.bestellung.update({ where: { id }, data: { status: status as BestellungStatus } });
   });
 }
@@ -127,7 +163,7 @@ export async function updateBestellungStatus(mitarbeiter: BestellungMitarbeiter,
 export function listBestellungen(standortId: string, nurKueche = false) {
   return prisma.bestellung.findMany({
     where: { standortId, ...(nurKueche ? { status: BestellungStatus.offen } : {}) },
-    include: { tisch: { select: { nummer: true } }, gast: { select: { name: true } }, aufgenommenVon: { select: { name: true } }, positionen: { include: { gericht: { select: { name: true } } } } },
+    include: { tisch: { select: { nummer: true } }, gast: { select: { name: true, besuchszaehler: true } }, aufgenommenVon: { select: { name: true } }, positionen: { include: { gericht: { select: { name: true } } } } },
     orderBy: { erstelltAm: nurKueche ? "asc" : "desc" },
   });
 }

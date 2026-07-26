@@ -13,6 +13,11 @@
 .order-card.serviert { border-left: .45rem solid #2f7d5b; }
 .order-card.storniert, .order-card.bezahlt { opacity: .72; }
 .status-actions { display: flex; flex-wrap: wrap; gap: .65rem; margin-top: 1rem; }
+.invoice-summary { margin: 1rem 0; padding: .85rem 1rem; border-radius: .75rem; background: #f7f3eb; }
+.invoice-summary > div { display: flex; justify-content: space-between; gap: 1rem; padding: .2rem 0; }
+.invoice-summary dd { margin: 0; font-variant-numeric: tabular-nums; }
+.invoice-discount { color: #236b3d; }
+.invoice-total { margin-top: .35rem; padding-top: .55rem !important; border-top: 1px solid currentColor; font-weight: 700; }
 .kitchen-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr)); gap: 1rem; }
 .kitchen-ticket { border-top: .5rem solid #b3532b; }
 .kitchen-ticket ol { padding-left: 1.4rem; }

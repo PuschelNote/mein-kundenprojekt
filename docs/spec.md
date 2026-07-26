@@ -128,6 +128,12 @@ Beide Standorte laufen aktuell komplett auf Papier: Zettel, Notizbücher, Tasche
 8. Wenn eine Bestellung den Status "serviert" hat, dann gilt sie noch nicht als abgeschlossen – erst Status "bezahlt" schließt sie ab.
 9. App muss auch Offline verfügbar sein, sodass das System bei Internetausfall nicht zusammenbricht
 
+**Präzisierung zur Abrechnung:** Für die Rabattprüfung zählen die bereits vor der
+Abrechnung abgeschlossenen Besuche. Der zehnte bezahlte Besuch aktiviert die
+Bella-Card daher für die folgende Rechnung. Geldbeträge werden in Cent berechnet;
+der Rabatt wird kaufmännisch auf einen vollen Cent gerundet. Beim Bezahlen werden
+Ausgangssumme, Rabatt und Endsumme dauerhaft an der Bestellung historisiert.
+
 ---
 
 ## Prioritäten (wichtig vs. später)
