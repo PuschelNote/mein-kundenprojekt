@@ -19,7 +19,7 @@ export default async function BestellungenPage() {
 
   return <main className="admin-page">
     <header className="page-header"><div><p className="eyebrow">Phase 4–5 · Bestellungen und Abrechnung</p><h1>Bestellungen</h1><p>Tischbestellungen und Abrechnung für {standort.name}.</p></div></header>
-    <section className="panel"><h2>Neue Bestellung</h2><p className="panel-hint">Optional kann ein bereits angelegter Gast per Telefonnummer zugeordnet werden.</p><BestellungForm action={createBestellungAction} tische={tische} gerichte={gerichte} /></section>
+    <section className="panel" id="neue-bestellung"><h2>Neue Bestellung</h2><p className="panel-hint">Optional kann ein bereits angelegter Gast per Telefonnummer zugeordnet werden.</p><BestellungForm action={createBestellungAction} tische={tische} gerichte={gerichte} /></section>
     <section className="order-list">
       <div className="section-heading"><h2>Bestellübersicht</h2><span>{bestellungen.length}</span></div>
       {bestellungen.length === 0 ? <div className="empty-state">Noch keine Bestellungen vorhanden.</div> : bestellungen.map((bestellung) => {

@@ -6,6 +6,8 @@ import {
 } from "@/generated/prisma/enums";
 import {
   assertBerechtigung,
+  istMitarbeiterFuerStandortGueltig,
+  mitarbeiterStandortBedingung,
   type Berechtigung,
 } from "@/lib/berechtigungen";
 import { prisma } from "@/lib/prisma";
@@ -13,7 +15,7 @@ import { prisma } from "@/lib/prisma";
 export type TischMitarbeiter = {
   id: string;
   rolle: Rolle;
-  standortId: string;
+  standortId: string | null;
 };
 
 export type TischInput = {
@@ -177,7 +179,7 @@ async function assertTischZugriff(
   berechtigung: Berechtigung,
 ) {
   assertBerechtigung(mitarbeiter.rolle, berechtigung);
-  if (!standortId || mitarbeiter.standortId !== standortId) {
+  if (!standortId || !istMitarbeiterFuerStandortGueltig(mitarbeiter.rolle, mitarbeiter.standortId, standortId)) {
     throw new TischValidationError(
       "Mitarbeiter und Tisch müssen zum aktiven Standort gehören.",
     );
@@ -186,7 +188,7 @@ async function assertTischZugriff(
     where: {
       id: mitarbeiter.id,
       rolle: mitarbeiter.rolle,
-      standortId,
+      ...mitarbeiterStandortBedingung(mitarbeiter.rolle, standortId),
     },
     select: { id: true },
   });

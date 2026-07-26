@@ -53,10 +53,18 @@ export function hatBerechtigung(rolle: Rolle, berechtigung: Berechtigung) {
 
 export function istMitarbeiterFuerStandortGueltig(
   rolle: Rolle,
-  mitarbeiterStandortId: string,
+  mitarbeiterStandortId: string | null,
   aktiverStandortId: string,
 ) {
-  return rolle === Rolle.inhaber || mitarbeiterStandortId === aktiverStandortId;
+  return rolle === Rolle.inhaber ||
+    (rolle === Rolle.bedienung && mitarbeiterStandortId === null) ||
+    mitarbeiterStandortId === aktiverStandortId;
+}
+
+export function mitarbeiterStandortBedingung(rolle: Rolle, standortId: string) {
+  if (rolle === Rolle.inhaber) return {};
+  if (rolle === Rolle.bedienung) return { OR: [{ standortId }, { standortId: null }] };
+  return { standortId };
 }
 
 export function assertBerechtigung(
@@ -129,10 +137,8 @@ export async function setAktiverMitarbeiter(value: unknown) {
     return null;
   }
 
-  const mitarbeiter = await prisma.mitarbeiter.findFirst({
-    where: { id: value, standortId: standort.id },
-  });
-  if (!mitarbeiter) {
+  const mitarbeiter = await prisma.mitarbeiter.findUnique({ where: { id: value } });
+  if (!mitarbeiter || !istMitarbeiterFuerStandortGueltig(mitarbeiter.rolle, mitarbeiter.standortId, standort.id)) {
     return null;
   }
 

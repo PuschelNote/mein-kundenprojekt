@@ -9,6 +9,7 @@ import {
   updateReservierungStatus,
   validateReservierungInput,
 } from "@/lib/reservierungen";
+import { requireAktiverStandort } from "@/lib/standort";
 
 export type ReservierungActionState = {
   error?: string;
@@ -20,12 +21,12 @@ export async function createReservierungAction(
   formData: FormData,
 ): Promise<ReservierungActionState> {
   try {
-    const mitarbeiter = await requireBerechtigung(
-      "reservierungen_verwalten",
-      "/reservierungen",
-    );
+    const [mitarbeiter, standort] = await Promise.all([
+      requireBerechtigung("reservierungen_verwalten", "/reservierungen"),
+      requireAktiverStandort("/reservierungen"),
+    ]);
     const input = inputFromFormData(formData);
-    await createReservierung(mitarbeiter, mitarbeiter.standortId, input);
+    await createReservierung(mitarbeiter, standort.id, input);
     revalidatePath("/reservierungen");
     return { success: "Reservierung wurde angelegt." };
   } catch (error) {
@@ -42,13 +43,13 @@ export async function updateReservierungAction(
   formData: FormData,
 ): Promise<ReservierungActionState> {
   try {
-    const mitarbeiter = await requireBerechtigung(
-      "reservierungen_verwalten",
-      "/reservierungen",
-    );
+    const [mitarbeiter, standort] = await Promise.all([
+      requireBerechtigung("reservierungen_verwalten", "/reservierungen"),
+      requireAktiverStandort("/reservierungen"),
+    ]);
     const id = String(formData.get("id") ?? "");
     const input = inputFromFormData(formData, true);
-    await updateReservierung(id, mitarbeiter, mitarbeiter.standortId, input);
+    await updateReservierung(id, mitarbeiter, standort.id, input);
     revalidatePath("/reservierungen");
     return { success: "Reservierung wurde aktualisiert." };
   } catch (error) {
@@ -61,15 +62,15 @@ export async function updateReservierungStatusAction(
   formData: FormData,
 ): Promise<ReservierungActionState> {
   try {
-    const mitarbeiter = await requireBerechtigung(
-      "reservierungen_verwalten",
-      "/reservierungen",
-    );
+    const [mitarbeiter, standort] = await Promise.all([
+      requireBerechtigung("reservierungen_verwalten", "/reservierungen"),
+      requireAktiverStandort("/reservierungen"),
+    ]);
     await updateReservierungStatus(
       String(formData.get("id") ?? ""),
       formData.get("status"),
       mitarbeiter,
-      mitarbeiter.standortId,
+      standort.id,
     );
     revalidatePath("/reservierungen");
     return { success: "Reservierungsstatus wurde aktualisiert." };

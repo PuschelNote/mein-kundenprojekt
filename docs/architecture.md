@@ -81,6 +81,7 @@ Zentrale Anwendung / API
 
 | Pfad | Verantwortung |
 |---|---|
+| `app/page.tsx` | Rollenbasiertes Arbeitsdashboard nach Standort- und Mitarbeiterwahl mit primären Vorgängen, operativen Schnellzugriffen und berechtigter Verwaltung |
 | `app/mitarbeiter/` | Servergerenderte Mitarbeiterverwaltung, Formulare und Server Actions |
 | `app/mitarbeiter-waehlen/` | Prototypische Mitarbeiter-Session für den aktiven Standort |
 | `app/nicht-erlaubt/` | Verständliche Zielseite bei fehlender Capability |
@@ -91,7 +92,7 @@ Zentrale Anwendung / API
 | `app/kueche/` | Standortbezogene Küchenbons und Übergang von offen zu serviert |
 | `app/tische/` | Schematischer Standortgrundriss, Tischliste, Statussteuerung und geschützte Stammdatenpflege |
 | `app/standort/` | Explizite Standortauswahl und serverseitiger Kontextwechsel |
-| `components/app-header.tsx` | Globale Anzeige des aktiven Standorts und Wechselmöglichkeit |
+| `components/app-header.tsx` | Reduzierte globale Navigation sowie sichtbare Mitarbeiter- und Standortsession mit Wechsel- und Abmeldemöglichkeit |
 | `components/opening-hours.tsx` | Vollständiger Wochenplan mit geöffneten und geschlossenen Tagen |
 | `lib/mitarbeiter.ts` | Validierung, Standortprüfung und CRUD-Anwendungslogik |
 | `lib/gaeste.ts` | Gastvalidierung, Telefonnummern-Normalisierung und CRUD-Logik |
@@ -113,9 +114,12 @@ Zentrale Anwendung / API
 ## Kernmodell und Invarianten
 
 - Jede standortabhängige Entität referenziert genau einen Standort.
-- Ein Mitarbeiter besitzt genau eine Rolle und gehört genau einem Standort an.
-- Standortbezogene Mitarbeiterabfragen filtern an der Datenbankgrenze per
-  `standortId`; eine nachträgliche Filterung im Client ist kein Ersatz dafür.
+- Ein Mitarbeiter besitzt genau eine Rolle. Manager und Inhaber besitzen eine
+  feste Standortrelation; Bedienungen dürfen bei unbekanntem Einsatzort
+  `standortId = null` tragen.
+- Standortbezogene Mitarbeiterabfragen liefern fest zugeordnete Personen des
+  Standorts plus standortoffene Bedienungen. Jede betriebliche Entität und Abfrage
+  bleibt unabhängig davon zwingend an den validierten aktiven Standort gebunden.
 - Reguläre Öffnungszeiten sind je Standort und Wochentag eindeutig. Ein fehlender
   Eintrag bedeutet „geschlossen“; Zeitfenster verwenden Minuten seit Mitternacht.
 - Standortgebundene Seiten und Operationen verwenden ausschließlich einen
@@ -139,8 +143,9 @@ Zentrale Anwendung / API
   der Bella-Card-Status wird aus dem Besuchszähler abgeleitet.
 - Gast-Erkennung verwendet ausschließlich einen exakten Vergleich des
   normalisierten Werts und gibt höchstens ein Profil zurück.
-- Reservierungen speichern lokales Datum und Uhrzeit getrennt; Mitarbeiter,
-  Tisch und Reservierung müssen serverseitig demselben Standort zugeordnet sein.
+- Reservierungen speichern lokales Datum und Uhrzeit getrennt; Tisch und
+  Reservierung müssen serverseitig demselben aktiven Standort zugeordnet sein.
+  Der handelnde Mitarbeiter muss dort gültig oder eine standortoffene Bedienung sein.
 - Gastauflösung und Reservierungsanlage laufen in einer Transaktion: Eine bekannte
   normalisierte Telefonnummer wird verknüpft, eine unbekannte Nummer erzeugt nur
   zusammen mit einem gültigen Gastnamen ein neues Gastprofil.
@@ -153,7 +158,8 @@ Zentrale Anwendung / API
 - Gerichtspreise werden als positive ganzzahlige Centwerte gespeichert; Namen
   sind normalisiert je Standort eindeutig.
 - Der Inhaber darf nach explizitem Standortwechsel beide Karten administrieren;
-  alle anderen Mitarbeiter-Sessions bleiben an ihren Standort gebunden.
+  standortoffene Bedienungs-Sessions gelten ebenfalls in beiden expliziten
+  Standortkontexten. Manager-Sessions bleiben an ihren Standort gebunden.
 - Neue Bestellungen sind ab 30 Minuten vor Standortschließung gesperrt.
 - Bestellungen werden unter `/bestellungen` über `lib/bestellungen.ts` atomar
   geschrieben; `/kueche` liest dieselben standortgebundenen Datensätze als

@@ -20,7 +20,7 @@ type MitarbeiterFormProps = {
     id: string;
     name: string;
     rolle: "bedienung" | "manager" | "inhaber";
-    standortId: string;
+    standortId: string | null;
   };
 };
 
@@ -56,11 +56,10 @@ export function MitarbeiterForm({
         Standort
         <select
           name="standortId"
-          required
           defaultValue={mitarbeiter?.standortId ?? defaultStandortId ?? ""}
         >
-          <option value="" disabled>
-            Standort auswählen
+          <option value="">
+            Standortoffen (nur Bedienung)
           </option>
           {standorte.map((standort) => (
             <option key={standort.id} value={standort.id}>
@@ -68,6 +67,7 @@ export function MitarbeiterForm({
             </option>
           ))}
         </select>
+        <small>Für Bedienungen kann der Standort offenbleiben. Manager und Inhaber benötigen eine feste Zuordnung.</small>
       </label>
 
       <label>

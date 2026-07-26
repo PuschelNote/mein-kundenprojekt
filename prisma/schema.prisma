@@ -82,8 +82,8 @@ model Mitarbeiter {
   id         String   @id @default(cuid())
   name       String
   rolle      Rolle
-  standortId String
-  standort   Standort @relation(fields: [standortId], references: [id], onDelete: Restrict)
+  standortId String?
+  standort   Standort? @relation(fields: [standortId], references: [id], onDelete: Restrict)
   erstelltAm DateTime @default(now())
   geaendertAm DateTime @updatedAt
   erstellteReservierungen  Reservierung[] @relation("ReservierungErsteller")

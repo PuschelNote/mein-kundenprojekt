@@ -271,4 +271,26 @@ describe("Reservierungspersistenz und Standorttrennung", () => {
       ReservierungValidationError,
     );
   });
+
+  it("erlaubt einer standortoffenen Bedienung Vorgänge im explizit aktiven Standort", async () => {
+    const sofia = await prisma.mitarbeiter.findUniqueOrThrow({ where: { id: "bedienung-sofia" } });
+    const offeneTelefonnummer = `+4934${String(Date.now()).slice(-8)}`;
+    const reservierung = await createReservierung(
+      sofia,
+      "spandau",
+      validateReservierungInput({
+        tischId: "tisch-spandau-1",
+        gastName: "Standortoffener Testgast",
+        gastTelefon: offeneTelefonnummer,
+        datum: "2026-08-19",
+        uhrzeit: "18:30",
+        personenzahl: 2,
+      }),
+    );
+    assert.equal(sofia.standortId, null);
+    assert.equal(reservierung.standortId, "spandau");
+    assert.equal(reservierung.erstelltVonId, sofia.id);
+    await prisma.reservierung.delete({ where: { id: reservierung.id } });
+    await prisma.gast.delete({ where: { id: reservierung.gastId } });
+  });
 });

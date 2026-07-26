@@ -25,6 +25,54 @@
 .kitchen-ticket li p { color: #8b2d20; font-weight: 700; margin: .25rem 0 0; }
 @media (max-width: 760px) { .order-position { grid-template-columns: 1fr; } }
 
+.dashboard-page { max-width: 72rem; margin: 0 auto; padding: 2rem; }
+.dashboard-welcome { display: flex; align-items: flex-end; justify-content: space-between; gap: 2rem; margin: 3rem 0; }
+.dashboard-welcome h1 { margin: .35rem 0 .65rem; font-size: clamp(2.75rem, 7vw, 5.5rem); }
+.dashboard-welcome > div:first-child > p:last-child { color: #635950; font-size: 1.2rem; }
+.dashboard-context { display: grid; min-width: 16rem; gap: .2rem; border-left: 3px solid #a33a2b; padding: .4rem 0 .4rem 1rem; }
+.dashboard-context span, .dashboard-context small { color: #74685e; }
+.dashboard-context a { margin-top: .45rem; font-size: .85rem; }
+.dashboard-session-actions { display: flex; align-items: center; gap: .8rem; margin-top: .35rem; }
+.dashboard-session-actions form { margin: 0; }
+.dashboard-session-actions button { border: 0; background: transparent; color: #8d2f24; padding: 0; font-size: .85rem; font-weight: 700; text-decoration: underline; }
+.dashboard-section-heading { display: flex; align-items: end; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; }
+.dashboard-section-heading h2 { margin: .25rem 0 0; font-family: Georgia, "Times New Roman", serif; font-size: 1.75rem; }
+.flow-hint { color: #74685e; font-size: .85rem; }
+.dashboard-primary-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.dashboard-action-card { display: grid; grid-template-columns: auto 1fr; gap: .9rem 1rem; min-height: 13rem; border-radius: 1.2rem; color: white; padding: 1.5rem; text-decoration: none; box-shadow: 0 .8rem 2rem rgb(73 50 31 / 15%); transition: transform .15s ease, box-shadow .15s ease; }
+.dashboard-action-card:hover { transform: translateY(-3px); box-shadow: 0 1rem 2.5rem rgb(73 50 31 / 22%); }
+.reservation-action { background: #8d2f24; }
+.order-action { background: #273c2c; }
+.action-number { opacity: .65; font-size: .8rem; letter-spacing: .12em; }
+.dashboard-action-card strong { display: block; margin-bottom: .6rem; font-family: Georgia, "Times New Roman", serif; font-size: 1.7rem; }
+.dashboard-action-card p { max-width: 24rem; color: rgb(255 255 255 / 78%); line-height: 1.5; }
+.action-arrow { grid-column: 2; align-self: end; font-weight: 700; }
+.dashboard-grid { display: grid; grid-template-columns: 1.6fr .8fr; gap: 2rem; margin-top: 3rem; }
+.dashboard-work-panel { min-width: 0; }
+.dashboard-quick-links { display: grid; grid-template-columns: repeat(2, 1fr); gap: .75rem; }
+.dashboard-quick-links a { display: grid; gap: .25rem; border: 1px solid #ded5c8; border-radius: .85rem; background: #fffdf9; padding: 1rem; text-decoration: none; }
+.dashboard-quick-links a:hover { border-color: #8d2f24; }
+.dashboard-quick-links span { color: #26211d; font-size: 1.05rem; }
+.dashboard-quick-links small { color: #74685e; font-weight: 400; }
+.dashboard-admin-heading { margin-top: 2rem; }
+.admin-links { grid-template-columns: repeat(2, 1fr); }
+.dashboard-hours { border-left: 1px solid #ded5c8; padding-left: 2rem; }
+.dashboard-hours .opening-hours { margin-top: .75rem; box-shadow: none; }
+.dashboard-location-link { display: inline-block; margin-top: 1rem; }
+.panel[id] { scroll-margin-top: 6rem; }
+
+@media (max-width: 980px) {
+  .app-header .header-secondary { display: none; }
+}
+
+@media (max-width: 760px) {
+  .dashboard-welcome, .dashboard-section-heading { align-items: flex-start; flex-direction: column; }
+  .dashboard-context { width: 100%; }
+  .dashboard-primary-actions, .dashboard-grid, .dashboard-quick-links { grid-template-columns: 1fr; }
+  .dashboard-hours { border-top: 1px solid #ded5c8; border-left: 0; padding-top: 2rem; padding-left: 0; }
+  .flow-hint { display: none; }
+}
+
 * {
   box-sizing: border-box;
 }
@@ -1218,7 +1266,8 @@ button {
     padding-inline: 1rem;
   }
 
-  .app-header nav > a:first-child:not(:last-child) {
+  .app-header .header-primary-action,
+  .app-header .header-secondary {
     display: none;
   }
 

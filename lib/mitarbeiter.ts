@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 export type MitarbeiterInput = {
   name: string;
   rolle: Rolle;
-  standortId: string;
+  standortId: string | null;
 };
 
 export class MitarbeiterValidationError extends Error {}
@@ -27,15 +27,15 @@ export function validateMitarbeiterInput(input: {
     );
   }
 
-  if (!standortId) {
-    throw new MitarbeiterValidationError("Bitte einen Standort auswählen.");
-  }
-
   if (!rollen.has(rolle)) {
     throw new MitarbeiterValidationError("Die ausgewählte Rolle ist ungültig.");
   }
 
-  return { name, standortId, rolle: rolle as Rolle };
+  if (!standortId && rolle !== Rolle.bedienung) {
+    throw new MitarbeiterValidationError("Manager und Inhaber benötigen einen festen Standort.");
+  }
+
+  return { name, standortId: standortId || null, rolle: rolle as Rolle };
 }
 
 export function listMitarbeiter() {
@@ -51,7 +51,7 @@ export function listStandorte() {
 
 export function listMitarbeiterFuerStandort(standortId: string) {
   return prisma.mitarbeiter.findMany({
-    where: { standortId },
+    where: { OR: [{ standortId }, { rolle: Rolle.bedienung, standortId: null }] },
     include: { standort: true },
     orderBy: { name: "asc" },
   });
@@ -65,7 +65,7 @@ export function listManagerFuerStandort(standortId: string) {
 }
 
 export async function createMitarbeiter(input: MitarbeiterInput) {
-  await assertStandortExists(input.standortId);
+  if (input.standortId) await assertStandortExists(input.standortId);
   return prisma.mitarbeiter.create({ data: input });
 }
 
@@ -77,7 +77,7 @@ export async function updateMitarbeiter(
     throw new MitarbeiterValidationError("Mitarbeiter-ID fehlt.");
   }
 
-  await assertStandortExists(input.standortId);
+  if (input.standortId) await assertStandortExists(input.standortId);
   const bisher = await prisma.mitarbeiter.findUnique({ where: { id } });
   if (bisher?.rolle === Rolle.inhaber && input.rolle !== Rolle.inhaber) {
     await assertWeitererInhaber(id);

@@ -17,7 +17,7 @@ export type GerichtInput = {
 export type GerichtMitarbeiter = {
   id: string;
   rolle: Rolle;
-  standortId: string;
+  standortId: string | null;
 };
 
 export class GerichtValidationError extends Error {}

@@ -71,7 +71,15 @@ describe("Rollenbasierte Berechtigungen", () => {
     );
   });
 
-  it("erlaubt nur dem Inhaber einen anderen aktiven Standort", () => {
+  it("erlaubt Inhaber und standortoffene Bedienungen im aktiven Standort", () => {
+    assert.equal(
+      istMitarbeiterFuerStandortGueltig(
+        Rolle.bedienung,
+        null,
+        "spandau",
+      ),
+      true,
+    );
     assert.equal(
       istMitarbeiterFuerStandortGueltig(
         Rolle.inhaber,

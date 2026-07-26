@@ -34,6 +34,9 @@ export default async function MitarbeiterPage() {
       if (b.id === aktiverStandort.id) return 1;
       return a.name.localeCompare(b.name, "de");
     });
+  const standortoffeneBedienungen = mitarbeiter.filter(
+    (person) => person.rolle === "bedienung" && person.standortId === null,
+  );
 
   return (
     <main className="admin-page">
@@ -70,7 +73,18 @@ export default async function MitarbeiterPage() {
             Noch keine Mitarbeiter vorhanden. Lege oben den ersten Eintrag an.
           </div>
         ) : (
-          standortGruppen.map((gruppe) => {
+          <>
+          {standortoffeneBedienungen.length > 0 ? <section className="location-employee-group active">
+            <header><div><p className="eyebrow">Standortoffen</p><h3>Flexible Bedienungen</h3></div><p>{standortoffeneBedienungen.length} Mitarbeiter · an beiden Standorten wählbar</p></header>
+            {standortoffeneBedienungen.map((person) => (
+              <article className="employee-card" key={person.id}>
+                <div><h3>{person.name}</h3><p>Standortoffen · {rollenLabel[person.rolle]}</p></div>
+                <details><summary>Bearbeiten</summary><MitarbeiterForm action={updateMitarbeiterAction} standorte={standorte} submitLabel="Änderungen speichern" mitarbeiter={person} /></details>
+                <form action={deleteMitarbeiterAction}><input type="hidden" name="id" value={person.id} /><button className="danger-button" type="submit">Löschen</button></form>
+              </article>
+            ))}
+          </section> : null}
+          {standortGruppen.map((gruppe) => {
             const manager = gruppe.mitarbeiter.filter(
               (person) => person.rolle === "manager",
             );
@@ -101,7 +115,7 @@ export default async function MitarbeiterPage() {
                     <div>
                       <h3>{person.name}</h3>
                       <p>
-                        {person.standort.name} · {rollenLabel[person.rolle]}
+                        {person.standort?.name ?? "Standortoffen"} · {rollenLabel[person.rolle]}
                       </p>
                     </div>
 
@@ -125,7 +139,8 @@ export default async function MitarbeiterPage() {
                 ))}
               </section>
             );
-          })
+          })}
+          </>
         )}
       </section>
     </main>

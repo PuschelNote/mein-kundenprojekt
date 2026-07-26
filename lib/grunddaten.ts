@@ -29,6 +29,12 @@ const inhaber = {
   standortId: "kreuzberg",
 } as const;
 
+const bedienungen = [
+  { id: "bedienung-sofia", name: "Sofia", rolle: Rolle.bedienung, standortId: null },
+  { id: "bedienung-nico", name: "Nico", rolle: Rolle.bedienung, standortId: null },
+  { id: "bedienung-fatima", name: "Fatima", rolle: Rolle.bedienung, standortId: null },
+] as const;
+
 const oeffnungszeiten = [
   ...[
     Wochentag.dienstag,
@@ -95,6 +101,14 @@ export async function seedGrunddaten() {
       where: { id: person.id },
       create: person,
       update: {},
+    });
+  }
+
+  for (const person of bedienungen) {
+    await prisma.mitarbeiter.upsert({
+      where: { id: person.id },
+      create: person,
+      update: { name: person.name, rolle: person.rolle, standortId: null },
     });
   }
 

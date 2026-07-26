@@ -45,7 +45,19 @@ describe("Mitarbeiter-Validierung", () => {
     );
   });
 
-  it("verlangt Name und Standort", () => {
+  it("erlaubt ausschließlich Bedienungen ohne festen Standort", () => {
+    assert.deepEqual(validateMitarbeiterInput({ name: "Sofia", rolle: "bedienung", standortId: "" }), {
+      name: "Sofia",
+      rolle: Rolle.bedienung,
+      standortId: null,
+    });
+    assert.throws(
+      () => validateMitarbeiterInput({ name: "Giuseppe", rolle: "manager", standortId: "" }),
+      MitarbeiterValidationError,
+    );
+  });
+
+  it("verlangt einen gültigen Namen und für Manager einen Standort", () => {
     assert.throws(
       () =>
         validateMitarbeiterInput({
@@ -117,15 +129,20 @@ describe("Mitarbeiter-Persistenz", () => {
     );
   });
 
-  it("liefert Mitarbeiter ausschließlich für den gewählten Standort", async () => {
+  it("liefert feste und standortoffene Mitarbeiter für den gewählten Standort", async () => {
+    await seedGrunddaten();
     const kreuzberg = await listMitarbeiterFuerStandort("kreuzberg");
     const spandau = await listMitarbeiterFuerStandort("spandau");
 
-    assert.ok(kreuzberg.every((person) => person.standortId === "kreuzberg"));
-    assert.ok(spandau.every((person) => person.standortId === "spandau"));
+    assert.ok(kreuzberg.every((person) => person.standortId === "kreuzberg" || person.standortId === null));
+    assert.ok(spandau.every((person) => person.standortId === "spandau" || person.standortId === null));
+    for (const id of ["bedienung-sofia", "bedienung-nico", "bedienung-fatima"]) {
+      assert.equal(kreuzberg.filter((person) => person.id === id).length, 1);
+      assert.equal(spandau.filter((person) => person.id === id).length, 1);
+    }
   });
 
-  it("legt die beiden Manager idempotent und standortbezogen an", async () => {
+  it("legt Manager und standortoffene Bedienungen idempotent an", async () => {
     await seedGrunddaten();
     await seedGrunddaten();
 
@@ -145,6 +162,9 @@ describe("Mitarbeiter-Persistenz", () => {
     });
     assert.equal(marco?.name, "Marco");
     assert.equal(marco?.rolle, Rolle.inhaber);
+    const bedienungen = await prisma.mitarbeiter.findMany({ where: { id: { in: ["bedienung-sofia", "bedienung-nico", "bedienung-fatima"] } } });
+    assert.equal(bedienungen.length, 3);
+    assert.ok(bedienungen.every((person) => person.rolle === Rolle.bedienung && person.standortId === null));
   });
 
   it("verhindert das Löschen des letzten Inhabers", async () => {

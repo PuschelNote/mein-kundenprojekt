@@ -15,10 +15,10 @@ _Stand: 26.07.2026_
 
 | ID | Feature | Status | Anforderung / Akzeptanzkern |
 |---|---|---|---|
-| BV-001 | Mitarbeiter und Rollen verwalten | done | Mitarbeiter besitzen ID, Name, Standort und genau eine Rolle: `bedienung`, `manager` oder `inhaber`. CRUD unter `/mitarbeiter`; Validierungs- und Persistenztests sind grün. |
+| BV-001 | Mitarbeiter und Rollen verwalten | done | Mitarbeiter besitzen ID, Name und genau eine Rolle; Manager und Inhaber besitzen eine feste Standortzuordnung, Bedienungen dürfen standortoffen sein. CRUD unter `/mitarbeiter`; Validierungs- und Persistenztests sind grün. |
 | BV-002 | Verbindlichen Standortkontext führen | done | Kreuzberg und Spandau besitzen eindeutige IDs; ein serverseitig validierter Cookie-Kontext erzwingt eine explizite Auswahl und wird global angezeigt. |
 | BV-020 | Standardöffnungszeiten hinterlegen | done | Kreuzberg ist Di–So 17–23 Uhr, Spandau Do–So 17–22 Uhr geöffnet; geschlossene Tage und Wochenpläne werden standortbezogen angezeigt. |
-| BV-021 | Mitarbeiter Standorten zuordnen | done | Mitarbeiter sind einem Standort zugeordnet; Giuseppe ist Manager in Kreuzberg und Renate in Spandau. Die Übersicht ist nach Standort gruppiert und priorisiert den aktiven Kontext. |
+| BV-021 | Mitarbeiter Standorten zuordnen | done | Giuseppe ist Manager in Kreuzberg und Renate in Spandau; bekannte Bedienungen ohne geklärten Einsatzort bleiben standortoffen und werden separat angezeigt. |
 | BV-022 | Rollenbasierte Zugriffe erzwingen | done | Zentrale deny-by-default Capability-Matrix und serverseitige Guards setzen die Rollenrechte durch. Mitarbeiterwahl ist als Prototyp noch nicht durch PIN oder Passwort abgesichert. |
 | BV-045 | Technisches Projektgrundgerüst einrichten | done | Next.js mit TypeScript, ESLint, Prisma und lokaler SQLite-Verbindung ist eingerichtet; Prisma-Generierung, Datenbankcheck, Lint und Production-Build laufen erfolgreich. |
 
@@ -78,6 +78,13 @@ _Stand: 26.07.2026_
 | BV-011 | Digitale Bella-Card aktivieren | done | Ab zehn abgeschlossenen Besuchen wird der Bella-Card-Status eines Gasts aus dem Besuchszähler abgeleitet aktiv. |
 | BV-041 | Bella-Card-Rabatt automatisch anwenden | done | Bei aktiver Bella-Card werden automatisch 15 % der Ausgangssumme kaufmännisch auf Cent gerundet abgezogen. |
 | BV-042 | Rabattierte Abrechnung anzeigen | done | Vorschau und gespeicherte Abrechnung zeigen Ausgangssumme, Bella-Card-Rabatt und Gesamtsumme nachvollziehbar an; bezahlte Werte bleiben historisiert. |
+
+## Querschnitt — Bedienführung
+
+| ID | Feature | Status | Anforderung / Akzeptanzkern |
+|---|---|---|---|
+| BV-046 | Rollenbasiertes Arbeitsdashboard | done | Nach expliziter Standort- und Mitarbeiterwahl zeigt `/` den aktiven Kontext, priorisiert direkte Reservierungsanlage und Bestellaufnahme, bietet responsive operative Schnellzugriffe und blendet Verwaltungsaktionen capability-basiert ein. |
+| BV-047 | Standortoffene Bedienungen | done | Sofia, Nico und Fatima werden idempotent ohne feste Standort-ID angelegt, sind nach expliziter Standortwahl an beiden Standorten verfügbar und handeln ausschließlich im aktiven Standortkontext. |
 
 ## Phase 6 — Betriebsreife: Offline und Datenintegrität
 

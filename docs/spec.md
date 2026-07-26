@@ -74,8 +74,12 @@ Beide Standorte laufen aktuell komplett auf Papier: Zettel, Notizbücher, Tasche
 - Einzelpreis zum Zeitpunkt der Bestellung (Preis kann sich ändern)
 
 ### Mitarbeiter
-- Mitarbeiter-ID, Name, Standort-ID, Rolle
+- Mitarbeiter-ID, Name, optionale Standort-ID, Rolle
 - Rolle: `bedienung`| `manager`| `inhaber`
+- Manager sind fest einem Standort zugeordnet. Bedienungen dürfen ohne feste
+  Standortzuordnung geführt werden, wenn ihr Einsatzort noch nicht bekannt ist;
+  jeder betriebliche Vorgang verwendet trotzdem zwingend den explizit aktiven
+  Standort.
 
 ### Catering-Auftrag (optional ?)
 - Kundenname (z.B. "TechCorp"), Datum, Beschreibung, Angebotssumme, Status
@@ -111,6 +115,11 @@ Beide Standorte laufen aktuell komplett auf Papier: Zettel, Notizbücher, Tasche
 **Manager pro Standort:**
 - Kreuzberg: Giuseppe
 - Spandau: Renate
+
+**Standortoffene Bedienungen:**
+- Sofia
+- Nico
+- Fatima
 
 > Hintergrund: Einmal wurde ein Preis in der Excel-Tabelle versehentlich überschrieben – wurde erst Wochen später bemerkt. Deshalb sind Preisänderungen dem Inhaber vorbehalten.
 

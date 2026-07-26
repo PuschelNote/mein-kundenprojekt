@@ -65,9 +65,9 @@ export async function setAktiverStandort(value: unknown) {
   const cookieStore = await cookies();
   const mitarbeiterId = cookieStore.get(MITARBEITER_COOKIE)?.value;
   const aktiverMitarbeiter = mitarbeiterId
-    ? await prisma.mitarbeiter.findUnique({
+      ? await prisma.mitarbeiter.findUnique({
         where: { id: mitarbeiterId },
-        select: { rolle: true },
+        select: { rolle: true, standortId: true },
       })
     : null;
   cookieStore.set(STANDORT_COOKIE, standort.id, {
@@ -77,7 +77,8 @@ export async function setAktiverStandort(value: unknown) {
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
   });
-  if (aktiverMitarbeiter?.rolle !== Rolle.inhaber) {
+  const bleibtStandortoffen = aktiverMitarbeiter?.rolle === Rolle.bedienung && aktiverMitarbeiter.standortId === null;
+  if (aktiverMitarbeiter?.rolle !== Rolle.inhaber && !bleibtStandortoffen) {
     cookieStore.delete(MITARBEITER_COOKIE);
   }
 

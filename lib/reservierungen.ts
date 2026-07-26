@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { ReservierungStatus, type Rolle } from "@/generated/prisma/enums";
-import { assertBerechtigung } from "@/lib/berechtigungen";
+import { assertBerechtigung, istMitarbeiterFuerStandortGueltig, mitarbeiterStandortBedingung } from "@/lib/berechtigungen";
 import { normalisiereTelefonnummer } from "@/lib/gaeste";
 import { prisma } from "@/lib/prisma";
 
@@ -17,7 +17,7 @@ export type ReservierungInput = {
 export type ReservierungMitarbeiter = {
   id: string;
   rolle: Rolle;
-  standortId: string;
+  standortId: string | null;
 };
 
 export class ReservierungValidationError extends Error {}
@@ -94,7 +94,7 @@ export async function createReservierung(
     );
   }
   const gastTelefonNormalisiert = input.gastTelefonNormalisiert;
-  if (!standortId || mitarbeiter.standortId !== standortId) {
+  if (!standortId || !istMitarbeiterFuerStandortGueltig(mitarbeiter.rolle, mitarbeiter.standortId, standortId)) {
     throw new ReservierungValidationError(
       "Mitarbeiter und Reservierung müssen zum aktiven Standort gehören.",
     );
@@ -104,8 +104,8 @@ export async function createReservierung(
     const gespeicherterMitarbeiter = await tx.mitarbeiter.findFirst({
         where: {
           id: mitarbeiter.id,
-          standortId,
           rolle: mitarbeiter.rolle,
+          ...mitarbeiterStandortBedingung(mitarbeiter.rolle, standortId),
         },
         select: { id: true },
       });
@@ -182,8 +182,8 @@ export async function updateReservierung(
     const gespeicherterMitarbeiter = await tx.mitarbeiter.findFirst({
       where: {
         id: mitarbeiter.id,
-        standortId,
         rolle: mitarbeiter.rolle,
+        ...mitarbeiterStandortBedingung(mitarbeiter.rolle, standortId),
       },
       select: { id: true },
     });
@@ -264,8 +264,8 @@ export async function updateReservierungStatus(
     const gespeicherterMitarbeiter = await tx.mitarbeiter.findFirst({
         where: {
           id: mitarbeiter.id,
-          standortId,
           rolle: mitarbeiter.rolle,
+          ...mitarbeiterStandortBedingung(mitarbeiter.rolle, standortId),
         },
         select: { id: true },
       });
@@ -314,7 +314,7 @@ function assertReservierungKontext(
   if (!id) {
     throw new ReservierungValidationError("Reservierungs-ID fehlt.");
   }
-  if (!standortId || mitarbeiter.standortId !== standortId) {
+  if (!standortId || !istMitarbeiterFuerStandortGueltig(mitarbeiter.rolle, mitarbeiter.standortId, standortId)) {
     throw new ReservierungValidationError(
       "Mitarbeiter und Reservierung müssen zum aktiven Standort gehören.",
     );

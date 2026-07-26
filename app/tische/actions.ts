@@ -10,6 +10,7 @@ import {
   updateTischStatus,
   validateTischInput,
 } from "@/lib/tische";
+import { requireAktiverStandort } from "@/lib/standort";
 
 export type TischActionState = { error?: string; success?: string };
 
@@ -18,13 +19,13 @@ export async function createTischAction(
   formData: FormData,
 ): Promise<TischActionState> {
   try {
-    const mitarbeiter = await requireBerechtigung(
-      "tischstammdaten_verwalten",
-      "/tische",
-    );
+    const [mitarbeiter, standort] = await Promise.all([
+      requireBerechtigung("tischstammdaten_verwalten", "/tische"),
+      requireAktiverStandort("/tische"),
+    ]);
     await createTisch(
       mitarbeiter,
-      mitarbeiter.standortId,
+      standort.id,
       inputFromFormData(formData),
     );
     revalidatePath("/tische");
@@ -40,14 +41,14 @@ export async function updateTischAction(
   formData: FormData,
 ): Promise<TischActionState> {
   try {
-    const mitarbeiter = await requireBerechtigung(
-      "tischstammdaten_verwalten",
-      "/tische",
-    );
+    const [mitarbeiter, standort] = await Promise.all([
+      requireBerechtigung("tischstammdaten_verwalten", "/tische"),
+      requireAktiverStandort("/tische"),
+    ]);
     await updateTisch(
       String(formData.get("id") ?? ""),
       mitarbeiter,
-      mitarbeiter.standortId,
+      standort.id,
       inputFromFormData(formData),
     );
     revalidatePath("/tische");
@@ -63,15 +64,15 @@ export async function updateTischStatusAction(
   formData: FormData,
 ): Promise<TischActionState> {
   try {
-    const mitarbeiter = await requireBerechtigung(
-      "tischstatus_verwalten",
-      "/tische",
-    );
+    const [mitarbeiter, standort] = await Promise.all([
+      requireBerechtigung("tischstatus_verwalten", "/tische"),
+      requireAktiverStandort("/tische"),
+    ]);
     await updateTischStatus(
       String(formData.get("id") ?? ""),
       formData.get("status"),
       mitarbeiter,
-      mitarbeiter.standortId,
+      standort.id,
     );
     revalidatePath("/tische");
     return { success: "Tischstatus wurde aktualisiert." };
@@ -85,14 +86,14 @@ export async function deleteTischAction(
   formData: FormData,
 ): Promise<TischActionState> {
   try {
-    const mitarbeiter = await requireBerechtigung(
-      "tischstammdaten_verwalten",
-      "/tische",
-    );
+    const [mitarbeiter, standort] = await Promise.all([
+      requireBerechtigung("tischstammdaten_verwalten", "/tische"),
+      requireAktiverStandort("/tische"),
+    ]);
     await deleteTisch(
       String(formData.get("id") ?? ""),
       mitarbeiter,
-      mitarbeiter.standortId,
+      standort.id,
     );
     revalidatePath("/tische");
     revalidatePath("/reservierungen");

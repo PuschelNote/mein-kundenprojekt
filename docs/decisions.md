@@ -569,3 +569,39 @@ lautlos umschreiben._
   aber noch kein betriebsreifes Mehrgeräte- oder Offline-Synchronisationssystem.
   Vor Phase 6 sind Zielplattform, Offline-Authentifizierung, Synchronisationsmodell
   und Konfliktregeln konzeptionell festzulegen.
+
+## 2026-07-26 — Das Dashboard ist aufgaben- und rollenorientiert
+
+- **Status:** angenommen
+- **Kontext:** Die bisherige Startseite zeigte nur Standort, Mitarbeiter und
+  Öffnungszeiten. Die vollständige Modulnavigation zwang Mitarbeitende dazu,
+  technische Bereiche selbst dem nächsten Arbeitsschritt zuzuordnen.
+- **Entscheidung:** Nach expliziter Standort- und Mitarbeiterwahl dient `/` als
+  Arbeitsdashboard. Neue Reservierung und neue Bestellung sind die dominanten
+  Einstiege und springen direkt zum jeweiligen Formular. Laufende operative
+  Bereiche und Verwaltung sind nachgeordnet; Verwaltungslinks werden aus der
+  zentralen Capability-Matrix abgeleitet. Die Kopfzeile bleibt als reduzierte
+  Direktnavigation und sichtbarer Sessionkontext erhalten.
+- **Konsequenz:** Der typische Ablauf beginnt bei der Aufgabe statt beim Modul.
+  Das Dashboard ist weiterhin kein Sicherheitsperimeter; Zielseiten und
+  Schreiboperationen prüfen Rolle und Standort serverseitig. Die Mitarbeiterwahl
+  bleibt bis zu einer eigenen Authentifizierungsentscheidung ein Prototyp ohne PIN.
+
+## 2026-07-26 — Bedienungen dürfen ohne festen Standort geführt werden
+
+- **Status:** angenommen; ersetzt die verpflichtende Mitarbeiter-Standortrelation
+  aus der Entscheidung „Mitarbeiter als standortgebundene Entität“ für die Rolle
+  `bedienung`
+- **Kontext:** Sofia, Nico und Fatima sind als Bedienungen bekannt, es ist aber
+  nicht geklärt, an welchem Standort sie regelmäßig arbeiten. Eine erfundene
+  Zuordnung würde Personalplanung mit fachlich ungesicherten Daten festschreiben.
+- **Entscheidung:** `Mitarbeiter.standortId` wird optional. Nur Bedienungen dürfen
+  ohne Standort gespeichert werden; Manager und Inhaber benötigen weiterhin eine
+  feste Relation. Standortoffene Bedienungen werden nach der expliziten
+  Standortwahl an beiden Standorten angeboten. Reservierungen, Tische,
+  Bestellungen und alle anderen betrieblichen Daten behalten ihre verpflichtende
+  Standort-ID und verwenden serverseitig den aktiven Standortkontext.
+- **Konsequenz:** Sofia, Nico und Fatima werden mit stabilen IDs als
+  standortoffene Grunddaten angelegt. Ihre Rolle erhält keine zusätzlichen Rechte.
+  Manager eines anderen Standorts bleiben ungültig; ein Standortwechsel darf die
+  Session einer standortoffenen Bedienung erhalten.

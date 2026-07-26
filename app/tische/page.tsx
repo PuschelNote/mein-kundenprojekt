@@ -10,10 +10,14 @@ import {
 import { TischDeleteForm } from "./tisch-delete-form";
 import { TischForm } from "./tisch-form";
 import { TischStatusForm } from "./tisch-status-form";
+import { requireAktiverStandort } from "@/lib/standort";
 
 export default async function TischePage() {
-  const mitarbeiter = await requireBerechtigung("tischstatus_sehen", "/tische");
-  const tische = await listTische(mitarbeiter.standortId);
+  const [mitarbeiter, standort] = await Promise.all([
+    requireBerechtigung("tischstatus_sehen", "/tische"),
+    requireAktiverStandort("/tische"),
+  ]);
+  const tische = await listTische(standort.id);
   const darfStammdatenPflegen = hatBerechtigung(
     mitarbeiter.rolle,
     "tischstammdaten_verwalten",
@@ -26,7 +30,7 @@ export default async function TischePage() {
         <div>
           <p className="eyebrow">Phase 2 · BV-003 · BV-028–BV-031</p>
           <h1>Tischübersicht</h1>
-          <p>Schematischer Grundriss für {mitarbeiter.standort.name}.</p>
+          <p>Schematischer Grundriss für {standort.name}.</p>
         </div>
       </header>
 

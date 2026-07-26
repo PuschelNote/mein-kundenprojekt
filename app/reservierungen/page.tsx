@@ -11,15 +11,16 @@ import {
 } from "./actions";
 import { ReservierungForm } from "./reservierung-form";
 import { ReservierungStatusForm } from "./reservierung-status-form";
+import { requireAktiverStandort } from "@/lib/standort";
 
 export default async function ReservierungenPage() {
-  const mitarbeiter = await requireBerechtigung(
-    "reservierungen_verwalten",
-    "/reservierungen",
-  );
+  const [, standort] = await Promise.all([
+    requireBerechtigung("reservierungen_verwalten", "/reservierungen"),
+    requireAktiverStandort("/reservierungen"),
+  ]);
   const [tische, reservierungen] = await Promise.all([
-    listTischeFuerReservierung(mitarbeiter.standortId),
-    listReservierungen(mitarbeiter.standortId),
+    listTischeFuerReservierung(standort.id),
+    listReservierungen(standort.id),
   ]);
 
   return (
@@ -28,11 +29,11 @@ export default async function ReservierungenPage() {
         <div>
           <p className="eyebrow">Phase 1 · BV-004</p>
           <h1>Reservierungen</h1>
-          <p>Reservierungen für {mitarbeiter.standort.name} anlegen.</p>
+          <p>Reservierungen für {standort.name} anlegen.</p>
         </div>
       </header>
 
-      <section className="panel">
+      <section className="panel" id="neue-reservierung">
         <h2>Neue Reservierung</h2>
         <p className="panel-hint">
           Bekannte Gäste werden über ihre Telefonnummer zugeordnet. Ist die

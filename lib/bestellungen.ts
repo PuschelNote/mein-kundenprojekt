@@ -1,11 +1,11 @@
 import { randomUUID } from "node:crypto";
 import { BestellungStatus, GerichtKategorie, type Rolle, type Wochentag } from "@/generated/prisma/enums";
-import { assertBerechtigung } from "@/lib/berechtigungen";
+import { assertBerechtigung, istMitarbeiterFuerStandortGueltig, mitarbeiterStandortBedingung } from "@/lib/berechtigungen";
 import { normalisiereTelefonnummer } from "@/lib/gaeste";
 import { istBellaCardAktiv } from "@/lib/gast-status";
 import { prisma } from "@/lib/prisma";
 
-export type BestellungMitarbeiter = { id: string; rolle: Rolle; standortId: string };
+export type BestellungMitarbeiter = { id: string; rolle: Rolle; standortId: string | null };
 export type BestellpositionInput = { gerichtId: string; menge: number; sonderwunsch: string | null };
 export type BestellungInput = { tischId: string; gastTelefonNormalisiert: string | null; positionen: BestellpositionInput[] };
 export class BestellungValidationError extends Error {}
@@ -63,7 +63,7 @@ export async function createBestellung(mitarbeiter: BestellungMitarbeiter, stand
   try {
     return await prisma.$transaction(async (tx) => {
       const [person, tisch, gast, gerichte] = await Promise.all([
-        tx.mitarbeiter.findFirst({ where: { id: mitarbeiter.id, rolle: mitarbeiter.rolle, ...(mitarbeiter.rolle === "inhaber" ? {} : { standortId }) }, select: { id: true } }),
+        tx.mitarbeiter.findFirst({ where: { id: mitarbeiter.id, rolle: mitarbeiter.rolle, ...mitarbeiterStandortBedingung(mitarbeiter.rolle, standortId) }, select: { id: true } }),
         tx.tisch.findFirst({ where: { id: input.tischId, standortId, verfuegbar: true }, select: { id: true } }),
         input.gastTelefonNormalisiert ? tx.gast.findUnique({ where: { telefonNormalisiert: input.gastTelefonNormalisiert }, select: { id: true } }) : null,
         tx.gericht.findMany({ where: { id: { in: input.positionen.map((p) => p.gerichtId) }, standortId }, select: { id: true, preisCent: true, kategorie: true } }),
@@ -98,7 +98,7 @@ export async function updateBestellung(mitarbeiter: BestellungMitarbeiter, stand
   assertKontext(mitarbeiter, standortId);
   if (!id) throw new BestellungValidationError("Bestell-ID fehlt.");
   return prisma.$transaction(async (tx) => {
-    const person = await tx.mitarbeiter.findFirst({ where: { id: mitarbeiter.id, rolle: mitarbeiter.rolle, ...(mitarbeiter.rolle === "inhaber" ? {} : { standortId }) }, select: { id: true } });
+    const person = await tx.mitarbeiter.findFirst({ where: { id: mitarbeiter.id, rolle: mitarbeiter.rolle, ...mitarbeiterStandortBedingung(mitarbeiter.rolle, standortId) }, select: { id: true } });
     if (!person) throw new BestellungValidationError("Der aktive Mitarbeiter ist ungültig.");
     const bestellung = await tx.bestellung.findFirst({ where: { id, standortId, status: BestellungStatus.offen }, select: { id: true, tischId: true, positionen: { select: { gerichtId: true, einzelpreisCent: true } } } });
     if (!bestellung) throw new BestellungValidationError("Nur offene Bestellungen des aktiven Standorts können bearbeitet werden.");
@@ -125,7 +125,7 @@ export async function updateBestellungStatus(mitarbeiter: BestellungMitarbeiter,
   if (!Object.values(BestellungStatus).includes(status as BestellungStatus)) throw new BestellungValidationError("Der Bestellstatus ist ungültig.");
   return prisma.$transaction(async (tx) => {
     const [person, bestellung] = await Promise.all([
-      tx.mitarbeiter.findFirst({ where: { id: mitarbeiter.id, rolle: mitarbeiter.rolle, ...(mitarbeiter.rolle === "inhaber" ? {} : { standortId }) }, select: { id: true } }),
+      tx.mitarbeiter.findFirst({ where: { id: mitarbeiter.id, rolle: mitarbeiter.rolle, ...mitarbeiterStandortBedingung(mitarbeiter.rolle, standortId) }, select: { id: true } }),
       tx.bestellung.findFirst({
         where: { id, standortId },
         select: {
@@ -188,5 +188,5 @@ export async function assertKuechenannahmeOffen(standortId: string, now = new Da
 
 function assertKontext(mitarbeiter: BestellungMitarbeiter, standortId: string) {
   assertBerechtigung(mitarbeiter.rolle, "bestellungen_aufnehmen");
-  if (!standortId || (mitarbeiter.rolle !== "inhaber" && mitarbeiter.standortId !== standortId)) throw new BestellungValidationError("Mitarbeiter und Bestellung müssen zum aktiven Standort gehören.");
+  if (!standortId || !istMitarbeiterFuerStandortGueltig(mitarbeiter.rolle, mitarbeiter.standortId, standortId)) throw new BestellungValidationError("Mitarbeiter und Bestellung müssen zum aktiven Standort gehören.");
 }
