@@ -30,6 +30,7 @@ after(async () => {
 describe("Reservierungsvalidierung", () => {
   it("wandelt eine gültige lokale Uhrzeit in Minuten um", () => {
     const input = validateReservierungInput({
+      standortId: "kreuzberg",
       tischId: "tisch-kreuzberg-1",
       gastTelefon: "+49 (31) 123-4567",
       datum: "2026-08-15",
@@ -44,8 +45,13 @@ describe("Reservierungsvalidierung", () => {
 
   it("lehnt fehlende Pflichtwerte und ungültige Kalenderdaten ab", () => {
     assert.throws(
+      () => validateReservierungInput({ tischId: "tisch-kreuzberg-1", gastTelefon: telefon, datum: "2026-08-15", uhrzeit: "18:00", personenzahl: 2 }),
+      ReservierungValidationError,
+    );
+    assert.throws(
       () =>
         validateReservierungInput({
+          standortId: "kreuzberg",
           tischId: "",
           gastTelefon: telefon,
           datum: "2026-02-30",
@@ -57,6 +63,7 @@ describe("Reservierungsvalidierung", () => {
     assert.throws(
       () =>
         validateReservierungInput({
+          standortId: "kreuzberg",
           tischId: "tisch-kreuzberg-1",
           gastTelefon: telefon,
           datum: "2026-02-30",
@@ -78,6 +85,7 @@ describe("Reservierungspersistenz und Standorttrennung", () => {
       where: { id: "manager-kreuzberg-giuseppe" },
     });
     const input = validateReservierungInput({
+      standortId: "kreuzberg",
       tischId: "tisch-kreuzberg-1",
       gastTelefon: telefon,
       datum: "2026-08-15",
@@ -111,6 +119,7 @@ describe("Reservierungspersistenz und Standorttrennung", () => {
       inhaber,
       "kreuzberg",
       validateReservierungInput({
+        standortId: "kreuzberg",
         tischId: "tisch-kreuzberg-2",
         gastTelefon: "",
         gastTelefonOptional: true,
@@ -167,6 +176,7 @@ describe("Reservierungspersistenz und Standorttrennung", () => {
       where: { id: "manager-kreuzberg-giuseppe" },
     });
     const input = validateReservierungInput({
+      standortId: "kreuzberg",
       tischId: "tisch-kreuzberg-2",
       gastName: "Neuer Reservierungsgast",
       gastTelefon: neueTelefonnummer,
@@ -201,6 +211,7 @@ describe("Reservierungspersistenz und Standorttrennung", () => {
       where: { id: "manager-kreuzberg-giuseppe" },
     });
     const input = validateReservierungInput({
+      standortId: "kreuzberg",
       tischId: "tisch-kreuzberg-2",
       gastTelefon: unbekannteTelefonnummer,
       datum: "2026-08-18",
@@ -229,6 +240,7 @@ describe("Reservierungspersistenz und Standorttrennung", () => {
       where: { id: "manager-kreuzberg-giuseppe" },
     });
     const input = validateReservierungInput({
+      standortId: "kreuzberg",
       tischId: "tisch-spandau-1",
       gastTelefon: telefon,
       datum: "2026-08-16",
@@ -238,6 +250,10 @@ describe("Reservierungspersistenz und Standorttrennung", () => {
 
     await assert.rejects(
       createReservierung(mitarbeiter, "kreuzberg", input),
+      ReservierungValidationError,
+    );
+    await assert.rejects(
+      createReservierung(mitarbeiter, "kreuzberg", { ...input, standortId: "spandau", tischId: "tisch-kreuzberg-1" }),
       ReservierungValidationError,
     );
 
@@ -259,6 +275,7 @@ describe("Reservierungspersistenz und Standorttrennung", () => {
         },
         "kreuzberg",
         {
+          standortId: "kreuzberg",
           tischId: "tisch-kreuzberg-1",
           gastName: "",
           gastTelefon: telefon,
@@ -279,6 +296,7 @@ describe("Reservierungspersistenz und Standorttrennung", () => {
       sofia,
       "spandau",
       validateReservierungInput({
+        standortId: "spandau",
         tischId: "tisch-spandau-1",
         gastName: "Standortoffener Testgast",
         gastTelefon: offeneTelefonnummer,

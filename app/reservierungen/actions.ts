@@ -9,7 +9,7 @@ import {
   updateReservierungStatus,
   validateReservierungInput,
 } from "@/lib/reservierungen";
-import { requireAktiverStandort } from "@/lib/standort";
+import { requireAktiverStandort, setAktiverStandort } from "@/lib/standort";
 
 export type ReservierungActionState = {
   error?: string;
@@ -21,12 +21,13 @@ export async function createReservierungAction(
   formData: FormData,
 ): Promise<ReservierungActionState> {
   try {
-    const [mitarbeiter, standort] = await Promise.all([
+    const [mitarbeiter] = await Promise.all([
       requireBerechtigung("reservierungen_verwalten", "/reservierungen"),
       requireAktiverStandort("/reservierungen"),
     ]);
     const input = inputFromFormData(formData);
-    await createReservierung(mitarbeiter, standort.id, input);
+    await createReservierung(mitarbeiter, input.standortId, input);
+    await setAktiverStandort(input.standortId);
     revalidatePath("/reservierungen");
     return { success: "Reservierung wurde angelegt." };
   } catch (error) {
@@ -81,6 +82,7 @@ export async function updateReservierungStatusAction(
 
 function inputFromFormData(formData: FormData, gastTelefonOptional = false) {
   return validateReservierungInput({
+    standortId: formData.get("standortId"),
     tischId: formData.get("tischId"),
     gastName: formData.get("gastName"),
     gastTelefon: formData.get("gastTelefon"),

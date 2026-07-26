@@ -689,3 +689,21 @@ lautlos umschreiben._
   abgerechnete Daten zu gefährden. Eine zuvor verknüpfte offene Reservierung kann
   anschließend erneut für eine Bestellung verwendet werden. Der Tisch bleibt bis
   zur bewussten manuellen Freigabe in seinem bestehenden Status.
+
+## 2026-07-26 — Reservierungsanlage bestätigt den Standort explizit
+
+- **Status:** angenommen
+- **Kontext:** Der globale Standortkontext allein ist bei der telefonischen
+  Reservierungsaufnahme zu leicht zu übersehen. Die Standortwahl soll deshalb im
+  eigentlichen Reservierungsformular nochmals bewusst erfolgen.
+- **Entscheidung:** Neue Reservierungen benötigen ein eigenes Standort-Pflichtfeld.
+  Die Auswahl filtert die angebotenen Tische. Standortoffene Bedienungen und der
+  Inhaber können beide Restaurants wählen; fest zugeordnete Manager nur ihren
+  Standort. Der Server gleicht ausgewählten Standort, Tisch und Mitarbeiter erneut
+  ab und setzt den gewählten Standort nach erfolgreicher Anlage als aktiven
+  Kontext. Bei bestehenden Reservierungen wird der Standort sichtbar, aber nicht
+  nachträglich änderbar dargestellt.
+- **Konsequenz:** Standortfehler werden im Erfassungsablauf weniger wahrscheinlich,
+  ohne die Standorttrennung auf eine UI-Prüfung zu reduzieren. Die neue
+  Reservierung erscheint unmittelbar in der Liste ihres Standorts; ein
+  standortübergreifendes Verschieben bleibt außerhalb des Scopes.

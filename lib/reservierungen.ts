@@ -5,6 +5,7 @@ import { normalisiereTelefonnummer } from "@/lib/gaeste";
 import { prisma } from "@/lib/prisma";
 
 export type ReservierungInput = {
+  standortId: string;
   tischId: string;
   gastName: string;
   gastTelefon: string;
@@ -23,6 +24,7 @@ export type ReservierungMitarbeiter = {
 export class ReservierungValidationError extends Error {}
 
 export function validateReservierungInput(input: {
+  standortId?: unknown;
   tischId?: unknown;
   gastName?: unknown;
   gastTelefon?: unknown;
@@ -31,6 +33,7 @@ export function validateReservierungInput(input: {
   personenzahl?: unknown;
   gastTelefonOptional?: boolean;
 }): ReservierungInput {
+  const standortId = typeof input.standortId === "string" ? input.standortId.trim() : "";
   const tischId = typeof input.tischId === "string" ? input.tischId.trim() : "";
   const gastName = typeof input.gastName === "string" ? input.gastName.trim() : "";
   const gastTelefon =
@@ -39,6 +42,9 @@ export function validateReservierungInput(input: {
   const uhrzeit = typeof input.uhrzeit === "string" ? input.uhrzeit.trim() : "";
   const personenzahl = Number(input.personenzahl);
 
+  if (!standortId) {
+    throw new ReservierungValidationError("Bitte einen Standort auswählen.");
+  }
   if (!tischId) {
     throw new ReservierungValidationError("Bitte einen Tisch auswählen.");
   }
@@ -72,6 +78,7 @@ export function validateReservierungInput(input: {
 
   const [stunden, minuten] = uhrzeit.split(":").map(Number);
   return {
+    standortId,
     tischId,
     gastName,
     gastTelefon,
@@ -94,7 +101,7 @@ export async function createReservierung(
     );
   }
   const gastTelefonNormalisiert = input.gastTelefonNormalisiert;
-  if (!standortId || !istMitarbeiterFuerStandortGueltig(mitarbeiter.rolle, mitarbeiter.standortId, standortId)) {
+  if (!standortId || standortId !== input.standortId || !istMitarbeiterFuerStandortGueltig(mitarbeiter.rolle, mitarbeiter.standortId, standortId)) {
     throw new ReservierungValidationError(
       "Mitarbeiter und Reservierung müssen zum aktiven Standort gehören.",
     );
@@ -168,6 +175,9 @@ export async function updateReservierung(
   input: ReservierungInput,
 ) {
   assertReservierungKontext(id, mitarbeiter, standortId);
+  if (standortId !== input.standortId) {
+    throw new ReservierungValidationError("Der Standort einer bestehenden Reservierung kann nicht geändert werden.");
+  }
 
   return prisma.$transaction(async (tx) => {
     const reservierung = await tx.reservierung.findFirst({
@@ -289,6 +299,20 @@ export function listTischeFuerReservierung(standortId: string) {
   return prisma.tisch.findMany({
     where: { standortId },
     orderBy: { nummer: "asc" },
+  });
+}
+
+export async function listReservierungsstandorte(standortIds: string[]) {
+  return prisma.standort.findMany({
+    where: { id: { in: standortIds } },
+    orderBy: { name: "asc" },
+  });
+}
+
+export function listTischeFuerReservierungsstandorte(standortIds: string[]) {
+  return prisma.tisch.findMany({
+    where: { standortId: { in: standortIds } },
+    orderBy: [{ standortId: "asc" }, { nummer: "asc" }],
   });
 }
 

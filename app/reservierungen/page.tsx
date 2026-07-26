@@ -2,7 +2,8 @@ import { requireBerechtigung } from "@/lib/berechtigungen";
 import {
   formatiereUhrzeit,
   listReservierungen,
-  listTischeFuerReservierung,
+  listReservierungsstandorte,
+  listTischeFuerReservierungsstandorte,
 } from "@/lib/reservierungen";
 import {
   createReservierungAction,
@@ -14,12 +15,15 @@ import { ReservierungStatusForm } from "./reservierung-status-form";
 import { requireAktiverStandort } from "@/lib/standort";
 
 export default async function ReservierungenPage() {
-  const [, standort] = await Promise.all([
+  const [mitarbeiter, standort] = await Promise.all([
     requireBerechtigung("reservierungen_verwalten", "/reservierungen"),
     requireAktiverStandort("/reservierungen"),
   ]);
-  const [tische, reservierungen] = await Promise.all([
-    listTischeFuerReservierung(standort.id),
+  const darfAlleStandorteWaehlen = mitarbeiter.rolle === "inhaber" || (mitarbeiter.rolle === "bedienung" && mitarbeiter.standortId === null);
+  const standortIds = darfAlleStandorteWaehlen ? ["kreuzberg", "spandau"] : [standort.id];
+  const [standorte, tische, reservierungen] = await Promise.all([
+    listReservierungsstandorte(standortIds),
+    listTischeFuerReservierungsstandorte(standortIds),
     listReservierungen(standort.id),
   ]);
 
@@ -40,7 +44,7 @@ export default async function ReservierungenPage() {
           Nummer neu, wird der Gast mit dem eingegebenen Namen zusammen mit der
           Reservierung angelegt.
         </p>
-        <ReservierungForm action={createReservierungAction} tische={tische} />
+        <ReservierungForm action={createReservierungAction} standorte={standorte} aktiverStandortId={standort.id} tische={tische} />
       </section>
 
       <section className="reservation-list" aria-labelledby="reservation-list-title">
@@ -79,10 +83,13 @@ export default async function ReservierungenPage() {
                 </p>
                 <ReservierungForm
                   action={updateReservierungAction}
+                  standorte={standorte.filter((eintrag) => eintrag.id === reservierung.standortId)}
+                  aktiverStandortId={reservierung.standortId}
                   tische={tische}
                   submitLabel="Änderungen speichern"
                   reservierung={{
                     id: reservierung.id,
+                    standortId: reservierung.standortId,
                     tischId: reservierung.tischId,
                     datum: reservierung.datum,
                     uhrzeit: formatiereUhrzeit(reservierung.uhrzeitMinute),

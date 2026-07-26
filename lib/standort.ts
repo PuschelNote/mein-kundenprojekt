@@ -78,7 +78,8 @@ export async function setAktiverStandort(value: unknown) {
     secure: process.env.NODE_ENV === "production",
   });
   const bleibtStandortoffen = aktiverMitarbeiter?.rolle === Rolle.bedienung && aktiverMitarbeiter.standortId === null;
-  if (aktiverMitarbeiter?.rolle !== Rolle.inhaber && !bleibtStandortoffen) {
+  const bleibtFestZugeordnet = aktiverMitarbeiter?.standortId === standort.id;
+  if (aktiverMitarbeiter?.rolle !== Rolle.inhaber && !bleibtStandortoffen && !bleibtFestZugeordnet) {
     cookieStore.delete(MITARBEITER_COOKIE);
   }
 

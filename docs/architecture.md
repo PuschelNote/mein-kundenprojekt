@@ -158,6 +158,11 @@ Zentrale Anwendung / API
 - Reservierungen speichern lokales Datum und Uhrzeit getrennt; Tisch und
   Reservierung müssen serverseitig demselben aktiven Standort zugeordnet sein.
   Der handelnde Mitarbeiter muss dort gültig oder eine standortoffene Bedienung sein.
+- Die Reservierungsanlage verlangt zusätzlich zum globalen Kontext eine explizite
+  Standortauswahl. Sie steuert die clientseitige Tischliste, wird aber zusammen
+  mit Tisch und Mitarbeiter serverseitig erneut validiert. Nach erfolgreicher
+  Anlage wird der gewählte Standort zum aktiven Kontext; Bearbeitungen dürfen den
+  Standort einer bestehenden Reservierung nicht verschieben.
 - Gastauflösung und Reservierungsanlage laufen in einer Transaktion: Eine bekannte
   normalisierte Telefonnummer wird verknüpft, eine unbekannte Nummer erzeugt nur
   zusammen mit einem gültigen Gastnamen ein neues Gastprofil.

@@ -188,6 +188,7 @@ describe("Tischpersistenz, Rechte und Standorttrennung", () => {
       manager,
       "kreuzberg",
       validateReservierungInput({
+        standortId: "kreuzberg",
         tischId: tisch.id,
         gastTelefon: telefon,
         datum: "2099-08-15",
@@ -236,6 +237,7 @@ describe("Tischpersistenz, Rechte und Standorttrennung", () => {
         manager,
         "kreuzberg",
         validateReservierungInput({
+          standortId: "kreuzberg",
           tischId: tisch.id,
           gastTelefon: telefon,
           datum: "2099-08-16",

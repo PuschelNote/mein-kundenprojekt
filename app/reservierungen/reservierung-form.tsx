@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import type { ReservierungActionState } from "./actions";
 
 type TischOption = {
@@ -10,10 +10,15 @@ type TischOption = {
   bereich: "innen" | "terrasse";
   verfuegbar: boolean;
   vorlaeufig: boolean;
+  standortId: string;
 };
+
+type StandortOption = { id: string; name: string };
 
 export function ReservierungForm({
   action,
+  standorte,
+  aktiverStandortId,
   tische,
   reservierung,
   submitLabel = "Reservierung anlegen",
@@ -22,9 +27,12 @@ export function ReservierungForm({
     state: ReservierungActionState,
     formData: FormData,
   ) => Promise<ReservierungActionState>;
+  standorte: StandortOption[];
+  aktiverStandortId: string;
   tische: TischOption[];
   reservierung?: {
     id: string;
+    standortId: string;
     tischId: string;
     datum: string;
     uhrzeit: string;
@@ -33,10 +41,21 @@ export function ReservierungForm({
   submitLabel?: string;
 }) {
   const [state, formAction, pending] = useActionState(action, {});
+  const [standortId, setStandortId] = useState(reservierung?.standortId ?? aktiverStandortId);
+  const [tischId, setTischId] = useState(reservierung?.tischId ?? "");
+  const passendeTische = tische.filter((tisch) => tisch.standortId === standortId);
 
   return (
     <form action={formAction} className="reservation-form">
       {reservierung ? <input type="hidden" name="id" value={reservierung.id} /> : null}
+      {reservierung ? <input type="hidden" name="standortId" value={standortId} /> : null}
+      <label>
+        Standort
+        <select name={reservierung ? undefined : "standortId"} required disabled={Boolean(reservierung)} value={standortId} onChange={(event) => { setStandortId(event.target.value); setTischId(""); }}>
+          <option value="" disabled>Standort auswählen</option>
+          {standorte.map((standort) => <option key={standort.id} value={standort.id}>{standort.name}</option>)}
+        </select>
+      </label>
       <label>
         Gastname
         <input
@@ -58,9 +77,9 @@ export function ReservierungForm({
       </label>
       <label>
         Tisch
-        <select name="tischId" required defaultValue={reservierung?.tischId ?? ""}>
+        <select name="tischId" required value={tischId} onChange={(event) => setTischId(event.target.value)}>
           <option value="" disabled>Tisch auswählen</option>
-          {tische.map((tisch) => (
+          {passendeTische.map((tisch) => (
             <option
               value={tisch.id}
               key={tisch.id}
@@ -92,7 +111,7 @@ export function ReservierungForm({
           defaultValue={reservierung?.personenzahl}
         />
       </label>
-      <button type="submit" disabled={pending || tische.length === 0}>
+      <button type="submit" disabled={pending || passendeTische.length === 0}>
         {pending ? "Speichert …" : submitLabel}
       </button>
       {state.error ? <p className="form-message error">{state.error}</p> : null}
