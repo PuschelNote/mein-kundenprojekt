@@ -55,6 +55,14 @@ enum BestellungStatus {
   storniert
 }
 
+enum CateringStatus {
+  angefragt
+  angebot
+  bestaetigt
+  abgeschlossen
+  storniert
+}
+
 model Standort {
   id                       String                    @id
   name                     String                    @unique
@@ -65,6 +73,7 @@ model Standort {
   reservierungen           Reservierung[]
   gerichte                 Gericht[]
   bestellungen             Bestellung[]
+  cateringAuftraege        CateringAuftrag[]
 }
 
 model FeiertagsOeffnungszeit {
@@ -102,12 +111,46 @@ model Mitarbeiter {
   standort   Standort? @relation(fields: [standortId], references: [id], onDelete: Restrict)
   erstelltAm DateTime @default(now())
   geaendertAm DateTime @updatedAt
+  pinHash    String?
   erstellteReservierungen  Reservierung[] @relation("ReservierungErsteller")
   geaenderteReservierungen Reservierung[] @relation("ReservierungBearbeiter")
   aufgenommeneBestellungen Bestellung[]
+  bearbeiteteCateringAuftraege CateringAuftrag[]
+  sessions   MitarbeiterSession[]
 
   @@index([standortId])
   @@index([rolle])
+}
+
+model MitarbeiterSession {
+  id            String      @id @default(cuid())
+  tokenHash     String      @unique
+  mitarbeiterId String
+  mitarbeiter   Mitarbeiter @relation(fields: [mitarbeiterId], references: [id], onDelete: Cascade)
+  erstelltAm    DateTime    @default(now())
+  laeuftAbAm    DateTime
+
+  @@index([mitarbeiterId])
+  @@index([laeuftAbAm])
+}
+
+model CateringAuftrag {
+  id                 String          @id @default(cuid())
+  kundenname         String
+  datum              String
+  beschreibung       String
+  angebotssummeCent  Int
+  status             CateringStatus @default(angefragt)
+  standortId         String
+  standort           Standort        @relation(fields: [standortId], references: [id], onDelete: Restrict)
+  bearbeitetVonId    String
+  bearbeitetVon      Mitarbeiter     @relation(fields: [bearbeitetVonId], references: [id], onDelete: Restrict)
+  erstelltAm         DateTime        @default(now())
+  geaendertAm        DateTime        @updatedAt
+
+  @@index([standortId, datum])
+  @@index([standortId, status])
+  @@index([bearbeitetVonId])
 }
 
 model Gast {

@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { Rolle } from "@/generated/prisma/enums";
 import { prisma } from "@/lib/prisma";
 import { MITARBEITER_COOKIE } from "@/lib/session-constants";
+import { createSessionToken, hashSessionToken } from "@/lib/auth";
 import { getAktiverStandort, safeReturnTo } from "@/lib/standort";
 
 export const BERECHTIGUNGEN = [
@@ -18,6 +19,7 @@ export const BERECHTIGUNGEN = [
   "speisekarte_preise_bearbeiten",
   "mitarbeiter_verwalten",
   "oeffnungszeiten_verwalten",
+  "catering_verwalten",
 ] as const;
 
 export type Berechtigung = (typeof BERECHTIGUNGEN)[number];
@@ -42,6 +44,7 @@ const rollenBerechtigungen: Record<Rolle, ReadonlySet<Berechtigung>> = {
     "gastdaten_sehen",
     "bella_card_rabatt_vergeben",
     "mitarbeiter_verwalten",
+    "catering_verwalten",
   ]),
   [Rolle.inhaber]: new Set(BERECHTIGUNGEN),
 };
@@ -84,17 +87,19 @@ export async function getAktiverMitarbeiter() {
     cookies(),
     getAktiverStandort(),
   ]);
-  const mitarbeiterId = cookieStore.get(MITARBEITER_COOKIE)?.value;
+  const sessionToken = cookieStore.get(MITARBEITER_COOKIE)?.value;
 
-  if (!mitarbeiterId || !standort) {
+  if (!sessionToken || !standort) {
     return null;
   }
 
-  const mitarbeiter = await prisma.mitarbeiter.findUnique({
-    where: { id: mitarbeiterId },
-    include: { standort: true },
+  const session = await prisma.mitarbeiterSession.findUnique({
+    where: { tokenHash: hashSessionToken(sessionToken) },
+    include: { mitarbeiter: { include: { standort: true } } },
   });
+  const mitarbeiter = session?.mitarbeiter;
   if (
+    !session || session.laeuftAbAm <= new Date() ||
     !mitarbeiter ||
     !istMitarbeiterFuerStandortGueltig(
       mitarbeiter.rolle,
@@ -144,7 +149,10 @@ export async function setAktiverMitarbeiter(value: unknown) {
   }
 
   const cookieStore = await cookies();
-  cookieStore.set(MITARBEITER_COOKIE, mitarbeiter.id, {
+  const token = createSessionToken();
+  const laeuftAbAm = new Date(Date.now() + 1000 * 60 * 60 * 12);
+  await prisma.mitarbeiterSession.create({ data: { tokenHash: hashSessionToken(token), mitarbeiterId: mitarbeiter.id, laeuftAbAm } });
+  cookieStore.set(MITARBEITER_COOKIE, token, {
     httpOnly: true,
     maxAge: 60 * 60 * 12,
     path: "/",
@@ -156,5 +164,7 @@ export async function setAktiverMitarbeiter(value: unknown) {
 
 export async function clearAktiverMitarbeiter() {
   const cookieStore = await cookies();
+  const token = cookieStore.get(MITARBEITER_COOKIE)?.value;
+  if (token) await prisma.mitarbeiterSession.deleteMany({ where: { tokenHash: hashSessionToken(token) } });
   cookieStore.delete(MITARBEITER_COOKIE);
 }

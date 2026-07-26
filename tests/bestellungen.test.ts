@@ -13,12 +13,18 @@ let fremdesGerichtId = "";
 const bestellungIds: string[] = [];
 const gastIds: string[] = [];
 const reservierungIds: string[] = [];
+const testTischIds = Array.from({ length: 7 }, (_, index) => `test-bestellung-tisch-${suffix}-${index}`);
+const fremderTestTischId = `test-bestellung-tisch-fremd-${suffix}`;
 const urspruenglicheTischstatus = new Map<string, TischStatus>();
 
 before(async () => {
   const inhaber = await prisma.mitarbeiter.findUniqueOrThrow({ where: { id: "inhaber-marcello" } });
   gerichtId = (await createGericht(inhaber, "kreuzberg", validateGerichtInput({ name: `Testpasta ${suffix}`, beschreibung: "Erfundenes Testgericht", preis: "12,90", kategorie: "pasta" }))).id;
   fremdesGerichtId = (await createGericht(inhaber, "spandau", validateGerichtInput({ name: `Testpasta ${suffix}`, beschreibung: "Erfundenes Testgericht", preis: "13,90", kategorie: "pasta" }))).id;
+  await prisma.tisch.createMany({ data: [
+    ...testTischIds.map((id, index) => ({ id, nummer: 910 + index, kapazitaet: 6, bereich: "innen" as const, rasterZeile: 91, rasterSpalte: index, vorlaeufig: false, standortId: "kreuzberg" })),
+    { id: fremderTestTischId, nummer: 910, kapazitaet: 6, bereich: "innen", rasterZeile: 91, rasterSpalte: 0, vorlaeufig: false, standortId: "spandau" },
+  ] });
 });
 
 after(async () => {
@@ -28,6 +34,7 @@ after(async () => {
     await prisma.tisch.update({ where: { id }, data: { status } });
   }
   await prisma.gast.deleteMany({ where: { id: { in: gastIds } } });
+  await prisma.tisch.deleteMany({ where: { id: { in: [...testTischIds, fremderTestTischId] } } });
   await prisma.gericht.deleteMany({ where: { id: { in: [gerichtId, fremdesGerichtId] } } });
   await prisma.$disconnect();
 });
@@ -38,6 +45,10 @@ function input(tischId: string, id = gerichtId, reservierungId?: string) {
 
 function merkeTischstatus(tisch: { id: string; status: TischStatus }) {
   if (!urspruenglicheTischstatus.has(tisch.id)) urspruenglicheTischstatus.set(tisch.id, tisch.status);
+}
+
+async function testTisch(index: number) {
+  return prisma.tisch.findUniqueOrThrow({ where: { id: testTischIds[index] } });
 }
 
 describe("Bestellvalidierung", () => {
@@ -78,7 +89,7 @@ describe("Rechnungsberechnung", () => {
 describe("Bestellpersistenz und Standorttrennung", () => {
   it("historisiert Preis, Sonderwunsch und Mitarbeiter und verhindert eine zweite aktive Tischbestellung", async () => {
     const mitarbeiter = await prisma.mitarbeiter.findUniqueOrThrow({ where: { id: "manager-kreuzberg-giuseppe" } });
-    const tisch = await prisma.tisch.findFirstOrThrow({ where: { standortId: "kreuzberg", verfuegbar: true } });
+    const tisch = await testTisch(6);
     merkeTischstatus(tisch);
     const bestellung = await createBestellung(mitarbeiter, "kreuzberg", input(tisch.id), new Date("2026-07-25T18:00:00.000Z"));
     bestellungIds.push(bestellung.id);
@@ -99,7 +110,7 @@ describe("Bestellpersistenz und Standorttrennung", () => {
   });
   it("weist standortfremde Gerichte und unbekannte Gastnummern ab", async () => {
     const mitarbeiter = await prisma.mitarbeiter.findUniqueOrThrow({ where: { id: "manager-kreuzberg-giuseppe" } });
-    const tisch = await prisma.tisch.findFirstOrThrow({ where: { standortId: "kreuzberg", verfuegbar: true, bestellungen: { none: { status: { in: ["offen", "serviert"] } } } } });
+    const tisch = await testTisch(1);
     merkeTischstatus(tisch);
     await assert.rejects(createBestellung(mitarbeiter, "kreuzberg", input(tisch.id, fremdesGerichtId), new Date("2026-07-25T18:00:00.000Z")), BestellungValidationError);
     await assert.rejects(createBestellung(mitarbeiter, "kreuzberg", { ...input(tisch.id), gastTelefonNormalisiert: "+491111111111" }, new Date("2026-07-25T18:00:00.000Z")), BestellungValidationError);
@@ -107,14 +118,14 @@ describe("Bestellpersistenz und Standorttrennung", () => {
   });
   it("übernimmt Gast und Tisch aus einer offenen Reservierung und weist manipulierte Tischbezüge ab", async () => {
     const mitarbeiter = await prisma.mitarbeiter.findUniqueOrThrow({ where: { id: "manager-kreuzberg-giuseppe" } });
-    const tische = await prisma.tisch.findMany({ where: { standortId: "kreuzberg", verfuegbar: true, bestellungen: { none: { status: { in: ["offen", "serviert"] } } } }, take: 2, orderBy: { nummer: "desc" } });
+    const tische = await prisma.tisch.findMany({ where: { id: { in: [testTischIds[2], testTischIds[3]] } }, orderBy: { nummer: "asc" } });
     assert.equal(tische.length, 2);
     tische.forEach(merkeTischstatus);
     const gast = await prisma.gast.create({ data: { name: "Testgast Reservierung", telefon: `+49 155 30 ${suffix}`, telefonNormalisiert: `+4915530${suffix}` } });
     gastIds.push(gast.id);
     const reservierung = await prisma.reservierung.create({ data: { id: `test-reservierung-bestellung-${suffix}`, datum: "2099-08-15", uhrzeitMinute: 19 * 60, personenzahl: 4, standortId: "kreuzberg", tischId: tische[0].id, gastId: gast.id, erstelltVonId: mitarbeiter.id } });
     reservierungIds.push(reservierung.id);
-    const fremderTisch = await prisma.tisch.findFirstOrThrow({ where: { standortId: "spandau", verfuegbar: true } });
+    const fremderTisch = await prisma.tisch.findUniqueOrThrow({ where: { id: fremderTestTischId } });
     const fremdeReservierung = await prisma.reservierung.create({ data: { id: `test-reservierung-bestellung-fremd-${suffix}`, datum: "2099-08-15", uhrzeitMinute: 20 * 60, personenzahl: 2, standortId: "spandau", tischId: fremderTisch.id, gastId: gast.id, erstelltVonId: "manager-spandau-renate" } });
     reservierungIds.push(fremdeReservierung.id);
 
@@ -145,7 +156,7 @@ describe("Bestellpersistenz und Standorttrennung", () => {
   });
   it("erlaubt nur offen zu serviert zu bezahlt und sperrt abgeschlossene Bestellungen", async () => {
     const mitarbeiter = await prisma.mitarbeiter.findUniqueOrThrow({ where: { id: "manager-kreuzberg-giuseppe" } });
-    const tisch = await prisma.tisch.findFirstOrThrow({ where: { standortId: "kreuzberg", verfuegbar: true, bestellungen: { none: { status: { in: ["offen", "serviert"] } } } } });
+    const tisch = await testTisch(4);
     merkeTischstatus(tisch);
     const bestellung = await createBestellung(mitarbeiter, "kreuzberg", input(tisch.id), new Date("2026-07-25T18:00:00.000Z"));
     bestellungIds.push(bestellung.id);
@@ -160,7 +171,7 @@ describe("Bestellpersistenz und Standorttrennung", () => {
     const mitarbeiter = await prisma.mitarbeiter.findUniqueOrThrow({ where: { id: "manager-kreuzberg-giuseppe" } });
     const gast = await prisma.gast.create({ data: { name: "Testgast Bella", telefon: `+49 155 10 ${suffix}`, telefonNormalisiert: `+4915510${suffix}`, besuchszaehler: 10 } });
     gastIds.push(gast.id);
-    const tisch = await prisma.tisch.findFirstOrThrow({ where: { standortId: "kreuzberg", verfuegbar: true, bestellungen: { none: { status: { in: ["offen", "serviert"] } } } } });
+    const tisch = await testTisch(5);
     merkeTischstatus(tisch);
     const bestellung = await createBestellung(mitarbeiter, "kreuzberg", { ...input(tisch.id), gastTelefonNormalisiert: gast.telefonNormalisiert }, new Date("2026-07-25T18:00:00.000Z"));
     bestellungIds.push(bestellung.id);
@@ -181,7 +192,7 @@ describe("Bestellpersistenz und Standorttrennung", () => {
     const mitarbeiter = await prisma.mitarbeiter.findUniqueOrThrow({ where: { id: "manager-kreuzberg-giuseppe" } });
     const gast = await prisma.gast.create({ data: { name: "Testgast Zehn", telefon: `+49 155 20 ${suffix}`, telefonNormalisiert: `+4915520${suffix}`, besuchszaehler: 9 } });
     gastIds.push(gast.id);
-    const tisch = await prisma.tisch.findFirstOrThrow({ where: { standortId: "kreuzberg", verfuegbar: true, bestellungen: { none: { status: { in: ["offen", "serviert"] } } } } });
+    const tisch = await testTisch(0);
     merkeTischstatus(tisch);
     const bestellung = await createBestellung(mitarbeiter, "kreuzberg", { ...input(tisch.id), gastTelefonNormalisiert: gast.telefonNormalisiert }, new Date("2026-07-25T18:00:00.000Z"));
     bestellungIds.push(bestellung.id);

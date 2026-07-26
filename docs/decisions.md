@@ -828,3 +828,71 @@ lautlos umschreiben._
   Aktionsleisten überlagern sich nicht, sondern brechen kontrolliert um. Interne
   Phasenbezeichnungen und BV-IDs bleiben in der Projektdokumentation und werden
   nicht in den Seitenköpfen der Produktoberfläche ausgegeben.
+
+## 2026-07-26 — Bestelltests besitzen eigene Tische
+
+- **Status:** angenommen
+- **Kontext:** Ein Bestelltest verwendete den ersten verfügbaren Tisch aus der
+  lokalen Betriebsdatenbank und konnte deshalb an einer bereits aktiven
+  Bestellung scheitern.
+- **Entscheidung:** Die Bestellsuite erzeugt und entfernt ausschließlich eigene,
+  eindeutig benannte Testtische für beide Standorte. Tests wählen keine
+  operativen Seed- oder Nutzertische mehr aus.
+- **Konsequenz:** Lokale Betriebsdaten beeinflussen das Testergebnis nicht und
+  werden durch die Suite weder umstatusiert noch bereinigt.
+
+## 2026-07-26 — Catering-Aufträge sind standortgebundene Managementdaten
+
+- **Status:** angenommen
+- **Kontext:** BV-019 nennt die Auftragsfelder, aber weder Zugriff noch
+  Standortbezug und Statuswerte.
+- **Entscheidung:** Manager verwalten Catering-Aufträge ihres Standorts, der
+  Inhaber den explizit aktiven Standort; Bedienungen erhalten keinen Zugriff.
+  Statuswerte sind `angefragt`, `angebot`, `bestaetigt`, `abgeschlossen` und
+  `storniert`. Angebotssummen werden als positive Centwerte gespeichert.
+- **Konsequenz:** Catering ist unter `/catering` vollständig nutzbar und folgt
+  derselben serverseitigen Rollen- und Standortgrenze wie der übrige Betrieb.
+
+## 2026-07-26 — Sichere Anmeldung beginnt mit widerrufbaren Serversessions
+
+- **Status:** angenommen als Übergang
+- **Kontext:** Eine Mitarbeiter-ID im Cookie war fälschbar. Gleichzeitig dürfen
+  für die PIN-Einführung keine bekannten Standardgeheimnisse committed werden.
+- **Entscheidung:** Der Cookie enthält einen zufälligen 256-Bit-Token, während
+  nur dessen SHA-256-Hash, Mitarbeiterbezug und Ablaufzeit serverseitig liegen.
+  Abmelden widerruft die Sitzung. PINs sind sechsstellige Ziffernfolgen und
+  werden mit `scrypt` und individuellem Salt gehasht; die UI-Prüfung folgt nach
+  einem sicheren einmaligen Inhaber-Bootstrap.
+- **Konsequenz:** Sessions sind nicht mehr durch Raten einer Mitarbeiter-ID
+  übernehmbar. BV-060 bleibt bis PIN-Vergabe, Login-Prüfung und Schutz gegen
+  Fehlversuche ausdrücklich `in-progress`. Vor dem lokalen Entwicklungsserver
+  werden Prisma-Client und ausstehende Migrationen automatisch aktualisiert,
+  damit die Mitarbeiterwahl nie gegen ein veraltetes Sessionmodell läuft.
+
+## 2026-07-26 — Phase 6 startet als datensparsame PWA
+
+- **Status:** angenommen
+- **Kontext:** Phase 6 benötigte zuerst eine Zielplattform. Ein ungeprüftes
+  Caching authentifizierter Seiten könnte auf Restaurantgeräten Gast- und
+  Betriebsdaten offenlegen.
+- **Entscheidung:** Bella Vista wird als PWA ausgebaut. Die erste Stufe liefert
+  Manifest, Service Worker, Offline-Fallback und Verbindungsanzeige, cached aber
+  noch keine authentifizierten Inhalte oder personenbezogenen Daten.
+- **Konsequenz:** Die App fällt ohne Netz kontrolliert zurück. Offline-Schreiben,
+  Outbox, Synchronisation und Konfliktlösung sind noch nicht erfüllt; BV-014
+  bleibt `in-progress`, BV-043 und BV-044 bleiben `validated`.
+
+## 2026-07-26 — Der Inhaberzugang gilt für beide Standorte
+
+- **Status:** angenommen
+- **Kontext:** Marco ist als einziger Inhaber mit einem Heimatstandort
+  gespeichert, muss aber Kreuzberg und Spandau zentral verwalten können. Nach der
+  Einführung gehashter Sessions wertete der Standortwechsel den Sessiontoken
+  fälschlich noch als Mitarbeiter-ID und meldete ihn dabei ab.
+- **Entscheidung:** Inhaber erscheinen unabhängig von ihrer gespeicherten
+  Standort-ID in der Mitarbeiterwahl beider Standorte. Beim Standortwechsel wird
+  die gehashte, nicht abgelaufene Serversession aufgelöst; eine Inhabersitzung
+  bleibt für beide Standorte gültig.
+- **Konsequenz:** Marco kann sich an beiden Standorten anmelden und im laufenden
+  Betrieb zwischen ihnen wechseln. Manager bleiben weiterhin an ihren eigenen
+  Standort gebunden.

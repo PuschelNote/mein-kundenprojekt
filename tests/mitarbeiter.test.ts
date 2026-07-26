@@ -134,12 +134,21 @@ describe("Mitarbeiter-Persistenz", () => {
     const kreuzberg = await listMitarbeiterFuerStandort("kreuzberg");
     const spandau = await listMitarbeiterFuerStandort("spandau");
 
-    assert.ok(kreuzberg.every((person) => person.standortId === "kreuzberg" || person.standortId === null));
-    assert.ok(spandau.every((person) => person.standortId === "spandau" || person.standortId === null));
+    assert.ok(kreuzberg.every((person) => person.rolle === Rolle.inhaber || person.standortId === "kreuzberg" || person.standortId === null));
+    assert.ok(spandau.every((person) => person.rolle === Rolle.inhaber || person.standortId === "spandau" || person.standortId === null));
     for (const id of ["bedienung-sofia", "bedienung-nico", "bedienung-fatima"]) {
       assert.equal(kreuzberg.filter((person) => person.id === id).length, 1);
       assert.equal(spandau.filter((person) => person.id === id).length, 1);
     }
+  });
+
+  it("bietet den Inhaber an beiden Standorten zur Anmeldung an", async () => {
+    const [kreuzberg, spandau] = await Promise.all([
+      listMitarbeiterFuerStandort("kreuzberg"),
+      listMitarbeiterFuerStandort("spandau"),
+    ]);
+    assert.ok(kreuzberg.some((person) => person.id === "inhaber-marcello"));
+    assert.ok(spandau.some((person) => person.id === "inhaber-marcello"));
   });
 
   it("legt Manager und standortoffene Bedienungen idempotent an", async () => {

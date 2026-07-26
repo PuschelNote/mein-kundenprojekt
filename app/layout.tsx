@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { AppHeader } from "@/components/app-header";
+import { PwaBootstrap } from "@/components/pwa-bootstrap";
 import "./globals.css";
 import "./theme.css";
 
@@ -16,6 +17,7 @@ export default function RootLayout({
   return (
     <html lang="de">
       <body>
+        <PwaBootstrap />
         <div className="app-shell">
           <AppHeader />
           <div className="app-content">{children}</div>

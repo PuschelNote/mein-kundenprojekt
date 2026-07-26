@@ -1,1 +1,1 @@
-export const MITARBEITER_COOKIE = "bella-vista-mitarbeiter";
+export const MITARBEITER_COOKIE = "bella-vista-session";

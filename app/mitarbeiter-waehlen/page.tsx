@@ -24,8 +24,8 @@ export default async function MitarbeiterWaehlenPage({ searchParams }: PageProps
         <p className="eyebrow">{standort.name}</p>
         <h1>Wer arbeitet gerade?</h1>
         <p>
-          Wähle deinen Mitarbeiterzugang. Diese Auswahl ist im Prototyp noch
-          nicht durch eine persönliche PIN geschützt.
+          Wähle deinen Mitarbeiterzugang. Die Sitzung wird serverseitig geschützt;
+          die persönliche PIN-Prüfung folgt im nächsten Anmeldeschritt.
         </p>
       </div>
 

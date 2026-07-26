@@ -228,6 +228,11 @@ Zentrale Anwendung / API
 
 ## Offline- und Synchronisationsprinzipien
 
+- Phase 6 verwendet eine PWA als Zielplattform. Die erste Hülle umfasst Manifest,
+  Service Worker, statischen Offline-Fallback und sichtbaren Verbindungsstatus.
+  Authentifizierte Seiten und Gastdaten werden bis zu einer benutzergebundenen,
+  geschützten lokalen Datenhaltung ausdrücklich nicht gecached.
+
 - Schreibvorgänge erhalten clientseitig eine eindeutige ID und werden lokal
   dauerhaft in einer Ausgangswarteschlange gespeichert.
 - Die Oberfläche zeigt lokalen, synchronisierten und konfliktbehafteten Status
@@ -241,6 +246,11 @@ Zentrale Anwendung / API
 
 ## Sicherheits- und Datenschutzgrenzen
 
+- Mitarbeiter-Sessions verwenden zufällige 256-Bit-Tokens. Nur der SHA-256-Hash,
+  Mitarbeiterbezug und Ablaufzeit werden serverseitig gespeichert; das Cookie ist
+  HttpOnly, SameSite=Lax und in Produktion Secure. PIN-Hashes verwenden `scrypt`
+  mit individuellem Salt; die vollständige PIN-Anmeldung ist noch in Arbeit.
+
 - Gastdaten sind personenbezogen und werden nur für den beschriebenen
   Betriebszweck verarbeitet.
 - Telefonnummern dürfen nicht in Logs, Test-Fixtures oder Fehlermeldungen im
@@ -251,7 +261,7 @@ Zentrale Anwendung / API
 
 ## Noch zu entscheiden
 
-- Zielplattform-Ausprägung (Web/PWA oder verpackte Hybrid-App)
+- Installations-, Update- und Gerätekopplungsregeln für die festgelegte PWA
 - Hosting- und Deployment-Lösung
 - Synchronisationsmodell und konkrete Konfliktregeln
 - Authentifizierung, Gerätekopplung und Offline-Sitzungsdauer

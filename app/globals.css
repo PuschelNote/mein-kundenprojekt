@@ -5,6 +5,16 @@
   color: #26211d;
 }
 
+.offline-banner {
+  position: fixed;
+  z-index: 1000;
+  inset: 0 0 auto;
+  padding: 0.65rem 1rem;
+  text-align: center;
+  color: #fff;
+  background: #8b2f23;
+}
+
 /* BV-058: einheitliche App-Shell und visuelles Bedienkonzept */
 :root {
   --app-bg: #f4f5f2;

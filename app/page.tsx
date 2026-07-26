@@ -20,6 +20,7 @@ export default async function Home() {
   const kannGaesteSehen = hatBerechtigung(mitarbeiter.rolle, "gastdaten_sehen");
   const kannMitarbeiterVerwalten = hatBerechtigung(mitarbeiter.rolle, "mitarbeiter_verwalten");
   const kannOeffnungszeitenVerwalten = hatBerechtigung(mitarbeiter.rolle, "oeffnungszeiten_verwalten");
+  const kannCateringVerwalten = hatBerechtigung(mitarbeiter.rolle, "catering_verwalten");
 
   return (
     <main className="dashboard-page">
@@ -70,12 +71,13 @@ export default async function Home() {
             <Link href="/speisekarte"><span>Speisekarte</span><small>Gerichte ansehen</small></Link>
           </div>
 
-          {kannGaesteSehen || kannMitarbeiterVerwalten ? <>
+          {kannGaesteSehen || kannMitarbeiterVerwalten || kannCateringVerwalten ? <>
             <div className="dashboard-section-heading dashboard-admin-heading"><div><p className="eyebrow">Verwaltung</p><h2>Stammdaten</h2></div></div>
             <div className="dashboard-quick-links admin-links">
               {kannGaesteSehen ? <Link href="/gaeste"><span>Gäste</span><small>Profile und Bella-Card</small></Link> : null}
               {kannMitarbeiterVerwalten ? <Link href="/mitarbeiter"><span>Mitarbeiter</span><small>Rollen und Zugänge</small></Link> : null}
               {kannOeffnungszeitenVerwalten ? <Link href="/oeffnungszeiten"><span>Öffnungszeiten</span><small>Feiertage und Abweichungen</small></Link> : null}
+              {kannCateringVerwalten ? <Link href="/catering"><span>Catering</span><small>Aufträge und Angebote</small></Link> : null}
             </div>
           </> : null}
         </div>

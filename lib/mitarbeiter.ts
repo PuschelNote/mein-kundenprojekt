@@ -51,7 +51,13 @@ export function listStandorte() {
 
 export function listMitarbeiterFuerStandort(standortId: string) {
   return prisma.mitarbeiter.findMany({
-    where: { OR: [{ standortId }, { rolle: Rolle.bedienung, standortId: null }] },
+    where: {
+      OR: [
+        { standortId },
+        { rolle: Rolle.bedienung, standortId: null },
+        { rolle: Rolle.inhaber },
+      ],
+    },
     include: { standort: true },
     orderBy: { name: "asc" },
   });

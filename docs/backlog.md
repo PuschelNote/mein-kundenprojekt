@@ -16,7 +16,7 @@ _Stand: 26.07.2026_
 | ID | Feature | Status | Anforderung / Akzeptanzkern |
 |---|---|---|---|
 | BV-001 | Mitarbeiter und Rollen verwalten | done | Mitarbeiter besitzen ID, Name und genau eine Rolle; Manager und Inhaber besitzen eine feste Standortzuordnung, Bedienungen dürfen standortoffen sein. CRUD unter `/mitarbeiter`; Validierungs- und Persistenztests sind grün. |
-| BV-002 | Verbindlichen Standortkontext führen | done | Kreuzberg und Spandau besitzen eindeutige IDs; ein serverseitig validierter Cookie-Kontext erzwingt eine explizite Auswahl und wird global angezeigt. |
+| BV-002 | Verbindlichen Standortkontext führen | done | Kreuzberg und Spandau besitzen eindeutige IDs; ein serverseitig validierter Cookie-Kontext erzwingt eine explizite Auswahl und wird global angezeigt. Die Inhabersitzung bleibt beim Wechsel zwischen beiden Standorten erhalten. |
 | BV-020 | Standardöffnungszeiten hinterlegen | done | Kreuzberg ist Di–So 17–23 Uhr, Spandau Do–So 17–22 Uhr geöffnet; geschlossene Tage und Wochenpläne werden standortbezogen angezeigt. |
 | BV-016 | Feiertags-Overrides verwalten | done | Ausschließlich der Inhaber kann pro Standort und Datum eine abweichende Öffnungszeit oder einen Schließtag setzen und wieder löschen. Exakte Overrides gewinnen vor Standardzeiten und steuern Reservierungskalender, serverseitige Reservierungsprüfung und Küchenannahmeschluss; ohne Override gilt der reguläre Wochenplan. |
 | BV-021 | Mitarbeiter Standorten zuordnen | done | Giuseppe ist Manager in Kreuzberg und Renate in Spandau; bekannte Bedienungen ohne geklärten Einsatzort bleiben standortoffen und werden separat angezeigt. |
@@ -98,6 +98,7 @@ _Stand: 26.07.2026_
 | BV-048 | Tische auswählen und Reservierungen erkennen | done | Der standortbezogene Grundriss macht jeden Tisch per Maus und Tastatur auswählbar, kennzeichnet offene zukünftige Reservierungen und zeigt für den ausgewählten Tisch Gast, Termin und Personenzahl; Tests und lokaler Standortcheck sind grün. |
 | BV-058 | Einheitliche App-Oberfläche bereitstellen | done | Eine responsive App-Shell strukturiert alle bestehenden Arbeitsbereiche mit rollenabhängiger Seiten- beziehungsweise Mobilnavigation, aktivem Navigationszustand und sichtbarem Mitarbeiter-/Standortkontext. Einheitliche Seitenköpfe, Formulare, Karten, Statusanzeigen, Fokuszustände und Leerzustände verbessern die Bedienung, ohne Funktionen oder Geschäftsregeln zu verändern. |
 | BV-059 | Veröffentlichungsreifes italienisches Erscheinungsbild | done | Eine separat nachgeladene Theme-Schicht verleiht der unveränderten App eine offizielle Bella-Vista-Markenwirkung mit italienisch inspirierter Farbwelt und Typografie. Flexible Grids, definierte Umbruchregeln und abgestufte Breakpoints verhindern Text- und Bedienelementüberlagerungen auf Desktop, Tablet und Mobilgeräten; interne Phasen- und Backlog-IDs werden in der Produktoberfläche nicht angezeigt. |
+| BV-060 | Sichere Mitarbeiteranmeldung | in-progress | Zufällige, nur gehasht persistierte und auf zwölf Stunden begrenzte Serversessions ersetzen die fälschbare Mitarbeiter-ID im Cookie. Der lokale Start aktualisiert Prisma-Client und Migrationen vor dem Serverstart. PIN-Hashing ist implementiert und getestet; PIN-Vergabe, Login-Prüfung, Fehlversuchsbegrenzung und sicherer Inhaber-Bootstrap fehlen noch. |
 
 ## Phase 6 — Betriebsreife: Offline und Datenintegrität
 
@@ -106,7 +107,7 @@ aber noch keine Offline-Synchronisation zwischen mehreren Geräten._
 
 | ID | Feature | Status | Anforderung / Akzeptanzkern |
 |---|---|---|---|
-| BV-014 | Kernabläufe offline bereitstellen | validated | Gäste, Reservierungen, Tischstatus und Bestellungen bleiben bei Internetausfall nutzbar; die App bricht nicht zusammen. |
+| BV-014 | Kernabläufe offline bereitstellen | in-progress | PWA-Manifest, Service Worker, sicherer statischer Offline-Fallback und sichtbarer Verbindungsstatus sind vorhanden. Offline-Schreiben für Gäste, Reservierungen, Tischstatus und Bestellungen fehlt noch. |
 | BV-043 | Offline-Änderungen synchronisieren | validated | Lokal vorgenommene Änderungen werden nach Wiederherstellung der Verbindung ohne Duplikate synchronisiert. |
 | BV-044 | Synchronisationskonflikte sichtbar behandeln | validated | Kritische Konflikte bei Reservierungen, Bestellungen und Zahlungen werden nicht still überschrieben, sondern nachvollziehbar gelöst. |
 
@@ -116,7 +117,7 @@ aber noch keine Offline-Synchronisation zwischen mehreren Geräten._
 |---|---|---|---|---|
 | BV-017 | Später | Getrennte Zahlung pro Person | hypo | Positionen einer Tischbestellung können mehreren Einzelabrechnungen zugeordnet werden. |
 | BV-018 | Später | Tageskarten direkt pflegen | hypo | Wechselnde Tages- und Saisongerichte lassen sich pro Standort direkt in der App anlegen, ändern und deaktivieren. |
-| BV-019 | Später | Catering-Aufträge verwalten | hypo | Ein Auftrag besitzt Kundenname, Datum, Beschreibung, Angebotssumme und Status. |
+| BV-019 | Später | Catering-Aufträge verwalten | done | Manager und Inhaber verwalten unter `/catering` standortgetrennte Aufträge mit Kundenname, Datum, Beschreibung, positiver Angebotssumme in Cent, kontrolliertem Status und verantwortlichem Mitarbeiter; Rollen-, Validierungs- und Standorttests sind grün. |
 
 ## Noch zu klärende Anforderungen
 
