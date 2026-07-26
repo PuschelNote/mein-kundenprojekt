@@ -11,6 +11,7 @@ import {
   validateGerichtInput,
 } from "../lib/gerichte";
 import { prisma } from "../lib/prisma";
+import { beispielgerichte, seedGrunddaten } from "../lib/grunddaten";
 
 const suffix = String(Date.now()).slice(-6);
 const gerichtIds: string[] = [];
@@ -46,6 +47,37 @@ describe("Gerichtvalidierung und Preise", () => {
 });
 
 describe("Gerichtpersistenz, Rollen und Standorttrennung", () => {
+  it("legt beide Beispielkarten idempotent und ohne Grillgerichte in Spandau an", async () => {
+    await seedGrunddaten();
+    await seedGrunddaten();
+    for (const standortId of ["kreuzberg", "spandau"] as const) {
+      const erwartet = beispielgerichte.filter((gericht) => gericht.standortId === standortId);
+      const karte = await listGerichte(standortId);
+      for (const gericht of erwartet) {
+        assert.equal(karte.filter((eintrag) => eintrag.nameNormalisiert === gericht.nameNormalisiert).length, 1);
+      }
+      assert.ok(karte.every((gericht) => gericht.preisCent > 0));
+    }
+    assert.ok((await listGerichte("kreuzberg")).some((gericht) => gericht.kategorie === "grill"));
+    assert.ok((await listGerichte("spandau")).every((gericht) => gericht.kategorie !== "grill"));
+  });
+
+  it("überschreibt bei erneutem Seed keine geänderten Kartenpreise", async () => {
+    await seedGrunddaten();
+    const grundgericht = beispielgerichte[0];
+    const gespeichert = await prisma.gericht.findUniqueOrThrow({
+      where: { standortId_nameNormalisiert: { standortId: grundgericht.standortId, nameNormalisiert: grundgericht.nameNormalisiert } },
+    });
+    const geaenderterPreis = gespeichert.preisCent + 123;
+    try {
+      await prisma.gericht.update({ where: { id: gespeichert.id }, data: { preisCent: geaenderterPreis } });
+      await seedGrunddaten();
+      assert.equal((await prisma.gericht.findUniqueOrThrow({ where: { id: gespeichert.id } })).preisCent, geaenderterPreis);
+    } finally {
+      await prisma.gericht.update({ where: { id: gespeichert.id }, data: { preisCent: gespeichert.preisCent } });
+    }
+  });
+
   it("erlaubt gleiche Namen an verschiedenen Standorten ohne Vermischung", async () => {
     const inhaber = await prisma.mitarbeiter.findUniqueOrThrow({
       where: { id: "inhaber-marcello" },

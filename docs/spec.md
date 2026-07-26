@@ -42,6 +42,9 @@ Beide Standorte laufen aktuell komplett auf Papier: Zettel, Notizbücher, Tasche
 - Gericht: Name, Beschreibung, Preis, Kategorie (Antipasti / Pasta / Risotto / Dessert / Getränke / Grill)
 - **Wichtig:** Spandau hat keinen Grill (kein Bistecca, kein Salsiccia, kein Mixed-Grill) – bauliche Einschränkung, keine Abzugsanlage
 - Tageskarte und Saisonales: ja/nein, wechselnde Gerichte, manuell änderbar, pro Standort
+- Für den lokalen Start werden kleine typische Beispielkarten mit plausiblen
+  Europreisen bereitgestellt. Sie bleiben pro Standort getrennt und dürfen durch
+  erneutes Seeden keine späteren Änderungen des Inhabers überschreiben.
 
 ### Gast
 - Gast-ID, Name, Telefonnummer (Erkennungsmerkmal!)

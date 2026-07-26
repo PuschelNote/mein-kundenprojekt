@@ -1,4 +1,4 @@
-import { Rolle, TischBereich, Wochentag } from "@/generated/prisma/enums";
+import { GerichtKategorie, Rolle, TischBereich, Wochentag } from "@/generated/prisma/enums";
 import { validateZeitfenster } from "@/lib/oeffnungszeiten";
 import { prisma } from "@/lib/prisma";
 
@@ -87,6 +87,33 @@ const tische = [
   })),
 ];
 
+export const beispielgerichte = [
+  { id: "gericht-kreuzberg-bruschetta", name: "Bruschetta al Pomodoro", beschreibung: "Geröstetes Landbrot mit Tomaten, Basilikum, Knoblauch und Olivenöl.", preisCent: 890, kategorie: GerichtKategorie.antipasti, standortId: "kreuzberg" },
+  { id: "gericht-kreuzberg-burrata", name: "Burrata con Pomodorini", beschreibung: "Cremige Burrata mit Kirschtomaten, Rucola und Basilikumöl.", preisCent: 1390, kategorie: GerichtKategorie.antipasti, standortId: "kreuzberg" },
+  { id: "gericht-kreuzberg-carbonara", name: "Spaghetti alla Carbonara", beschreibung: "Spaghetti mit Guanciale, Ei, Pecorino und schwarzem Pfeffer.", preisCent: 1650, kategorie: GerichtKategorie.pasta, standortId: "kreuzberg" },
+  { id: "gericht-kreuzberg-ragu", name: "Tagliatelle al Ragù", beschreibung: "Bandnudeln mit langsam geschmortem Rinderragù und Parmesan.", preisCent: 1790, kategorie: GerichtKategorie.pasta, standortId: "kreuzberg" },
+  { id: "gericht-kreuzberg-risotto-porcini", name: "Risotto ai Porcini", beschreibung: "Cremiges Risotto mit Steinpilzen, Weißwein und Parmesan.", preisCent: 1890, kategorie: GerichtKategorie.risotto, standortId: "kreuzberg" },
+  { id: "gericht-kreuzberg-bistecca", name: "Bistecca alla Griglia", beschreibung: "Gegrilltes Rumpsteak mit Rosmarinkartoffeln und Kräuterbutter.", preisCent: 3150, kategorie: GerichtKategorie.grill, standortId: "kreuzberg" },
+  { id: "gericht-kreuzberg-salsiccia", name: "Salsiccia alla Griglia", beschreibung: "Italienische Grillwurst mit Ofengemüse und Rosmarinkartoffeln.", preisCent: 2290, kategorie: GerichtKategorie.grill, standortId: "kreuzberg" },
+  { id: "gericht-kreuzberg-tiramisu", name: "Tiramisù Classico", beschreibung: "Hausgemachtes Tiramisù mit Espresso, Mascarpone und Kakao.", preisCent: 850, kategorie: GerichtKategorie.dessert, standortId: "kreuzberg" },
+  { id: "gericht-kreuzberg-acqua", name: "Acqua Minerale 0,75 l", beschreibung: "Italienisches Mineralwasser, still oder sprudelnd.", preisCent: 650, kategorie: GerichtKategorie.getraenke, standortId: "kreuzberg" },
+  { id: "gericht-kreuzberg-chianti", name: "Chianti Classico 0,2 l", beschreibung: "Trockener toskanischer Rotwein im Glas.", preisCent: 790, kategorie: GerichtKategorie.getraenke, standortId: "kreuzberg" },
+  { id: "gericht-spandau-caprese", name: "Insalata Caprese", beschreibung: "Tomaten, Mozzarella, Basilikum und natives Olivenöl.", preisCent: 1090, kategorie: GerichtKategorie.antipasti, standortId: "spandau" },
+  { id: "gericht-spandau-antipasto", name: "Antipasto della Casa", beschreibung: "Gemischte italienische Vorspeisen mit gegrilltem Gemüse, Käse und Oliven.", preisCent: 1350, kategorie: GerichtKategorie.antipasti, standortId: "spandau" },
+  { id: "gericht-spandau-arrabbiata", name: "Penne all’Arrabbiata", beschreibung: "Penne mit würziger Tomatensauce, Knoblauch, Chili und Petersilie.", preisCent: 1390, kategorie: GerichtKategorie.pasta, standortId: "spandau" },
+  { id: "gericht-spandau-lasagne", name: "Lasagne al Forno", beschreibung: "Ofenlasagne mit Rinderragù, Béchamelsauce und Parmesan.", preisCent: 1650, kategorie: GerichtKategorie.pasta, standortId: "spandau" },
+  { id: "gericht-spandau-risotto", name: "Risotto Primavera", beschreibung: "Cremiges Risotto mit saisonalem Gemüse, Weißwein und Parmesan.", preisCent: 1690, kategorie: GerichtKategorie.risotto, standortId: "spandau" },
+  { id: "gericht-spandau-tiramisu", name: "Tiramisù Classico", beschreibung: "Hausgemachtes Tiramisù mit Espresso, Mascarpone und Kakao.", preisCent: 850, kategorie: GerichtKategorie.dessert, standortId: "spandau" },
+  { id: "gericht-spandau-panna-cotta", name: "Panna Cotta", beschreibung: "Vanille-Panna-Cotta mit hausgemachtem Beerenkompott.", preisCent: 790, kategorie: GerichtKategorie.dessert, standortId: "spandau" },
+  { id: "gericht-spandau-acqua", name: "Acqua Minerale 0,75 l", beschreibung: "Italienisches Mineralwasser, still oder sprudelnd.", preisCent: 650, kategorie: GerichtKategorie.getraenke, standortId: "spandau" },
+  { id: "gericht-spandau-pinot-grigio", name: "Pinot Grigio 0,2 l", beschreibung: "Trockener italienischer Weißwein im Glas.", preisCent: 720, kategorie: GerichtKategorie.getraenke, standortId: "spandau" },
+].map((gericht) => ({
+  ...gericht,
+  nameNormalisiert: gericht.name.normalize("NFKC").toLocaleLowerCase("de-DE"),
+  istTagesgericht: false,
+  istSaisongericht: false,
+}));
+
 export async function seedGrunddaten() {
   for (const standort of standorte) {
     await prisma.standort.upsert({
@@ -136,6 +163,19 @@ export async function seedGrunddaten() {
     await prisma.tisch.upsert({
       where: { id: tisch.id },
       create: tisch,
+      update: {},
+    });
+  }
+
+  for (const gericht of beispielgerichte) {
+    await prisma.gericht.upsert({
+      where: {
+        standortId_nameNormalisiert: {
+          standortId: gericht.standortId,
+          nameNormalisiert: gericht.nameNormalisiert,
+        },
+      },
+      create: gericht,
       update: {},
     });
   }

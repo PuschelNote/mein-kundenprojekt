@@ -55,6 +55,7 @@ _Stand: 26.07.2026_
 | BV-015 | Speisekarte und Preise pflegen | done | Ausschließlich der Inhaber kann Gerichte und Preise beider explizit gewählter Standortkarten in der App anlegen und bearbeiten; Manager und Bedienungen bleiben read-only. |
 | BV-034 | Grillgerichte auf Kreuzberg beschränken | done | Domänenvalidierung verbietet Grill in Spandau; Spandauer Leseabfragen schließen Grill zusätzlich defensiv aus. |
 | BV-035 | Tages- und Saisongerichte kennzeichnen | done | Tages- und Saisonkennzeichen sind am Gericht pflegbar und in der Karte sichtbar; Aktivierung und Terminplanung bleiben Scope von BV-018. |
+| BV-050 | Typische Beispielkarten bereitstellen | done | Nicht-destruktive Grunddaten legen 10 typische Einträge für Kreuzberg und 9 für Spandau mit plausiblen Centpreisen an; ausschließlich Kreuzberg enthält Grillgerichte, Tests und lokaler Kartencheck sind grün. |
 
 ## Phase 4 — Kern: Bestellungen und Küche
 

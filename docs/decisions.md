@@ -637,3 +637,19 @@ lautlos umschreiben._
   weiterhin freiem Tisch noch einen durch eine fehlgeschlagene Bestellung
   fälschlich besetzten Tisch. Die Freigabe bleibt vorerst ein bewusster manueller
   Tischstatus-Vorgang.
+
+## 2026-07-26 — Beispielkarten sind nicht-destruktive Grunddaten
+
+- **Status:** angenommen
+- **Kontext:** Beide Standorte benötigen für den lokalen Prototyp eine direkt
+  nutzbare, typische Speisekarte. Gleichzeitig darf ein erneuter Seed spätere
+  Preis- oder Textänderungen des Inhabers nicht zurücksetzen.
+- **Entscheidung:** `seedGrunddaten()` legt pro Standort eine kleine erfundene
+  italienische Karte mit stabilen technischen IDs, normalisierten Namen und
+  ganzzahligen Centpreisen an. Vorhandene Gerichte werden über Standort und
+  normalisierten Namen erkannt und nicht aktualisiert. Kreuzberg erhält Bistecca
+  und Salsiccia in der Kategorie `grill`; Spandau enthält keine Grillkategorie.
+- **Konsequenz:** Beide Karten sind sofort demonstrier- und bestellbar und bleiben
+  dennoch über die Inhaberoberfläche veränderbar. Wiederholtes Seeden ergänzt nur
+  fehlende Grundgerichte; die serverseitige Grillregel bleibt zusätzlich beim
+  Schreiben und Lesen aktiv.
