@@ -149,7 +149,7 @@ npm run build
 ```
 
 ## KI-Unterstützung
-ChatGPT als unterstützung bei prompts oder fehlern
+ChatGPT als unterstützung bei prompts oder fehlern und bei der Erstellung der Readme.md
 
 ## Projektdokumentation
 
