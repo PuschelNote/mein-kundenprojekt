@@ -1,10 +1,25 @@
 import assert from "node:assert/strict";
 import { after, describe, it } from "node:test";
-import { anekdotenGaeste, seedGrunddaten } from "../lib/grunddaten";
+import { anekdotenGaeste, demoGaeste, demoReservierungen, seedGrunddaten } from "../lib/grunddaten";
 import { prisma } from "../lib/prisma";
 
 after(async () => {
   await prisma.$disconnect();
+});
+
+describe("Demo-Gäste und Reservierungen als Grunddaten", () => {
+  it("stellt die Besuchszahlen 0 bis 9 jeweils genau einmal bereit", () => {
+    assert.deepEqual(demoGaeste.map((gast) => gast.besuchszaehler).sort((a, b) => a - b), [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+  });
+
+  it("legt Demo-Gäste und Reservierungen an beiden Standorten idempotent an", async () => {
+    await seedGrunddaten();
+    await seedGrunddaten();
+    assert.equal(await prisma.gast.count({ where: { id: { in: demoGaeste.map((gast) => gast.id) } } }), 10);
+    const reservierungen = await prisma.reservierung.findMany({ where: { id: { in: demoReservierungen.map((reservierung) => reservierung.id) } } });
+    assert.equal(reservierungen.length, demoReservierungen.length);
+    assert.deepEqual(new Set(reservierungen.map((reservierung) => reservierung.standortId)), new Set(["kreuzberg", "spandau"]));
+  });
 });
 
 describe("Anekdoten-Gäste als Grunddaten", () => {

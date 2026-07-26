@@ -910,3 +910,18 @@ lautlos umschreiben._
 - **Konsequenz:** Reservierungen und Bestellungen werden niemals implizit mit
   einem Gastprofil gelöscht. Unverknüpfte, irrtümlich angelegte Gäste können
   weiterhin regulär entfernt werden.
+
+## 2026-07-26 — Demo-Gäste decken Besuchszahlen und beide Standorte ab
+
+- **Status:** angenommen
+- **Kontext:** Die Gast-, Reservierungs- und Bella-Card-Oberflächen benötigen
+  einen anschaulichen lokalen Datenbestand vor Erreichen des zehnten Besuchs.
+- **Entscheidung:** Zehn ausdrücklich mit `Demo-Gast` bezeichnete, erfundene
+  Profile erhalten stabile IDs, offensichtlich nicht-produktive Telefonnummern
+  und jeweils genau einen Ausgangswert von 0 bis 9 Besuchen. Sechs Profile
+  erhalten stabile zukünftige Reservierungen, gleichmäßig verteilt auf
+  Kreuzberg und Spandau. Das Seeding legt fehlende Einträge an, aktualisiert
+  vorhandene Profile und Reservierungen aber nicht.
+- **Konsequenz:** Unterschiedliche Treuestufen und Reservierungslisten sind lokal
+  sofort demonstrierbar. Wiederholte Seeds erzeugen keine Duplikate und setzen
+  spätere Änderungen des Restaurants nicht zurück.

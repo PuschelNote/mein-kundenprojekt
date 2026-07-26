@@ -54,6 +54,28 @@ export const anekdotenGaeste = [
   },
 ] as const;
 
+export const demoGaeste = [
+  { id: "gast-demo-00", name: "Demo-Gast Alessia Romano", telefon: "+49 30 0000 0200", telefonNormalisiert: "+493000000200", besuchszaehler: 0 },
+  { id: "gast-demo-01", name: "Demo-Gast Ben Wagner", telefon: "+49 30 0000 0201", telefonNormalisiert: "+493000000201", besuchszaehler: 1 },
+  { id: "gast-demo-02", name: "Demo-Gast Carla Neumann", telefon: "+49 30 0000 0202", telefonNormalisiert: "+493000000202", besuchszaehler: 2 },
+  { id: "gast-demo-03", name: "Demo-Gast Davide Conti", telefon: "+49 30 0000 0203", telefonNormalisiert: "+493000000203", besuchszaehler: 3 },
+  { id: "gast-demo-04", name: "Demo-Gast Elena Fischer", telefon: "+49 30 0000 0204", telefonNormalisiert: "+493000000204", besuchszaehler: 4 },
+  { id: "gast-demo-05", name: "Demo-Gast Fabio Moretti", telefon: "+49 30 0000 0205", telefonNormalisiert: "+493000000205", besuchszaehler: 5 },
+  { id: "gast-demo-06", name: "Demo-Gast Greta Schulz", telefon: "+49 30 0000 0206", telefonNormalisiert: "+493000000206", besuchszaehler: 6 },
+  { id: "gast-demo-07", name: "Demo-Gast Hassan Yilmaz", telefon: "+49 30 0000 0207", telefonNormalisiert: "+493000000207", besuchszaehler: 7 },
+  { id: "gast-demo-08", name: "Demo-Gast Isabel König", telefon: "+49 30 0000 0208", telefonNormalisiert: "+493000000208", besuchszaehler: 8 },
+  { id: "gast-demo-09", name: "Demo-Gast Luca Bianchi", telefon: "+49 30 0000 0209", telefonNormalisiert: "+493000000209", besuchszaehler: 9 },
+] as const;
+
+export const demoReservierungen = [
+  { id: "reservierung-demo-kreuzberg-00", gastId: "gast-demo-00", datum: "2026-08-01", uhrzeitMinute: 18 * 60, personenzahl: 2, standortId: "kreuzberg", tischId: "tisch-kreuzberg-9", erstelltVonId: "manager-kreuzberg-giuseppe" },
+  { id: "reservierung-demo-spandau-01", gastId: "gast-demo-01", datum: "2026-08-01", uhrzeitMinute: 18 * 60, personenzahl: 2, standortId: "spandau", tischId: "tisch-spandau-9", erstelltVonId: "manager-spandau-renate" },
+  { id: "reservierung-demo-kreuzberg-04", gastId: "gast-demo-04", datum: "2026-08-02", uhrzeitMinute: 19 * 60, personenzahl: 4, standortId: "kreuzberg", tischId: "tisch-kreuzberg-10", erstelltVonId: "manager-kreuzberg-giuseppe" },
+  { id: "reservierung-demo-spandau-05", gastId: "gast-demo-05", datum: "2026-08-02", uhrzeitMinute: 19 * 60, personenzahl: 4, standortId: "spandau", tischId: "tisch-spandau-10", erstelltVonId: "manager-spandau-renate" },
+  { id: "reservierung-demo-kreuzberg-08", gastId: "gast-demo-08", datum: "2026-08-06", uhrzeitMinute: 20 * 60, personenzahl: 2, standortId: "kreuzberg", tischId: "tisch-kreuzberg-11", erstelltVonId: "manager-kreuzberg-giuseppe" },
+  { id: "reservierung-demo-spandau-09", gastId: "gast-demo-09", datum: "2026-08-06", uhrzeitMinute: 19 * 60, personenzahl: 2, standortId: "spandau", tischId: "tisch-spandau-11", erstelltVonId: "manager-spandau-renate" },
+] as const;
+
 const oeffnungszeiten = [
   ...[
     Wochentag.dienstag,
@@ -174,6 +196,10 @@ export async function seedGrunddaten() {
     }
   }
 
+  for (const gast of demoGaeste) {
+    await prisma.gast.upsert({ where: { id: gast.id }, create: gast, update: {} });
+  }
+
   for (const zeit of oeffnungszeiten) {
     validateZeitfenster(zeit.oeffnetMinute, zeit.schliesstMinute);
     await prisma.standardOeffnungszeit.upsert({
@@ -192,6 +218,14 @@ export async function seedGrunddaten() {
     await prisma.tisch.upsert({
       where: { id: tisch.id },
       create: tisch,
+      update: {},
+    });
+  }
+
+  for (const reservierung of demoReservierungen) {
+    await prisma.reservierung.upsert({
+      where: { id: reservierung.id },
+      create: reservierung,
       update: {},
     });
   }
