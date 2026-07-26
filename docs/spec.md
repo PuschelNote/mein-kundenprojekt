@@ -65,6 +65,7 @@ Beide Standorte laufen aktuell komplett auf Papier: Zettel, Notizbücher, Tasche
 - Erstellt von (welcher Mitarbeiter), erstellt-am, geändert-am
 - Status: `offen` | `storniert`
 - nur durch Mitarbeiter durchführbar, keine eigenständige Reservierung durch Gäste möglich
+- Reservierung für max. 2 Stunden
 
 ### Bestellung
 - Bestell-ID, Tisch-ID, Standort-ID, Gast-ID
