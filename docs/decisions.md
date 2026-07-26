@@ -810,3 +810,21 @@ lautlos umschreiben._
 - **Konsequenz:** Reservierungskalender, Reservierungsvalidierung und
   Küchenannahmeschluss verwenden dieselbe effektive Öffnungszeit. Änderungen an
   Standarddaten sind nicht nötig und beide Standorte bleiben strikt getrennt.
+
+## 2026-07-26 — Das offizielle Erscheinungsbild ist eine separate Theme-Schicht
+
+- **Status:** angenommen
+- **Kontext:** Die App-Shell war funktional konsistent, sollte für eine
+  veröffentlichte Online-Version aber stärker wie ein eigenständiges
+  Bella-Vista-Produkt wirken. Gleichzeitig dürfen keine Funktionskomponenten
+  oder Texte für rein visuelle Zwecke verändert werden.
+- **Entscheidung:** `app/theme.css` wird nach den bestehenden globalen Stilen
+  geladen und definiert die italienisch inspirierte Markenwelt aus Elfenbein,
+  Terrakotta, Olivgrün und zurückhaltendem Gold. Klassische Überschriften,
+  flexible Grids, explizite Mindestbreiten, Textumbrüche und Breakpoints bilden
+  ein gemeinsames responsives System.
+- **Konsequenz:** Das Erscheinungsbild lässt sich unabhängig von Fachlogik und
+  Komponentenverträgen weiterentwickeln. Lange deutsche Texte, Statuswerte und
+  Aktionsleisten überlagern sich nicht, sondern brechen kontrolliert um. Interne
+  Phasenbezeichnungen und BV-IDs bleiben in der Projektdokumentation und werden
+  nicht in den Seitenköpfen der Produktoberfläche ausgegeben.

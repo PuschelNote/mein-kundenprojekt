@@ -23,7 +23,7 @@ export default async function TischePage({ searchParams }: PageProps) {
   const spalten = Math.max(4, ...tische.map((tisch) => tisch.rasterSpalte));
 
   return <main className="admin-page tables-page">
-    <header className="page-header"><div><p className="eyebrow">Phase 2 · BV-003 · BV-048</p><h1>Tischübersicht</h1><p>Tisch auswählen und Reservierungen für {standort.name} einsehen.</p></div></header>
+    <header className="page-header"><div><h1>Tischübersicht</h1><p>Tisch auswählen und Reservierungen für {standort.name} einsehen.</p></div></header>
 
     <section className="floor-panel" aria-labelledby="floor-title">
       <div className="section-heading"><div><h2 id="floor-title">Grundriss</h2><p>Nicht maßstabsgetreue Übersicht · Tisch für Details auswählen</p></div><span>{tische.length}</span></div>

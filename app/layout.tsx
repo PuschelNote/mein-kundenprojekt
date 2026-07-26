@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { AppHeader } from "@/components/app-header";
 import "./globals.css";
+import "./theme.css";
 
 export const metadata: Metadata = {
   title: "Bella Vista",

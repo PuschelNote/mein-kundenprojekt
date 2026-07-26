@@ -47,6 +47,10 @@ Migrationen und einen dokumentierten Datenmigrationsplan erfolgen.
   behalten eine reduzierte Kopfzeile.
 - Rollenabhängige Navigation ist nur Bedienführung. Seiten und schreibende
   Operationen erzwingen Berechtigungen weiterhin unabhängig davon serverseitig.
+- Das veröffentlichungsnahe Erscheinungsbild liegt in `app/theme.css` und wird
+  nach den bestehenden Komponentenstilen geladen. Die Theme-Schicht verändert
+  ausschließlich Darstellung, responsive Umbrüche und Interaktionszustände;
+  Komponentenverträge und Domänenlogik bleiben davon unabhängig.
 
 1. **Offline arbeitsfähig:** Ein Internetausfall darf Reservierungs-, Tisch- und
    Bestellabläufe im Restaurant nicht zum Stillstand bringen.

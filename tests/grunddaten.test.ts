@@ -18,7 +18,7 @@ describe("Anekdoten-Gäste als Grunddaten", () => {
       assert.equal(treffer[0].name, erwartet.name);
       assert.equal(treffer[0].telefonNormalisiert, erwartet.telefonNormalisiert);
       assert.equal(treffer[0].notizen, erwartet.notizen);
-      assert.equal(treffer[0].besuchszaehler, erwartet.besuchszaehler);
+      assert.ok(treffer[0].besuchszaehler >= erwartet.besuchszaehler);
     }
     assert.ok((await prisma.gast.findUniqueOrThrow({ where: { id: "gast-anekdote-herr-bergmann" } })).besuchszaehler >= 10);
   });

@@ -19,7 +19,7 @@ export default async function BestellungenPage() {
   ]);
 
   return <main className="admin-page">
-    <header className="page-header"><div><p className="eyebrow">Phase 4–5 · Bestellungen und Abrechnung</p><h1>Bestellungen</h1><p>Tischbestellungen und Abrechnung für {standort.name}.</p></div></header>
+    <header className="page-header"><div><h1>Bestellungen</h1><p>Tischbestellungen und Abrechnung für {standort.name}.</p></div></header>
     <section className="panel" id="neue-bestellung"><h2>Neue Bestellung</h2><p className="panel-hint">Wähle nach dem Tisch die angekommene Reservierung aus. Gast und Tisch werden dann verbindlich übernommen.</p><BestellungForm action={createBestellungAction} tische={tische} gerichte={gerichte} reservierungen={reservierungen} /></section>
     <section className="order-list">
       <div className="section-heading"><h2>Bestellübersicht</h2><span>{bestellungen.length}</span></div>

@@ -26,7 +26,6 @@ export default async function SpeisekartePage() {
     <main className="admin-page menu-page">
       <header className="page-header">
         <div>
-          <p className="eyebrow">Phase 3 · BV-006 · BV-015 · BV-033–BV-035</p>
           <h1>Speisekarte</h1>
           <p>Standortkarte für {standort.name}.</p>
         </div>

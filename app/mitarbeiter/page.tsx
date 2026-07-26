@@ -42,7 +42,6 @@ export default async function MitarbeiterPage() {
     <main className="admin-page">
       <header className="page-header">
         <div>
-          <p className="eyebrow">Phase 0 · BV-001</p>
           <h1>Mitarbeiter</h1>
           <p>
             Teammitglieder zentral verwalten. Aktiver Standort: {" "}

@@ -45,7 +45,6 @@ export default async function ReservierungenPage() {
     <main className="admin-page">
       <header className="page-header">
         <div>
-          <p className="eyebrow">Phase 1 · BV-004</p>
           <h1>Reservierungen</h1>
           <p>Reservierungen für {standort.name} anlegen.</p>
         </div>

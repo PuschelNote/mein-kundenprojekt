@@ -97,6 +97,7 @@ _Stand: 26.07.2026_
 | BV-047 | Standortoffene Bedienungen | done | Sofia, Nico und Fatima werden idempotent ohne feste Standort-ID angelegt, sind nach expliziter Standortwahl an beiden Standorten verfügbar und handeln ausschließlich im aktiven Standortkontext. |
 | BV-048 | Tische auswählen und Reservierungen erkennen | done | Der standortbezogene Grundriss macht jeden Tisch per Maus und Tastatur auswählbar, kennzeichnet offene zukünftige Reservierungen und zeigt für den ausgewählten Tisch Gast, Termin und Personenzahl; Tests und lokaler Standortcheck sind grün. |
 | BV-058 | Einheitliche App-Oberfläche bereitstellen | done | Eine responsive App-Shell strukturiert alle bestehenden Arbeitsbereiche mit rollenabhängiger Seiten- beziehungsweise Mobilnavigation, aktivem Navigationszustand und sichtbarem Mitarbeiter-/Standortkontext. Einheitliche Seitenköpfe, Formulare, Karten, Statusanzeigen, Fokuszustände und Leerzustände verbessern die Bedienung, ohne Funktionen oder Geschäftsregeln zu verändern. |
+| BV-059 | Veröffentlichungsreifes italienisches Erscheinungsbild | done | Eine separat nachgeladene Theme-Schicht verleiht der unveränderten App eine offizielle Bella-Vista-Markenwirkung mit italienisch inspirierter Farbwelt und Typografie. Flexible Grids, definierte Umbruchregeln und abgestufte Breakpoints verhindern Text- und Bedienelementüberlagerungen auf Desktop, Tablet und Mobilgeräten; interne Phasen- und Backlog-IDs werden in der Produktoberfläche nicht angezeigt. |
 
 ## Phase 6 — Betriebsreife: Offline und Datenintegrität
 

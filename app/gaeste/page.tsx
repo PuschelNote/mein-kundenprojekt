@@ -16,7 +16,6 @@ export default async function GaestePage() {
     <main className="admin-page">
       <header className="page-header">
         <div>
-          <p className="eyebrow">Phase 1 · BV-005 · BV-024</p>
           <h1>Gäste</h1>
           <p>Gastprofile, Präferenzen, Allergien und Treuestatus verwalten.</p>
         </div>
