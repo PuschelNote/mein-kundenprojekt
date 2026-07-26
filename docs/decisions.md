@@ -925,3 +925,17 @@ lautlos umschreiben._
 - **Konsequenz:** Unterschiedliche Treuestufen und Reservierungslisten sind lokal
   sofort demonstrierbar. Wiederholte Seeds erzeugen keine Duplikate und setzen
   spätere Änderungen des Restaurants nicht zurück.
+
+## 2026-07-26 — README und Kalibrierungsnotizen bilden den Projekteinstieg
+
+- **Status:** angenommen
+- **Kontext:** Setup, Funktionsumfang und bekannte Entwicklungsgrenzen waren nur
+  über mehrere interne Dokumente verteilt; zusätzlich existieren manuelle
+  Kalibrierungsnotizen zu geprüften Geschäftsregeln.
+- **Entscheidung:** Eine README bildet den kompakten Einstieg mit lokalem Setup,
+  Befehlen, Rollen, Struktur und aktuellem Entwicklungsstand. Die ausdrücklich
+  gewünschte `KALIBRIERUNG.md` wird als ergänzende manuelle Prüfdokumentation
+  versioniert und von der README verlinkt.
+- **Konsequenz:** Neue Projektbeteiligte finden den Einstieg zentral, während
+  `docs/spec.md` fachliche Single Source of Truth und die übrigen verbindlichen
+  Dokumente unverändert maßgeblich bleiben.
