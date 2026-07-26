@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
-import { ReservierungStatus, type Rolle } from "@/generated/prisma/enums";
+import { ReservierungStatus, Wochentag, type Rolle } from "@/generated/prisma/enums";
+import type { Prisma } from "@/generated/prisma/client";
 import { assertBerechtigung, istMitarbeiterFuerStandortGueltig, mitarbeiterStandortBedingung } from "@/lib/berechtigungen";
 import { normalisiereTelefonnummer } from "@/lib/gaeste";
 import { prisma } from "@/lib/prisma";
@@ -22,6 +23,7 @@ export type ReservierungMitarbeiter = {
 };
 
 export class ReservierungValidationError extends Error {}
+export const RESERVIERUNGSDAUER_MINUTEN = 120;
 
 export function validateReservierungInput(input: {
   standortId?: unknown;
@@ -93,6 +95,7 @@ export async function createReservierung(
   mitarbeiter: ReservierungMitarbeiter,
   standortId: string,
   input: ReservierungInput,
+  now = new Date(),
 ) {
   assertBerechtigung(mitarbeiter.rolle, "reservierungen_verwalten");
   if (!input.gastTelefonNormalisiert) {
@@ -118,7 +121,7 @@ export async function createReservierung(
       });
     const tisch = await tx.tisch.findFirst({
         where: { id: input.tischId, standortId, verfuegbar: true },
-        select: { id: true },
+        select: { id: true, kapazitaet: true },
       });
     const vorhandenerGast = await tx.gast.findUnique({
         where: { telefonNormalisiert: gastTelefonNormalisiert },
@@ -133,6 +136,7 @@ export async function createReservierung(
         "Der gewählte Tisch gehört nicht zum aktiven Standort.",
       );
     }
+    await assertReservierungsfenster(tx, standortId, input, tisch.kapazitaet, undefined, now);
 
     let gastId = vorhandenerGast?.id;
     if (!gastId) {
@@ -173,6 +177,7 @@ export async function updateReservierung(
   mitarbeiter: ReservierungMitarbeiter,
   standortId: string,
   input: ReservierungInput,
+  now = new Date(),
 ) {
   assertReservierungKontext(id, mitarbeiter, standortId);
   if (standortId !== input.standortId) {
@@ -203,7 +208,7 @@ export async function updateReservierung(
         standortId,
         OR: [{ verfuegbar: true }, { id: reservierung.tischId }],
       },
-      select: { id: true },
+      select: { id: true, kapazitaet: true },
     });
     const vorhandenerGast = input.gastTelefonNormalisiert
       ? await tx.gast.findUnique({
@@ -219,6 +224,7 @@ export async function updateReservierung(
         "Der gewählte Tisch gehört nicht zum aktiven Standort.",
       );
     }
+    await assertReservierungsfenster(tx, standortId, input, tisch.kapazitaet, reservierung.id, now);
 
     let gastId = input.gastTelefonNormalisiert
       ? vorhandenerGast?.id
@@ -316,6 +322,14 @@ export function listTischeFuerReservierungsstandorte(standortIds: string[]) {
   });
 }
 
+export function listOeffnungstageFuerReservierungsstandorte(standortIds: string[]) {
+  return prisma.standardOeffnungszeit.findMany({
+    where: { standortId: { in: standortIds } },
+    select: { standortId: true, wochentag: true },
+    orderBy: [{ standortId: "asc" }, { wochentag: "asc" }],
+  });
+}
+
 export function listReservierungen(standortId: string) {
   return prisma.reservierung.findMany({
     where: { standortId },
@@ -363,4 +377,55 @@ function istGueltigesDatum(value: string) {
     datum.getUTCMonth() === monat - 1 &&
     datum.getUTCDate() === tag
   );
+}
+
+async function assertReservierungsfenster(
+  tx: Prisma.TransactionClient,
+  standortId: string,
+  input: ReservierungInput,
+  tischkapazitaet: number,
+  ausgenommeneId: string | undefined,
+  now: Date,
+) {
+  if (input.personenzahl > tischkapazitaet) {
+    throw new ReservierungValidationError(`Der gewählte Tisch bietet nur ${tischkapazitaet} Plätze.`);
+  }
+  const lokaleZeit = berlinDatumUndMinute(now);
+  if (input.datum < lokaleZeit.datum || (input.datum === lokaleZeit.datum && input.uhrzeitMinute < lokaleZeit.minute)) {
+    throw new ReservierungValidationError("Reservierungen in der Vergangenheit sind nicht möglich.");
+  }
+  const wochentag = wochentagFuerDatum(input.datum);
+  const oeffnungszeit = await tx.standardOeffnungszeit.findUnique({
+    where: { standortId_wochentag: { standortId, wochentag } },
+    select: { oeffnetMinute: true, schliesstMinute: true },
+  });
+  const endeMinute = input.uhrzeitMinute + RESERVIERUNGSDAUER_MINUTEN;
+  if (!oeffnungszeit || input.uhrzeitMinute < oeffnungszeit.oeffnetMinute || endeMinute > oeffnungszeit.schliesstMinute) {
+    throw new ReservierungValidationError("Das zweistündige Reservierungsfenster muss vollständig innerhalb der Öffnungszeiten liegen.");
+  }
+  const ueberschneidung = await tx.reservierung.findFirst({
+    where: {
+      standortId,
+      tischId: input.tischId,
+      datum: input.datum,
+      status: ReservierungStatus.offen,
+      ...(ausgenommeneId ? { id: { not: ausgenommeneId } } : {}),
+      uhrzeitMinute: { gt: input.uhrzeitMinute - RESERVIERUNGSDAUER_MINUTEN, lt: endeMinute },
+    },
+    select: { id: true },
+  });
+  if (ueberschneidung) {
+    throw new ReservierungValidationError("Der Tisch ist in diesem zweistündigen Zeitfenster bereits reserviert.");
+  }
+}
+
+export function berlinDatumUndMinute(now: Date) {
+  const parts = new Intl.DateTimeFormat("de-DE", { timeZone: "Europe/Berlin", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).formatToParts(now);
+  const wert = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+  return { datum: `${wert.year}-${wert.month}-${wert.day}`, minute: Number(wert.hour) * 60 + Number(wert.minute) };
+}
+
+function wochentagFuerDatum(datum: string): Wochentag {
+  const index = new Date(`${datum}T12:00:00.000Z`).getUTCDay();
+  return [Wochentag.sonntag, Wochentag.montag, Wochentag.dienstag, Wochentag.mittwoch, Wochentag.donnerstag, Wochentag.freitag, Wochentag.samstag][index];
 }

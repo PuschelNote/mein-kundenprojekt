@@ -31,11 +31,13 @@ _Stand: 26.07.2026_
 | BV-024 | Gastpräferenzen und Allergien dokumentieren | done | Manager und Inhaber können Freitextnotizen mit Präferenzen und Allergien anlegen, ändern, leeren und einsehen; serverseitige Validierung und Persistenztests sichern das Feld ab. |
 | BV-004 | Reservierung anlegen | done | Geschützte Anlage unter `/reservierungen` ordnet bekannte Gäste exakt per Telefonnummer zu oder legt unbekannte Gäste mit Name und Telefonnummer atomar mit der Reservierung an; Tisch, lokaler Termin, Personenzahl, Standort und Ersteller werden gespeichert. |
 | BV-025 | Standort bei Reservierung erzwingen | done | Der validierte Standortkontext wird serverseitig übernommen; Mitarbeiter und Tisch müssen demselben Standort angehören, manipulierte Zuordnungen werden abgewiesen. |
-| BV-026 | Reservierung einem Tisch zuweisen | done | Jede Reservierung referenziert genau einen Tisch desselben Standorts; mehrere Termine pro Tisch bleiben möglich, solange Überschneidungsregeln ungeklärt sind. |
+| BV-026 | Reservierung einem Tisch zuweisen | done | Jede Reservierung referenziert genau einen Tisch desselben Standorts; die Personenzahl darf dessen Kapazität nicht überschreiten. |
 | BV-027 | Reservierung ändern und stornieren | done | Berechtigte Mitarbeiter können standortgebundene Reservierungen vollständig neu validiert bearbeiten, stornieren und wieder öffnen; physisches Löschen findet nicht statt. |
 | BV-013 | Reservierungsänderungen protokollieren | done | Ersteller und Erstellzeitpunkt bleiben unverändert; letzter Änderungszeitpunkt und ändernder Mitarbeiter werden bei Bearbeitung und Statuswechsel automatisch gespeichert und angezeigt. |
 | BV-053 | Standort bei Reservierungsanlage explizit wählen | done | Das Anlageformular verlangt eine erneute Standortwahl und filtert die Tische unmittelbar danach; Standort, Tisch, Mitarbeiterberechtigung und aktiver Kontext werden serverseitig abgeglichen. Nach erfolgreicher Anlage zeigt die App den gewählten Standortkontext. |
 | BV-054 | Gäste aus den Anekdoten bereitstellen | done | Herr Kellner und Herr Bergmann werden mit stabilen IDs, eindeutig erfundenen Telefonnummern und den belegten Hinweisen als nicht-destruktive Grunddaten angelegt; Herr Bergmann besitzt mit zehn Vorbesuchen bereits Bella-Card-Status. Wiederholtes Seeden erzeugt keine Duplikate und überschreibt keine spätere Pflege. |
+| BV-056 | Zweistündige Reservierungsfenster erzwingen | done | Reservierungen dauern exakt zwei Stunden, liegen vollständig in den regulären Öffnungszeiten und nicht in der Vergangenheit; offene Zeitfenster desselben Tischs dürfen sich nicht überschneiden, direkt anschließende Termine bleiben erlaubt. |
+| BV-057 | Öffnungstage im Reservierungskalender anzeigen | done | Die Datumsauswahl zeigt einen standortabhängigen Monatskalender; vergangene Daten und laut Standardöffnungszeiten geschlossene Wochentage sind sichtbar ausgegraut und nicht auswählbar. Standortwechsel aktualisieren den Kalender, während die serverseitige Öffnungszeitenprüfung verbindlich bleibt. |
 
 ## Phase 2 — Kern: Tische und Restaurantübersicht
 
@@ -72,6 +74,7 @@ _Stand: 26.07.2026_
 | BV-008 | Bestellung an die Küche übermitteln | done | `/kueche` zeigt offene Bons des aktiven Standorts mit Positionen und Sonderwünschen und aktualisiert sich alle zehn Sekunden; das endgültige Ausgabemedium bleibt offen. |
 | BV-009 | Bestellstatus verwalten | done | Kontrollierte Übergänge führen von `offen` über `serviert` zu `bezahlt` oder aus aktiven Zuständen zu `storniert`; abgeschlossene Bestellungen sind unveränderlich. |
 | BV-052 | Stornierte Bestellungen manuell löschen | done | Ausschließlich stornierte Bestellungen können nach Bestätigung am aktiven Standort dauerhaft gelöscht werden; Rollen- und Standortprüfung, Positionskaskade und Freigabe eines Reservierungsbezugs sind automatisiert getestet. |
+| BV-055 | Tischstatus mit aktiver Bestellung konsistent halten | done | Tische mit offener oder servierter Bestellung bleiben serverseitig zwingend `besetzt` und werden bei einer neuen Bestellaufnahme nicht angeboten; Integrationsprüfungen sichern Statusschutz und Auswahlliste ab. |
 | BV-039 | Aufnehmenden Mitarbeiter nachweisen | done | Jede Bestellung persistiert und zeigt den serverseitig validierten aufnehmenden Mitarbeiter und den Aufnahmezeitpunkt. |
 | BV-012 | Küchenannahmeschluss erzwingen | done | Neue Bestellungen werden anhand Berliner Ortszeit außerhalb der regulären Öffnung sowie ab exakt 30 Minuten vor Standortschließung serverseitig abgewiesen. |
 
@@ -121,7 +124,6 @@ Implementierung noch nicht präzise genug:
 | Thema | Klärungsbedarf | Betroffene IDs |
 |---|---|---|
 | Gastnotizen | Die Rollenmatrix erlaubt Gastdaten nur Manager/Inhaber; die Anekdote sagt, jeder Mitarbeiter solle Vorlieben sehen. | BV-022, BV-024 |
-| Reservierungsüberschneidung | Dauer einer Reservierung, Überlappungsregeln und Verhalten bei zu großer Personenzahl fehlen. | BV-004, BV-026 |
 | Küchenausgabe | Display, Drucker oder anderes Ziel sowie Quittierung und Offline-Verhalten sind noch festzulegen. | BV-008 |
 | Gast an Bestellung | Die Bestellung enthält eine Gast-ID, aber es ist nicht festgelegt, ob sie Pflicht oder optional ist. | BV-007, BV-040 |
 | Stornierung | Rechte, Gründe und Auswirkungen einer Stornierung auf Tischstatus, Küche und Abrechnung fehlen. | BV-027, BV-009 |

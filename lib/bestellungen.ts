@@ -201,7 +201,10 @@ export function listBestellungen(standortId: string, nurKueche = false) {
 
 export async function listBestelloptionen(standortId: string, now = new Date()) {
   const [tische, gerichte, reservierungen] = await Promise.all([
-    prisma.tisch.findMany({ where: { standortId, verfuegbar: true }, orderBy: { nummer: "asc" } }),
+    prisma.tisch.findMany({
+      where: { standortId, verfuegbar: true, bestellungen: { none: { status: { in: [BestellungStatus.offen, BestellungStatus.serviert] } } } },
+      orderBy: { nummer: "asc" },
+    }),
     prisma.gericht.findMany({ where: { standortId, ...(standortId === "spandau" ? { kategorie: { not: GerichtKategorie.grill } } : {}) }, orderBy: [{ kategorie: "asc" }, { name: "asc" }] }),
     prisma.reservierung.findMany({
       where: { standortId, status: "offen", datum: { gte: lokalesDatumBerlin(now) }, bestellung: null, tisch: { verfuegbar: true } },

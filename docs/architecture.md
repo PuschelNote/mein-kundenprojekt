@@ -134,6 +134,9 @@ Zentrale Anwendung / API
   standortgefilterten Tisch zu. Die Tischauswahl kann daher keine fremden
   Standortdaten auflösen.
 - Ein Tisch hat höchstens eine aktive Bestellung gleichzeitig.
+- Solange eine Bestellung `offen` oder `serviert` ist, muss der zugehörige Tisch
+  `besetzt` bleiben. Manuelle Wechsel zu `frei` oder `reserviert` werden an der
+  Domänengrenze abgewiesen; Bestellformulare bieten solche Tische nicht erneut an.
 - Bestellanlage und Wechsel des zugehörigen Tischstatus auf `besetzt` laufen in
   derselben Datenbanktransaktion; ein fehlgeschlagener Schreibvorgang darf keinen
   veränderten Tischstatus hinterlassen.
@@ -158,6 +161,15 @@ Zentrale Anwendung / API
 - Reservierungen speichern lokales Datum und Uhrzeit getrennt; Tisch und
   Reservierung müssen serverseitig demselben aktiven Standort zugeordnet sein.
   Der handelnde Mitarbeiter muss dort gültig oder eine standortoffene Bedienung sein.
+- Reservierungen bilden halboffene Zeitfenster von 120 Minuten. Offene Fenster
+  desselben Tischs dürfen sich nicht überschneiden; ein Beginn exakt am Ende des
+  vorherigen Fensters ist zulässig. Kapazität, Berliner Gegenwart und die
+  regulären Standortöffnungszeiten werden bei Anlage und Bearbeitung innerhalb
+  der Schreibtransaktion geprüft. Feiertags-Overrides folgen separat mit BV-016.
+- Der Reservierungskalender liest die geöffneten Wochentage aus denselben
+  standortbezogenen `StandardOeffnungszeit`-Datensätzen. Ausgegraute Tage sind
+  eine Bedienhilfe; übermittelte Daten werden weiterhin serverseitig gegen
+  Standort, Berliner Datum und Öffnungszeiten geprüft.
 - Die Reservierungsanlage verlangt zusätzlich zum globalen Kontext eine explizite
   Standortauswahl. Sie steuert die clientseitige Tischliste, wird aber zusammen
   mit Tisch und Mitarbeiter serverseitig erneut validiert. Nach erfolgreicher

@@ -4,6 +4,7 @@ import { BestellungStatus, TischStatus } from "../generated/prisma/enums";
 import { assertKuechenannahmeOffen, berechneRechnung, BestellungValidationError, createBestellung, deleteBestellung, listBestelloptionen, updateBestellung, updateBestellungStatus, validateBestellungInput } from "../lib/bestellungen";
 import { createGericht, validateGerichtInput } from "../lib/gerichte";
 import { prisma } from "../lib/prisma";
+import { TischValidationError, updateTischStatus } from "../lib/tische";
 
 const suffix = String(Date.now());
 let gerichtId = "";
@@ -76,6 +77,11 @@ describe("Bestellpersistenz und Standorttrennung", () => {
     assert.equal(bestellung.aufgenommenVonId, mitarbeiter.id);
     assert.equal(bestellung.positionen[0].einzelpreisCent, 1290);
     assert.equal(bestellung.positionen[0].sonderwunsch, "ohne Knoblauch");
+    assert.equal((await prisma.tisch.findUniqueOrThrow({ where: { id: tisch.id } })).status, TischStatus.besetzt);
+    const optionen = await listBestelloptionen("kreuzberg", new Date("2026-07-25T18:00:00.000Z"));
+    assert.ok(!optionen.tische.some((eintrag) => eintrag.id === tisch.id));
+    await assert.rejects(updateTischStatus(tisch.id, TischStatus.frei, mitarbeiter, "kreuzberg"), TischValidationError);
+    await assert.rejects(updateTischStatus(tisch.id, TischStatus.reserviert, mitarbeiter, "kreuzberg"), TischValidationError);
     assert.equal((await prisma.tisch.findUniqueOrThrow({ where: { id: tisch.id } })).status, TischStatus.besetzt);
     await prisma.gericht.update({ where: { id: gerichtId }, data: { preisCent: 1490 } });
     assert.equal((await prisma.bestellposition.findFirstOrThrow({ where: { bestellungId: bestellung.id } })).einzelpreisCent, 1290);

@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { after, describe, it } from "node:test";
+import { after, before, describe, it } from "node:test";
 import { Rolle } from "../generated/prisma/enums";
 import { createGast, deleteGast, validateGastInput } from "../lib/gaeste";
 import { prisma } from "../lib/prisma";
@@ -11,11 +11,17 @@ import {
   updateReservierungStatus,
   validateReservierungInput,
 } from "../lib/reservierungen";
+import { istReservierungstagWaehbar } from "../app/reservierungen/reservierungs-kalender";
 
 const telefon = `+4931${String(Date.now()).slice(-8)}`;
 const neueTelefonnummer = `+4932${String(Date.now()).slice(-8)}`;
 let gastId: string | undefined;
 let reservierungId: string | undefined;
+const testTischId = `test-reservierungstisch-${Date.now()}`;
+
+before(async () => {
+  await prisma.tisch.create({ data: { id: testTischId, nummer: 901, kapazitaet: 10, status: "frei", bereich: "innen", verfuegbar: true, rasterZeile: 19, rasterSpalte: 19, vorlaeufig: false, standortId: "kreuzberg" } });
+});
 
 after(async () => {
   if (reservierungId) {
@@ -24,16 +30,26 @@ after(async () => {
   if (gastId) {
     await prisma.gast.deleteMany({ where: { id: gastId } });
   }
+  await prisma.tisch.deleteMany({ where: { id: testTischId } });
   await prisma.$disconnect();
 });
 
 describe("Reservierungsvalidierung", () => {
+  it("markiert im Kalender nur zukünftige Öffnungstage als auswählbar", () => {
+    const kreuzberg = ["dienstag", "mittwoch", "donnerstag", "freitag", "samstag", "sonntag"];
+    const spandau = ["donnerstag", "freitag", "samstag", "sonntag"];
+    assert.equal(istReservierungstagWaehbar("2026-07-27", "2026-07-26", kreuzberg), false);
+    assert.equal(istReservierungstagWaehbar("2026-07-28", "2026-07-26", kreuzberg), true);
+    assert.equal(istReservierungstagWaehbar("2026-07-28", "2026-07-26", spandau), false);
+    assert.equal(istReservierungstagWaehbar("2026-07-25", "2026-07-26", kreuzberg), false);
+  });
+
   it("wandelt eine gültige lokale Uhrzeit in Minuten um", () => {
     const input = validateReservierungInput({
       standortId: "kreuzberg",
-      tischId: "tisch-kreuzberg-1",
+      tischId: testTischId,
       gastTelefon: "+49 (31) 123-4567",
-      datum: "2026-08-15",
+      datum: "2098-08-15",
       uhrzeit: "18:30",
       personenzahl: "4",
     });
@@ -86,9 +102,9 @@ describe("Reservierungspersistenz und Standorttrennung", () => {
     });
     const input = validateReservierungInput({
       standortId: "kreuzberg",
-      tischId: "tisch-kreuzberg-1",
+      tischId: testTischId,
       gastTelefon: telefon,
-      datum: "2026-08-15",
+      datum: "2098-08-15",
       uhrzeit: "19:15",
       personenzahl: 4,
     });
@@ -101,7 +117,7 @@ describe("Reservierungspersistenz und Standorttrennung", () => {
     reservierungId = reservierung.id;
 
     assert.equal(reservierung.standortId, "kreuzberg");
-    assert.equal(reservierung.tischId, "tisch-kreuzberg-1");
+    assert.equal(reservierung.tischId, testTischId);
     assert.equal(reservierung.gastId, gast.id);
     assert.equal(reservierung.erstelltVonId, mitarbeiter.id);
     assert.equal(reservierung.status, "offen");
@@ -120,15 +136,15 @@ describe("Reservierungspersistenz und Standorttrennung", () => {
       "kreuzberg",
       validateReservierungInput({
         standortId: "kreuzberg",
-        tischId: "tisch-kreuzberg-2",
+        tischId: "tisch-kreuzberg-4",
         gastTelefon: "",
         gastTelefonOptional: true,
-        datum: "2026-08-16",
+        datum: "2098-08-16",
         uhrzeit: "20:30",
         personenzahl: 5,
       }),
     );
-    assert.equal(updated.tischId, "tisch-kreuzberg-2");
+    assert.equal(updated.tischId, "tisch-kreuzberg-4");
     assert.equal(updated.gastId, gast.id);
     assert.equal(updated.erstelltVonId, mitarbeiter.id);
     assert.equal(updated.geaendertVonId, inhaber.id);
@@ -180,7 +196,7 @@ describe("Reservierungspersistenz und Standorttrennung", () => {
       tischId: "tisch-kreuzberg-2",
       gastName: "Neuer Reservierungsgast",
       gastTelefon: neueTelefonnummer,
-      datum: "2026-08-18",
+      datum: "2098-08-19",
       uhrzeit: "18:45",
       personenzahl: 3,
     });
@@ -214,7 +230,7 @@ describe("Reservierungspersistenz und Standorttrennung", () => {
       standortId: "kreuzberg",
       tischId: "tisch-kreuzberg-2",
       gastTelefon: unbekannteTelefonnummer,
-      datum: "2026-08-18",
+      datum: "2098-08-19",
       uhrzeit: "20:00",
       personenzahl: 2,
     });
@@ -243,7 +259,7 @@ describe("Reservierungspersistenz und Standorttrennung", () => {
       standortId: "kreuzberg",
       tischId: "tisch-spandau-1",
       gastTelefon: telefon,
-      datum: "2026-08-16",
+      datum: "2098-08-16",
       uhrzeit: "19:00",
       personenzahl: 2,
     });
@@ -289,6 +305,29 @@ describe("Reservierungspersistenz und Standorttrennung", () => {
     );
   });
 
+  it("erzwingt zwei Stunden ohne Überschneidung, Tischkapazität, Öffnungszeiten und Zukunft", async () => {
+    const mitarbeiter = await prisma.mitarbeiter.findUniqueOrThrow({ where: { id: "manager-kreuzberg-giuseppe" } });
+    const testTelefon = `+4935${String(Date.now()).slice(-8)}`;
+    const gast = await createGast(validateGastInput({ name: "Zeitfenster-Testgast", telefon: testTelefon }));
+    const ids: string[] = [];
+    const eingabe = (tischId: string, datum: string, uhrzeit: string, personenzahl = 2) => validateReservierungInput({
+      standortId: "kreuzberg", tischId, gastTelefon: testTelefon, datum, uhrzeit, personenzahl,
+    });
+    try {
+      const erste = await createReservierung(mitarbeiter, "kreuzberg", eingabe("tisch-kreuzberg-3", "2099-08-15", "18:00"), new Date("2099-08-15T15:00:00.000Z"));
+      ids.push(erste.id);
+      await assert.rejects(createReservierung(mitarbeiter, "kreuzberg", eingabe("tisch-kreuzberg-3", "2099-08-15", "19:59"), new Date("2099-08-15T15:00:00.000Z")), ReservierungValidationError);
+      const anschliessend = await createReservierung(mitarbeiter, "kreuzberg", eingabe("tisch-kreuzberg-3", "2099-08-15", "20:00"), new Date("2099-08-15T15:00:00.000Z"));
+      ids.push(anschliessend.id);
+      await assert.rejects(createReservierung(mitarbeiter, "kreuzberg", eingabe("tisch-kreuzberg-1", "2099-08-15", "18:00", 3), new Date("2099-08-15T15:00:00.000Z")), ReservierungValidationError);
+      await assert.rejects(createReservierung(mitarbeiter, "kreuzberg", eingabe("tisch-kreuzberg-4", "2099-08-15", "22:00"), new Date("2099-08-15T15:00:00.000Z")), ReservierungValidationError);
+      await assert.rejects(createReservierung(mitarbeiter, "kreuzberg", eingabe("tisch-kreuzberg-4", "2099-08-15", "18:00"), new Date("2099-08-16T10:00:00.000Z")), ReservierungValidationError);
+    } finally {
+      await prisma.reservierung.deleteMany({ where: { id: { in: ids } } });
+      await prisma.gast.delete({ where: { id: gast.id } });
+    }
+  });
+
   it("erlaubt einer standortoffenen Bedienung Vorgänge im explizit aktiven Standort", async () => {
     const sofia = await prisma.mitarbeiter.findUniqueOrThrow({ where: { id: "bedienung-sofia" } });
     const offeneTelefonnummer = `+4934${String(Date.now()).slice(-8)}`;
@@ -300,7 +339,7 @@ describe("Reservierungspersistenz und Standorttrennung", () => {
         tischId: "tisch-spandau-1",
         gastName: "Standortoffener Testgast",
         gastTelefon: offeneTelefonnummer,
-        datum: "2026-08-19",
+        datum: "2098-08-21",
         uhrzeit: "18:30",
         personenzahl: 2,
       }),

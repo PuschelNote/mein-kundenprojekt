@@ -1,6 +1,8 @@
 import { requireBerechtigung } from "@/lib/berechtigungen";
 import {
   formatiereUhrzeit,
+  berlinDatumUndMinute,
+  listOeffnungstageFuerReservierungsstandorte,
   listReservierungen,
   listReservierungsstandorte,
   listTischeFuerReservierungsstandorte,
@@ -21,11 +23,17 @@ export default async function ReservierungenPage() {
   ]);
   const darfAlleStandorteWaehlen = mitarbeiter.rolle === "inhaber" || (mitarbeiter.rolle === "bedienung" && mitarbeiter.standortId === null);
   const standortIds = darfAlleStandorteWaehlen ? ["kreuzberg", "spandau"] : [standort.id];
-  const [standorte, tische, reservierungen] = await Promise.all([
+  const [standorte, tische, reservierungen, oeffnungstage] = await Promise.all([
     listReservierungsstandorte(standortIds),
     listTischeFuerReservierungsstandorte(standortIds),
     listReservierungen(standort.id),
+    listOeffnungstageFuerReservierungsstandorte(standortIds),
   ]);
+  const oeffnungstageNachStandort = Object.groupBy(oeffnungstage, (eintrag) => eintrag.standortId);
+  const oeffnungstageProp = Object.fromEntries(
+    Object.entries(oeffnungstageNachStandort).map(([id, eintraege]) => [id, eintraege?.map((eintrag) => eintrag.wochentag) ?? []]),
+  );
+  const minDatum = berlinDatumUndMinute(new Date()).datum;
 
   return (
     <main className="admin-page">
@@ -42,9 +50,10 @@ export default async function ReservierungenPage() {
         <p className="panel-hint">
           Bekannte Gäste werden über ihre Telefonnummer zugeordnet. Ist die
           Nummer neu, wird der Gast mit dem eingegebenen Namen zusammen mit der
-          Reservierung angelegt.
+          Reservierung angelegt. Jede Reservierung gilt für zwei Stunden und muss
+          vollständig innerhalb der regulären Öffnungszeiten liegen.
         </p>
-        <ReservierungForm action={createReservierungAction} standorte={standorte} aktiverStandortId={standort.id} tische={tische} />
+        <ReservierungForm action={createReservierungAction} standorte={standorte} aktiverStandortId={standort.id} tische={tische} oeffnungstage={oeffnungstageProp} minDatum={minDatum} />
       </section>
 
       <section className="reservation-list" aria-labelledby="reservation-list-title">
@@ -86,6 +95,8 @@ export default async function ReservierungenPage() {
                   standorte={standorte.filter((eintrag) => eintrag.id === reservierung.standortId)}
                   aktiverStandortId={reservierung.standortId}
                   tische={tische}
+                  oeffnungstage={oeffnungstageProp}
+                  minDatum={minDatum}
                   submitLabel="Änderungen speichern"
                   reservierung={{
                     id: reservierung.id,

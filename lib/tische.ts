@@ -152,16 +152,26 @@ export async function updateTischStatus(
   if (!Object.values(TischStatus).includes(status as TischStatus)) {
     throw new TischValidationError("Der Tischstatus ist ungültig.");
   }
-  const tisch = await prisma.tisch.findFirst({
-    where: { id, standortId },
-    select: { id: true },
-  });
-  if (!tisch) {
-    throw new TischValidationError("Der Tisch gehört nicht zum aktiven Standort.");
-  }
-  return prisma.tisch.update({
-    where: { id: tisch.id },
-    data: { status: status as TischStatus },
+  return prisma.$transaction(async (tx) => {
+    const tisch = await tx.tisch.findFirst({
+      where: { id, standortId },
+      select: { id: true },
+    });
+    if (!tisch) {
+      throw new TischValidationError("Der Tisch gehört nicht zum aktiven Standort.");
+    }
+    if (status !== TischStatus.besetzt) {
+      const aktiveBestellung = await tx.bestellung.count({
+        where: { tischId: tisch.id, standortId, status: { in: ["offen", "serviert"] } },
+      });
+      if (aktiveBestellung > 0) {
+        throw new TischValidationError("Ein Tisch mit aktiver Bestellung muss den Status besetzt behalten.");
+      }
+    }
+    return tx.tisch.update({
+      where: { id: tisch.id },
+      data: { status: status as TischStatus },
+    });
   });
 }
 

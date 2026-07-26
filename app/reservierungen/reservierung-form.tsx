@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from "react";
 import type { ReservierungActionState } from "./actions";
+import { ReservierungsKalender } from "./reservierungs-kalender";
 
 type TischOption = {
   id: string;
@@ -20,6 +21,8 @@ export function ReservierungForm({
   standorte,
   aktiverStandortId,
   tische,
+  oeffnungstage,
+  minDatum,
   reservierung,
   submitLabel = "Reservierung anlegen",
 }: {
@@ -30,6 +33,8 @@ export function ReservierungForm({
   standorte: StandortOption[];
   aktiverStandortId: string;
   tische: TischOption[];
+  oeffnungstage: Record<string, string[]>;
+  minDatum: string;
   reservierung?: {
     id: string;
     standortId: string;
@@ -94,7 +99,12 @@ export function ReservierungForm({
       </label>
       <label>
         Datum
-        <input name="datum" type="date" required defaultValue={reservierung?.datum} />
+        <ReservierungsKalender
+          key={standortId}
+          offeneWochentage={oeffnungstage[standortId] ?? []}
+          minDatum={minDatum}
+          initialDatum={reservierung?.datum}
+        />
       </label>
       <label>
         Uhrzeit

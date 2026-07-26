@@ -728,3 +728,51 @@ lautlos umschreiben._
   ohne reale personenbezogene Daten oder unbelegte Besuchshistorien einzuführen.
   Wiederholtes Seeden erzeugt keine Duplikate und überschreibt keine spätere
   Pflege durch das Restaurant.
+
+## 2026-07-26 — Aktive Bestellungen erzwingen einen besetzten Tisch
+
+- **Status:** angenommen
+- **Kontext:** Die Bestellaufnahme setzt den Tisch atomar auf `besetzt`. Über die
+  allgemeine Tischstatuspflege konnte dieser Status anschließend dennoch auf
+  `frei` oder `reserviert` zurückgestellt werden, obwohl die Bestellung weiterhin
+  offen oder serviert war. Außerdem blieb der Tisch in der Bestellaufnahme
+  auswählbar und scheiterte erst beim Speichern am Unique-Constraint.
+- **Entscheidung:** Ein Tisch mit einer Bestellung im Status `offen` oder
+  `serviert` muss `besetzt` bleiben. Abweichende manuelle Statuswechsel werden
+  serverseitig innerhalb einer Transaktion abgewiesen. Tische mit aktiver
+  Bestellung werden zusätzlich aus den Optionen neuer Bestellungen entfernt.
+- **Konsequenz:** Grundriss, Tischliste und Bestellaufnahme widersprechen dem
+  tatsächlichen Bedienzustand nicht mehr. Nach `bezahlt` oder `storniert` bleibt
+  die bisherige bewusste manuelle Tischfreigabe möglich.
+
+## 2026-07-26 — Reservierungen belegen Tische für zwei Stunden
+
+- **Status:** angenommen
+- **Kontext:** Ohne Dauer und Überschneidungsregel konnten mehrere offene
+  Reservierungen desselben Tischs zur gleichen Zeit angelegt werden. Außerdem
+  waren Vergangenheit, geschlossene Tage, zu späte Termine und eine Überschreitung
+  der Tischkapazität technisch möglich.
+- **Entscheidung:** Jede Reservierung bildet ein halboffenes Zeitfenster von 120
+  Minuten. Offene Fenster desselben Tischs und Datums dürfen sich nicht
+  überschneiden; ein direkt anschließender Beginn ist erlaubt. Das vollständige
+  Fenster muss innerhalb der regulären Standortöffnungszeiten liegen, darf nicht
+  in der Berliner Vergangenheit beginnen und die Personenzahl darf die
+  Tischkapazität nicht überschreiten. Anlage und Bearbeitung prüfen diese Regeln
+  serverseitig. Feiertagsabweichungen werden erst mit BV-016 berücksichtigt.
+- **Konsequenz:** Doppelbelegungen und nicht bedienbare Reservierungszeiten werden
+  verhindert. In Kreuzberg ist regulär 21:00 Uhr, in Spandau 20:00 Uhr der
+  späteste Reservierungsbeginn. Stornierte Reservierungen geben ihr Zeitfenster frei.
+
+## 2026-07-26 — Öffnungstage werden in einem eigenen Reservierungskalender dargestellt
+
+- **Status:** angenommen
+- **Kontext:** Native HTML-Datumsfelder können einzelne geschlossene Wochentage
+  nicht browserübergreifend sichtbar deaktivieren. Die verfügbaren Tage hängen
+  außerdem vom explizit gewählten Standort ab.
+- **Entscheidung:** Die Reservierungsformulare verwenden einen Monatskalender,
+  der vergangene Daten und Wochentage ohne reguläre Standardöffnungszeit
+  ausgraut. Beim Standortwechsel wird er mit den Öffnungstagen des neuen
+  Standorts neu aufgebaut.
+- **Konsequenz:** Der Kalender verbessert die Eingabeführung, ersetzt aber keine
+  Geschäftsregel: Der Server prüft das Datum und das vollständige zweistündige
+  Zeitfenster weiterhin verbindlich. Feiertags-Overrides folgen erst mit BV-016.
