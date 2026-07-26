@@ -1,11 +1,13 @@
 "use client";
+
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-export function KuechenRefresh() {
+
+export function AutoRefresh({ intervallMs = 10_000 }: { intervallMs?: number }) {
   const router = useRouter();
   useEffect(() => {
-    const interval = window.setInterval(() => router.refresh(), 10_000);
+    const interval = window.setInterval(() => router.refresh(), intervallMs);
     return () => window.clearInterval(interval);
-  }, [router]);
+  }, [intervallMs, router]);
   return null;
 }

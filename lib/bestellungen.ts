@@ -149,6 +149,7 @@ export async function updateBestellungStatus(mitarbeiter: BestellungMitarbeiter,
         select: {
           id: true,
           status: true,
+          tischId: true,
           gastId: true,
           gast: { select: { besuchszaehler: true } },
           positionen: { select: { menge: true, einzelpreisCent: true } },
@@ -159,8 +160,10 @@ export async function updateBestellungStatus(mitarbeiter: BestellungMitarbeiter,
     if (!bestellung) throw new BestellungValidationError("Die Bestellung gehört nicht zum aktiven Standort.");
     if (bestellung.status === BestellungStatus.bezahlt || bestellung.status === BestellungStatus.storniert) throw new BestellungValidationError("Eine abgeschlossene Bestellung kann nicht mehr geändert werden.");
     const erlaubt: BestellungStatus[] = bestellung.status === BestellungStatus.offen
-      ? [BestellungStatus.serviert, BestellungStatus.storniert]
-      : [BestellungStatus.bezahlt, BestellungStatus.storniert];
+      ? [BestellungStatus.zubereitet, BestellungStatus.storniert]
+      : bestellung.status === BestellungStatus.zubereitet
+        ? [BestellungStatus.serviert, BestellungStatus.storniert]
+        : [BestellungStatus.bezahlt, BestellungStatus.storniert];
     if (!erlaubt.includes(status as BestellungStatus)) throw new BestellungValidationError("Dieser Statuswechsel ist nicht zulässig.");
     if (status === BestellungStatus.bezahlt) {
       const rechnung = berechneRechnung(bestellung.positionen, istBellaCardAktiv(bestellung.gast?.besuchszaehler ?? 0));
@@ -169,6 +172,10 @@ export async function updateBestellungStatus(mitarbeiter: BestellungMitarbeiter,
         data: { status: BestellungStatus.bezahlt, ...rechnung, abgerechnetAm: new Date() },
       });
       if (bezahlt.count !== 1) throw new BestellungValidationError("Die Bestellung wurde bereits abgeschlossen.");
+      await tx.tisch.update({
+        where: { id: bestellung.tischId },
+        data: { status: "frei" },
+      });
       if (bestellung.gastId) {
         await tx.gast.update({ where: { id: bestellung.gastId }, data: { besuchszaehler: { increment: 1 } } });
       }
@@ -203,7 +210,7 @@ export function listBestellungen(standortId: string, nurKueche = false) {
 export async function listBestelloptionen(standortId: string, now = new Date()) {
   const [tische, gerichte, reservierungen] = await Promise.all([
     prisma.tisch.findMany({
-      where: { standortId, verfuegbar: true, bestellungen: { none: { status: { in: [BestellungStatus.offen, BestellungStatus.serviert] } } } },
+      where: { standortId, verfuegbar: true, bestellungen: { none: { status: { in: [BestellungStatus.offen, BestellungStatus.zubereitet, BestellungStatus.serviert] } } } },
       orderBy: { nummer: "asc" },
     }),
     prisma.gericht.findMany({ where: { standortId, ...(standortId === "spandau" ? { kategorie: { not: GerichtKategorie.grill } } : {}) }, orderBy: [{ kategorie: "asc" }, { name: "asc" }] }),

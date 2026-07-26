@@ -106,7 +106,7 @@ Zentrale Anwendung / API
 | `app/reservierungen/` | Standortbezogene Reservierungsliste sowie geschützte Anlage, Bearbeitung und Statuswechsel per Server Actions |
 | `app/speisekarte/` | Standortkarte für alle Rollen sowie geschützte Inhaberpflege von Gerichten und Preisen |
 | `app/bestellungen/` | Standortbezogene Bestellaufnahme, Rechnungsvorschau, Statusfluss und gespeicherte Abrechnung |
-| `app/kueche/` | Standortbezogene Küchenbons und Übergang von offen zu serviert |
+| `app/kueche/` | Standortbezogene Küchenbons und Übergang von offen zu zubereitet |
 | `app/tische/` | Schematischer Standortgrundriss, Tischliste, Statussteuerung und geschützte Stammdatenpflege |
 | `app/standort/` | Explizite Standortauswahl und serverseitiger Kontextwechsel |
 | `components/app-header.tsx` | Reduzierte globale Navigation sowie sichtbare Mitarbeiter- und Standortsession mit Wechsel- und Abmeldemöglichkeit |
@@ -155,7 +155,7 @@ Zentrale Anwendung / API
   standortgefilterten Tisch zu. Die Tischauswahl kann daher keine fremden
   Standortdaten auflösen.
 - Ein Tisch hat höchstens eine aktive Bestellung gleichzeitig.
-- Solange eine Bestellung `offen` oder `serviert` ist, muss der zugehörige Tisch
+- Solange eine Bestellung `offen`, `zubereitet` oder `serviert` ist, muss der zugehörige Tisch
   `besetzt` bleiben. Manuelle Wechsel zu `frei` oder `reserviert` werden an der
   Domänengrenze abgewiesen; Bestellformulare bieten solche Tische nicht erneut an.
 - Bestellanlage und Wechsel des zugehörigen Tischstatus auf `besetzt` laufen in
@@ -174,7 +174,8 @@ Zentrale Anwendung / API
   die Berechtigung wird vor der Besuchserhöhung geprüft.
 - Beim Bezahlen werden Ausgangssumme, kaufmännisch auf Cent gerundeter Rabatt,
   Endsumme und Abrechnungszeitpunkt gemeinsam mit Status und Besuchserhöhung
-  transaktional gespeichert. Bezahlte Rechnungssnapshots sind unveränderlich.
+  transaktional gespeichert und der zugehörige Tisch wird auf `frei` gesetzt.
+  Bezahlte Rechnungssnapshots sind unveränderlich.
 - Telefonnummern werden zusätzlich in normalisierter Form eindeutig gespeichert;
   der Bella-Card-Status wird aus dem Besuchszähler abgeleitet.
 - Gast-Erkennung verwendet ausschließlich einen exakten Vergleich des
@@ -216,7 +217,7 @@ Zentrale Anwendung / API
   geschrieben; `/kueche` liest dieselben standortgebundenen Datensätze als
   interne, regelmäßig aktualisierte Küchenwarteschlange.
 - Ein partieller SQLite-Unique-Index auf `Bestellung.tischId` schützt die
-  aktiven Zustände `offen` und `serviert` auch bei parallelen Schreibzugriffen.
+  aktiven Zustände `offen`, `zubereitet` und `serviert` auch bei parallelen Schreibzugriffen.
 - Bestellpositionen behalten ihren erstmalig übernommenen Centpreis. Bereits
   bezahlte oder stornierte Bestellungen sind unveränderlich. Stornierte
   Bestellungen dürfen als ausdrückliche Ausnahme manuell gelöscht werden; ihre

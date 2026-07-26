@@ -71,11 +71,12 @@ Beide Standorte laufen aktuell komplett auf Papier: Zettel, Notizbücher, Tasche
 - Bestell-ID, Tisch-ID, Standort-ID, Gast-ID
 - Positionen: Gericht + Menge
 - Aufgenommen von (welcher Mitarbeiter) → wichtig für Trinkgeld-Aufteilung!
-- Status: `offen` | `serviert` | `bezahlt` | `storniert`
+- Status: `offen` | `zubereitet` | `serviert` | `bezahlt` | `storniert`
 - Gesamtsumme (inkl. automatischem Bella-Card-Rabatt falls zutreffend)
 - Bei erfolgreicher Aufnahme einer neuen Bestellung wird der zugehörige Tisch
-  atomar auf `besetzt` gesetzt. Bezahlen und Stornieren ändern den Tischstatus
-  vorerst nicht automatisch.
+  atomar auf `besetzt` gesetzt. Beim erfolgreichen Bezahlen wird er innerhalb
+  derselben Transaktion automatisch auf `frei` gesetzt. Stornieren ändert den
+  Tischstatus nicht automatisch.
 
 ### Bestellposition *(Verbindungsentität Bestellung ↔ Gericht)*
 - Bestell-ID, Gericht-ID
@@ -144,7 +145,7 @@ Beide Standorte laufen aktuell komplett auf Papier: Zettel, Notizbücher, Tasche
 5. Wenn ein Mitarbeiter die Rolle "Bedienung" hat, dann darf er keine Preise oder Speisekarte bearbeiten.
 6. Wenn ein Gericht der Kategorie "Grill" zugewiesen ist, dann darf es nur für Standort Kreuzberg angezeigt und bestellt werden.
 7. Wenn eine Reservierung geändert wird, dann wird Zeitstempel und Mitarbeiter-ID automatisch geloggt.
-8. Wenn eine Bestellung den Status "serviert" hat, dann gilt sie noch nicht als abgeschlossen – erst Status "bezahlt" schließt sie ab.
+8. Wenn die Küche eine Bestellung fertigstellt, setzt sie den Status auf `zubereitet`. Die Bedienung wird in der automatisch aktualisierten Bestellübersicht informiert, holt das Essen ab und setzt danach `serviert`. Erst `bezahlt` schließt die Bestellung ab.
 9. App muss auch Offline verfügbar sein, sodass das System bei Internetausfall nicht zusammenbricht
 
 **Präzisierung zur Abrechnung:** Für die Rabattprüfung zählen die bereits vor der
@@ -160,7 +161,7 @@ Ausgangssumme, Rabatt und Endsumme dauerhaft an der Bestellung historisiert.
 ### v1-v2 – muss rein
 - Reservierungsverwaltung (beide Standorte, getrennt)
 - Tischstatus-Übersicht pro Standort (frei / besetzt / reserviert)
-- Digitale Bestellaufnahme → direkt in die Küche
+- Digitale Bestellaufnahme → direkt in die Küche -> Nachricht an Bedienung wenn zubereitet
 - Speisekartenverwaltung (pro Standort separat)
 - Gastprofil mit Telefonnummer + Besuchszähler + Notizfeld
 - Bella-Card-Logik (automatischer Rabatt)

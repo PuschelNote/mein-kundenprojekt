@@ -194,6 +194,15 @@ details summary { cursor: pointer; color: var(--brand); font-size: .82rem; font-
 .order-list { display: grid; gap: 1rem; }
 .order-card, .kitchen-ticket { background: var(--surface); border: 1px solid var(--line); border-radius: 1rem; padding: 1.2rem; }
 .order-card.serviert { border-left: .45rem solid #2f7d5b; }
+.order-card.zubereitet { border-left: .45rem solid #d58b20; }
+
+.order-ready-notice {
+  padding: .8rem 1rem;
+  border: 1px solid #d58b20;
+  border-radius: .7rem;
+  background: #fff4d6;
+  color: #5f3b00;
+}
 .order-card.storniert, .order-card.bezahlt { opacity: .72; }
 .status-actions { display: flex; flex-wrap: wrap; gap: .65rem; margin-top: 1rem; }
 .invoice-summary { margin: 1rem 0; padding: .85rem 1rem; border-radius: .75rem; background: #f7f3eb; }

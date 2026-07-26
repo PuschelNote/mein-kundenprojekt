@@ -50,6 +50,7 @@ enum GerichtKategorie {
 
 enum BestellungStatus {
   offen
+  zubereitet
   serviert
   bezahlt
   storniert

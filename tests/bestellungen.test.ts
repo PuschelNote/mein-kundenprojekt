@@ -154,15 +154,20 @@ describe("Bestellpersistenz und Standorttrennung", () => {
     assert.equal(await prisma.bestellposition.count({ where: { bestellungId: bestellung.id } }), 0);
     assert.ok((await listBestelloptionen("kreuzberg", new Date("2099-08-15T10:00:00.000Z"))).reservierungen.some((eintrag) => eintrag.id === reservierung.id));
   });
-  it("erlaubt nur offen zu serviert zu bezahlt und sperrt abgeschlossene Bestellungen", async () => {
+  it("erlaubt nur offen zu zubereitet zu serviert zu bezahlt und sperrt abgeschlossene Bestellungen", async () => {
     const mitarbeiter = await prisma.mitarbeiter.findUniqueOrThrow({ where: { id: "manager-kreuzberg-giuseppe" } });
     const tisch = await testTisch(4);
     merkeTischstatus(tisch);
     const bestellung = await createBestellung(mitarbeiter, "kreuzberg", input(tisch.id), new Date("2026-07-25T18:00:00.000Z"));
     bestellungIds.push(bestellung.id);
     await assert.rejects(updateBestellungStatus(mitarbeiter, "kreuzberg", bestellung.id, BestellungStatus.bezahlt), BestellungValidationError);
+    assert.equal((await prisma.tisch.findUniqueOrThrow({ where: { id: tisch.id } })).status, TischStatus.besetzt);
+    await assert.rejects(updateBestellungStatus(mitarbeiter, "kreuzberg", bestellung.id, BestellungStatus.serviert), BestellungValidationError);
+    await updateBestellungStatus(mitarbeiter, "kreuzberg", bestellung.id, BestellungStatus.zubereitet);
+    await assert.rejects(updateTischStatus(tisch.id, TischStatus.frei, mitarbeiter, "kreuzberg"), TischValidationError);
     await updateBestellungStatus(mitarbeiter, "kreuzberg", bestellung.id, BestellungStatus.serviert);
     await updateBestellungStatus(mitarbeiter, "kreuzberg", bestellung.id, BestellungStatus.bezahlt);
+    assert.equal((await prisma.tisch.findUniqueOrThrow({ where: { id: tisch.id } })).status, TischStatus.frei);
     await assert.rejects(updateBestellung(mitarbeiter, "kreuzberg", bestellung.id, input(tisch.id)), BestellungValidationError);
     await assert.rejects(updateBestellungStatus(mitarbeiter, "kreuzberg", bestellung.id, BestellungStatus.storniert), BestellungValidationError);
   });
@@ -177,6 +182,7 @@ describe("Bestellpersistenz und Standorttrennung", () => {
     bestellungIds.push(bestellung.id);
     const erwarteteAusgangssumme = bestellung.positionen[0].menge * bestellung.positionen[0].einzelpreisCent;
     const erwarteterRabatt = Math.round(erwarteteAusgangssumme * 0.15);
+    await updateBestellungStatus(mitarbeiter, "kreuzberg", bestellung.id, BestellungStatus.zubereitet);
     await updateBestellungStatus(mitarbeiter, "kreuzberg", bestellung.id, BestellungStatus.serviert);
     const bezahlt = await updateBestellungStatus(mitarbeiter, "kreuzberg", bestellung.id, BestellungStatus.bezahlt);
     assert.equal(bezahlt.ausgangssummeCent, erwarteteAusgangssumme);
@@ -197,6 +203,7 @@ describe("Bestellpersistenz und Standorttrennung", () => {
     const bestellung = await createBestellung(mitarbeiter, "kreuzberg", { ...input(tisch.id), gastTelefonNormalisiert: gast.telefonNormalisiert }, new Date("2026-07-25T18:00:00.000Z"));
     bestellungIds.push(bestellung.id);
     const erwarteteAusgangssumme = bestellung.positionen[0].menge * bestellung.positionen[0].einzelpreisCent;
+    await updateBestellungStatus(mitarbeiter, "kreuzberg", bestellung.id, BestellungStatus.zubereitet);
     await updateBestellungStatus(mitarbeiter, "kreuzberg", bestellung.id, BestellungStatus.serviert);
     const bezahlt = await updateBestellungStatus(mitarbeiter, "kreuzberg", bestellung.id, BestellungStatus.bezahlt);
     assert.equal(bezahlt.rabattCent, 0);

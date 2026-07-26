@@ -162,7 +162,7 @@ export async function updateTischStatus(
     }
     if (status !== TischStatus.besetzt) {
       const aktiveBestellung = await tx.bestellung.count({
-        where: { tischId: tisch.id, standortId, status: { in: ["offen", "serviert"] } },
+        where: { tischId: tisch.id, standortId, status: { in: ["offen", "zubereitet", "serviert"] } },
       });
       if (aktiveBestellung > 0) {
         throw new TischValidationError("Ein Tisch mit aktiver Bestellung muss den Status besetzt behalten.");

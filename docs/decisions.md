@@ -939,3 +939,32 @@ lautlos umschreiben._
 - **Konsequenz:** Neue Projektbeteiligte finden den Einstieg zentral, während
   `docs/spec.md` fachliche Single Source of Truth und die übrigen verbindlichen
   Dokumente unverändert maßgeblich bleiben.
+
+## 2026-07-26 — Küchenfertigstellung und Servieren sind getrennte Status
+
+- **Status:** angenommen; präzisiert den bisherigen Bestellstatusfluss
+- **Kontext:** Der Küchenbutton „Als serviert markieren“ behauptete eine
+  Servicehandlung, obwohl die Küche lediglich mitteilen kann, dass das Essen
+  fertig zur Abholung ist.
+- **Entscheidung:** Der verbindliche Statusfluss lautet `offen → zubereitet →
+  serviert → bezahlt`. Nur offene Bons erscheinen in der Küche; ihr Button setzt
+  `zubereitet`. Die Bestellübersicht des Service aktualisiert sich alle zehn
+  Sekunden, kennzeichnet zubereitete Bestellungen als abholbereit und bietet dort
+  den Übergang zu `serviert` an. Bezahlen bleibt erst danach zulässig.
+- **Konsequenz:** Küche und Service bestätigen jeweils ihre tatsächliche Handlung.
+  `zubereitet` zählt wie `offen` und `serviert` als aktiver Zustand, hält den Tisch
+  besetzt und ist vom partiellen Eindeutigkeitsindex umfasst.
+
+## 2026-07-26 — Bezahlung gibt den Tisch atomar frei
+
+- **Status:** angenommen; ersetzt für `bezahlt` die bisherige manuelle Freigabe
+- **Kontext:** Nach vollständig bezahlter Rechnung ist die aktive Tischbestellung
+  abgeschlossen. Ein weiterhin als `besetzt` geführter Tisch erzeugt unnötige
+  manuelle Arbeit und eine irreführende Tischübersicht.
+- **Entscheidung:** Beim erfolgreichen Übergang `serviert → bezahlt` werden
+  Rechnungssnapshot, optionaler Besuchszähler, Bestellstatus und Tischstatus
+  `frei` in derselben Datenbanktransaktion gespeichert. Stornierungen verändern
+  den Tischstatus weiterhin nicht automatisch.
+- **Konsequenz:** Es gibt keine bezahlte Bestellung mit weiterhin durch diesen
+  Vorgang besetztem Tisch. Schlägt ein Teil der Abrechnung fehl, bleiben sowohl
+  Bestellung als auch Tisch im vorherigen Zustand.
