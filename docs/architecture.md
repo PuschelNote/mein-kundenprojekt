@@ -35,6 +35,19 @@ Migrationen und einen dokumentierten Datenmigrationsplan erfolgen.
 
 ## Qualitätsziele
 
+### Oberflächen-Shell
+
+- Das Root-Layout umschließt alle Seiten mit einer gemeinsamen App-Shell.
+- Nach der Mitarbeiterwahl erzeugt die serverseitige Kopfkomponente ausschließlich
+  für erlaubte Arbeitsbereiche Navigationseinträge. Eine kleine Client-Komponente
+  markiert anhand des aktuellen Pfads den aktiven Eintrag.
+- Auf breiten Ansichten erscheint die Navigation als feste Seitenleiste mit
+  Standort- und Mitarbeiterkontext, auf schmalen Ansichten als horizontal
+  scrollbar bedienbare untere App-Navigation. Auswahlseiten vor der Anmeldung
+  behalten eine reduzierte Kopfzeile.
+- Rollenabhängige Navigation ist nur Bedienführung. Seiten und schreibende
+  Operationen erzwingen Berechtigungen weiterhin unabhängig davon serverseitig.
+
 1. **Offline arbeitsfähig:** Ein Internetausfall darf Reservierungs-, Tisch- und
    Bestellabläufe im Restaurant nicht zum Stillstand bringen.
 2. **Standorttrennung:** Kreuzberg und Spandau teilen sich das System, aber keine

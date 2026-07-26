@@ -5,6 +5,165 @@
   color: #26211d;
 }
 
+/* BV-058: einheitliche App-Shell und visuelles Bedienkonzept */
+:root {
+  --app-bg: #f4f5f2;
+  --surface: #ffffff;
+  --surface-soft: #f8f8f5;
+  --line: #e2e4de;
+  --ink: #20231f;
+  --muted: #697067;
+  --brand: #9d3528;
+  --brand-dark: #76251c;
+  --green: #294b37;
+  --green-soft: #e8f1eb;
+  --amber-soft: #fff3d7;
+  --danger-soft: #fbe9e6;
+  --radius: .9rem;
+  --shadow: 0 1px 2px rgb(25 32 27 / 5%), 0 10px 30px rgb(25 32 27 / 6%);
+}
+
+body { background: var(--app-bg); color: var(--ink); }
+.app-shell { min-height: 100vh; }
+.app-shell:has(.app-sidebar) { display: grid; grid-template-columns: 15.5rem minmax(0, 1fr); }
+.app-content { min-width: 0; }
+
+.app-sidebar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  height: 100vh;
+  flex-direction: column;
+  border-right: 1px solid #303a32;
+  background: #202a23;
+  color: white;
+  padding: 1.25rem 1rem;
+}
+
+.brand { display: flex; align-items: center; gap: .75rem; color: inherit; font: 700 1rem/1.15 Arial, Helvetica, sans-serif; }
+.brand small { display: block; margin-top: .2rem; color: rgb(255 255 255 / 52%); font-size: .65rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+.brand-mark { display: grid; width: 2.5rem; height: 2.5rem; flex: 0 0 auto; place-items: center; border-radius: .75rem; background: var(--brand); color: white; font-family: Georgia, serif; }
+
+.app-navigation { display: grid; gap: .25rem; margin-top: 2rem; }
+.app-navigation a { display: flex; align-items: center; gap: .75rem; border-radius: .7rem; color: rgb(255 255 255 / 72%); padding: .7rem .75rem; font-size: .9rem; text-decoration: none; transition: background .15s ease, color .15s ease; }
+.app-navigation a:hover { background: rgb(255 255 255 / 7%); color: white; }
+.app-navigation a.active { background: white; color: #202a23; box-shadow: 0 .35rem 1.2rem rgb(0 0 0 / 15%); }
+.nav-icon { display: grid; width: 1.5rem; height: 1.5rem; place-items: center; font-size: 1.15rem; }
+.nav-short-label { display: none; }
+
+.sidebar-context { display: grid; gap: .8rem; margin-top: auto; border-top: 1px solid rgb(255 255 255 / 12%); padding: 1rem .25rem 0; }
+.sidebar-context .location-switch { border-radius: .65rem; background: rgb(255 255 255 / 6%); color: white; padding: .7rem; text-align: left; }
+.sidebar-context .location-switch span { color: rgb(255 255 255 / 52%); }
+.staff-context { display: flex; align-items: center; gap: .65rem; }
+.staff-avatar { display: grid; width: 2.25rem; height: 2.25rem; place-items: center; border-radius: 50%; background: var(--brand); font-weight: 800; }
+.staff-context > div { display: grid; gap: .1rem; min-width: 0; }
+.staff-context strong { overflow: hidden; font-size: .85rem; text-overflow: ellipsis; white-space: nowrap; }
+.staff-context a { color: rgb(255 255 255 / 58%); font-size: .7rem; }
+.logout-button { width: 100%; border: 1px solid rgb(255 255 255 / 14%); border-radius: .6rem; background: transparent; color: rgb(255 255 255 / 70%); padding: .55rem; font-size: .75rem; }
+
+.onboarding-header { display: flex; align-items: center; justify-content: space-between; min-height: 4.5rem; border-bottom: 1px solid var(--line); background: white; padding: .75rem max(1.25rem, calc((100vw - 70rem) / 2)); }
+.onboarding-header .brand { color: var(--ink); }
+.onboarding-header .brand small { color: var(--muted); }
+.onboarding-context { display: flex; align-items: center; gap: 1.25rem; }
+
+.admin-page, .dashboard-page { width: min(100%, 82rem); max-width: none; margin: 0 auto; padding: 2.25rem clamp(1rem, 3vw, 3rem) 4rem; }
+.page-header { margin-bottom: 1.5rem; border-bottom: 1px solid var(--line); padding-bottom: 1.5rem; }
+.page-header h1 { margin: .3rem 0; font-family: Arial, Helvetica, sans-serif; font-size: clamp(2rem, 4vw, 3rem); letter-spacing: -.04em; }
+.page-header p:last-child { max-width: 45rem; color: var(--muted); line-height: 1.55; }
+.eyebrow { color: var(--brand); font-size: .68rem; letter-spacing: .14em; }
+
+.panel, .floor-panel, .table-selection-panel, .opening-hours, .guest-card, .table-card, .order-card, .kitchen-ticket, .employee-card, .location-employee-group {
+  border-color: var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+.panel { padding: clamp(1rem, 2.5vw, 1.5rem); }
+.panel h2 { margin: 0 0 .35rem; font-size: 1.2rem; }
+.panel-hint { color: var(--muted); line-height: 1.5; }
+.section-heading { margin: 2rem 0 1rem; }
+.section-heading h2 { margin: 0; font-size: 1.25rem; }
+.section-heading span { min-width: 1.8rem; min-height: 1.8rem; background: var(--green); font-size: .78rem; }
+
+.reservation-form, .guest-form, .employee-form, .table-form, .dish-form, .order-form { gap: .9rem; margin-top: 1.1rem; }
+.reservation-form label, .guest-form label, .employee-form label, .table-form label, .dish-form label, .order-form label { color: #434a43; font-size: .76rem; letter-spacing: .01em; }
+.reservation-form input, .reservation-form select, .guest-form input, .guest-form textarea, .employee-form input, .employee-form select, .table-form input, .table-form select, .dish-form input, .dish-form select, .dish-form textarea, .order-form input, .order-form select {
+  min-height: 2.75rem;
+  border: 1px solid #cfd3cc;
+  border-radius: .6rem;
+  background: white;
+  color: var(--ink);
+  padding: .7rem .8rem;
+  outline: none;
+}
+input:focus, select:focus, textarea:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(41 75 55 / 12%); }
+button:focus-visible, a:focus-visible, summary:focus-visible { outline: 3px solid #d99d39; outline-offset: 3px; }
+.reservation-form > button, .guest-form > button, .employee-form > button, .table-form > button, .dish-form > button, .order-form > button, .status-actions button, .reservation-status-form button, .table-status-form button {
+  min-height: 2.7rem;
+  border: 0;
+  border-radius: .6rem;
+  background: var(--green);
+  color: white;
+  padding: .7rem 1rem;
+  font-weight: 750;
+}
+button:disabled { cursor: not-allowed; opacity: .52; }
+.danger-button { background: var(--danger-soft) !important; color: #8b2d20 !important; }
+
+.reservation-card, .order-card, .guest-card, .table-card { transition: transform .15s ease, box-shadow .15s ease; }
+.reservation-card:hover, .order-card:hover, .guest-card:hover, .table-card:hover { transform: translateY(-1px); box-shadow: 0 12px 32px rgb(25 32 27 / 9%); }
+.reservation-status, .table-badges strong { border-radius: 999px; background: var(--green-soft); color: #28543a; padding: .3rem .6rem; font-size: .68rem; letter-spacing: .06em; text-transform: uppercase; }
+.order-card.storniert .reservation-status, .reservation-card.storniert .reservation-status { background: var(--danger-soft); color: #8b2d20; }
+details { border-top: 1px solid var(--line); padding-top: .85rem; }
+details summary { cursor: pointer; color: var(--brand); font-size: .82rem; font-weight: 750; }
+.empty-state { border-style: dashed; box-shadow: none; color: var(--muted); }
+
+.dashboard-welcome { align-items: center; margin: 1rem 0 2.25rem; }
+.dashboard-welcome h1 { font-family: Arial, Helvetica, sans-serif; font-size: clamp(2.4rem, 5vw, 4.25rem); letter-spacing: -.055em; }
+.dashboard-context { border: 1px solid var(--line); border-left: 4px solid var(--brand); border-radius: .8rem; background: white; box-shadow: var(--shadow); padding: .9rem 1rem; }
+.dashboard-primary-actions { gap: 1rem; }
+.dashboard-action-card { min-height: 11rem; border-radius: var(--radius); box-shadow: var(--shadow); }
+.dashboard-action-card:hover { transform: translateY(-2px); }
+.reservation-action { background: linear-gradient(135deg, #a43c2e, #7f291f); }
+.order-action { background: linear-gradient(135deg, #345d43, #223c2d); }
+.dashboard-quick-links a { border-color: var(--line); border-radius: .75rem; background: white; box-shadow: 0 1px 2px rgb(25 32 27 / 4%); padding: 1rem 1.1rem; }
+.dashboard-quick-links a:hover { border-color: #aeb9af; box-shadow: var(--shadow); }
+.dashboard-hours { border-left-color: var(--line); }
+
+.floor-grid { border-color: var(--line); background: #f7f8f5; }
+.floor-table { border-width: 2px; box-shadow: 0 2px 8px rgb(25 32 27 / 5%); }
+.invoice-summary { background: var(--surface-soft); }
+.kitchen-ticket { border-top-color: var(--brand); }
+.form-message.error { border-radius: .55rem; background: var(--danger-soft); padding: .7rem .8rem; }
+.form-message.success { border-radius: .55rem; background: var(--green-soft); padding: .7rem .8rem; }
+
+@media (max-width: 900px) {
+  .app-shell:has(.app-sidebar) { display: block; }
+  .app-content { padding-bottom: 5.25rem; }
+  .app-sidebar { position: fixed; inset: auto 0 0; width: auto; height: auto; border-top: 1px solid #303a32; border-right: 0; padding: .45rem .5rem max(.45rem, env(safe-area-inset-bottom)); }
+  .app-sidebar > .brand, .sidebar-context { display: none; }
+  .app-navigation { display: flex; overflow-x: auto; gap: .15rem; margin: 0; scrollbar-width: none; }
+  .app-navigation a { min-width: 4.7rem; flex: 1 0 auto; flex-direction: column; gap: .1rem; padding: .4rem .45rem; font-size: .66rem; }
+  .app-navigation a.active { background: rgb(255 255 255 / 12%); color: white; box-shadow: none; }
+  .nav-icon { height: 1.25rem; font-size: 1rem; }
+  .nav-label { display: none; }
+  .nav-short-label { display: block; }
+}
+
+@media (max-width: 680px) {
+  .admin-page, .dashboard-page { padding: 1.25rem .85rem 2.5rem; }
+  .page-header { margin-bottom: 1rem; }
+  .page-header h1 { font-size: 2rem; }
+  .panel, .floor-panel { padding: 1rem; }
+  .dashboard-welcome { align-items: stretch; margin-top: .5rem; }
+  .dashboard-welcome h1 { font-size: 2.5rem; }
+  .dashboard-action-card { min-height: 9rem; padding: 1.15rem; }
+  .section-heading { align-items: center; flex-direction: row; }
+  .onboarding-header { padding: .65rem .85rem; }
+  .onboarding-context > a:first-child { display: none; }
+}
+
 .order-form { display: grid; gap: 1rem; }
 .order-form fieldset { border: 1px solid var(--line); border-radius: 1rem; padding: 1rem; }
 .order-position { display: grid; grid-template-columns: 2fr .5fr 2fr auto; gap: .65rem; margin-top: .75rem; }
@@ -1462,4 +1621,54 @@ button {
   .dish-list {
     grid-template-columns: 1fr;
   }
+}
+
+/* Abschließende Kaskade für die App-Oberfläche. */
+body { background: var(--app-bg); color: var(--ink); }
+.app-sidebar .brand { color: white; font-family: Arial, Helvetica, sans-serif; font-size: 1rem; }
+.app-sidebar .location-switch { display: grid; color: white; text-align: left; }
+.onboarding-header .brand { color: var(--ink); font-family: Arial, Helvetica, sans-serif; font-size: 1rem; }
+.admin-page, .dashboard-page { width: min(100%, 82rem); max-width: none; margin: 0 auto; padding: 2.25rem clamp(1rem, 3vw, 3rem) 4rem; }
+.page-header { align-items: flex-start; margin-bottom: 1.5rem; border-bottom: 1px solid var(--line); padding-bottom: 1.5rem; }
+.page-header h1 { margin: .3rem 0; font-family: Arial, Helvetica, sans-serif; font-size: clamp(2rem, 4vw, 3rem); letter-spacing: -.04em; }
+.page-header p:last-child { max-width: 45rem; color: var(--muted); line-height: 1.55; }
+.panel, .floor-panel, .table-selection-panel, .opening-hours, .guest-card, .table-card, .order-card, .kitchen-ticket, .employee-card, .location-employee-group { border-color: var(--line); border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow); }
+.panel { padding: clamp(1rem, 2.5vw, 1.5rem); }
+.panel h2 { margin: 0 0 .35rem; font-size: 1.2rem; }
+.panel-hint { color: var(--muted); line-height: 1.5; }
+.section-heading { margin: 2rem 0 1rem; }
+.section-heading h2 { margin: 0; font-size: 1.25rem; }
+.reservation-form, .guest-form, .employee-form, .table-form, .dish-form, .order-form { gap: .9rem; margin-top: 1.1rem; }
+.reservation-form label, .guest-form label, .employee-form label, .table-form label, .dish-form label, .order-form label { color: #434a43; font-size: .76rem; letter-spacing: .01em; }
+.reservation-form input, .reservation-form select, .guest-form input, .guest-form textarea, .employee-form input, .employee-form select, .table-form input, .table-form select, .dish-form input, .dish-form select, .dish-form textarea, .order-form input, .order-form select { min-height: 2.75rem; border: 1px solid #cfd3cc; border-radius: .6rem; background: white; color: var(--ink); padding: .7rem .8rem; outline: none; }
+.reservation-form > button, .guest-form > button, .employee-form > button, .table-form > button, .dish-form > button, .order-form > button, .status-actions button, .reservation-status-form button, .table-status-form button { min-height: 2.7rem; border: 0; border-radius: .6rem; background: var(--green); color: white; padding: .7rem 1rem; font-weight: 750; }
+.dashboard-welcome { align-items: center; margin: 1rem 0 2.25rem; }
+.dashboard-welcome h1 { font-family: Arial, Helvetica, sans-serif; font-size: clamp(2.4rem, 5vw, 4.25rem); letter-spacing: -.055em; }
+.dashboard-context { border: 1px solid var(--line); border-left: 4px solid var(--brand); border-radius: .8rem; background: white; box-shadow: var(--shadow); padding: .9rem 1rem; }
+.dashboard-action-card { min-height: 11rem; border-radius: var(--radius); box-shadow: var(--shadow); }
+.reservation-action { background: linear-gradient(135deg, #a43c2e, #7f291f); }
+.order-action { background: linear-gradient(135deg, #345d43, #223c2d); }
+.dashboard-quick-links a { border-color: var(--line); border-radius: .75rem; background: white; box-shadow: 0 1px 2px rgb(25 32 27 / 4%); padding: 1rem 1.1rem; }
+.empty-state { border-style: dashed; box-shadow: none; color: var(--muted); }
+
+@media (max-width: 900px) {
+  .app-shell:has(.app-sidebar) { display: block; }
+  .app-content { padding-bottom: 5.25rem; }
+  .app-sidebar { position: fixed; inset: auto 0 0; width: auto; height: auto; border-top: 1px solid #303a32; border-right: 0; padding: .45rem .5rem max(.45rem, env(safe-area-inset-bottom)); }
+  .app-sidebar > .brand, .sidebar-context { display: none; }
+  .app-navigation { display: flex; overflow-x: auto; gap: .15rem; margin: 0; scrollbar-width: none; }
+  .app-navigation a { min-width: 4.7rem; flex: 1 0 auto; flex-direction: column; gap: .1rem; padding: .4rem .45rem; font-size: .66rem; }
+  .app-navigation a.active { background: rgb(255 255 255 / 12%); color: white; box-shadow: none; }
+  .nav-icon { height: 1.25rem; font-size: 1rem; }
+  .nav-label { display: none; }
+  .nav-short-label { display: block; }
+}
+
+@media (max-width: 680px) {
+  .admin-page, .dashboard-page { padding: 1.25rem .85rem 2.5rem; }
+  .page-header h1 { font-size: 2rem; }
+  .panel, .floor-panel { padding: 1rem; }
+  .dashboard-welcome { align-items: stretch; margin-top: .5rem; }
+  .dashboard-welcome h1 { font-size: 2.5rem; }
+  .dashboard-action-card { min-height: 9rem; padding: 1.15rem; }
 }

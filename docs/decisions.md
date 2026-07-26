@@ -776,3 +776,21 @@ lautlos umschreiben._
 - **Konsequenz:** Der Kalender verbessert die Eingabeführung, ersetzt aber keine
   Geschäftsregel: Der Server prüft das Datum und das vollständige zweistündige
   Zeitfenster weiterhin verbindlich. Feiertags-Overrides folgen erst mit BV-016.
+
+## 2026-07-26 — Die Arbeitsoberfläche verwendet eine responsive App-Shell
+
+- **Status:** angenommen
+- **Kontext:** Die einzelnen Funktionsseiten waren nutzbar, wirkten durch eine
+  breite Linkleiste, unterschiedliche Abstände und uneinheitliche visuelle
+  Gewichtung jedoch eher wie getrennte Verwaltungsseiten als eine gemeinsame
+  Restaurant-App.
+- **Entscheidung:** Angemeldete Mitarbeitende erhalten auf großen Bildschirmen
+  eine dauerhafte Seitenleiste und mobil eine untere Navigation. Aktiver Bereich,
+  Standort und Mitarbeiter sind sichtbar. Navigationseinträge bleiben
+  rollenabhängig; Karten, Formulare, Status, Fokus- und Leerzustände verwenden
+  ein gemeinsames visuelles System. Vor der Anmeldung bleibt die reduzierte
+  Auswahl-Kopfzeile bestehen.
+- **Konsequenz:** Häufige Arbeitsbereiche sind ohne Rückweg über das Dashboard
+  erreichbar und die Oberfläche verhält sich über alle Bildschirmgrößen wie eine
+  zusammenhängende App. Es ändern sich weder Features noch Geschäftslogik;
+  Berechtigungen werden weiterhin an Seiten und Schreibgrenzen erzwungen.
