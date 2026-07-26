@@ -1,115 +1,160 @@
 # Bella Vista Restaurant-App
 
-Interne Restaurantverwaltung für die Bella-Vista-Standorte Kreuzberg und
-Spandau. Die Anwendung digitalisiert Reservierungen, Tischverwaltung,
-Bestellungen, Küchenabläufe, Abrechnung, Gästedaten und das Bella-Card-
-Treueprogramm.
+Eine lokal ausführbare Restaurant-Anwendung für die beiden Bella-Vista-Standorte **Kreuzberg** und **Spandau**.
+
+Die App unterstützt unter anderem die Verwaltung von Standorten, Tischen, Gästen, Reservierungen, Bestellungen, Speisekarten und Mitarbeiterrollen.
 
 ## Funktionsumfang
 
-- aufgabenorientiertes Dashboard mit explizitem Standort- und Mitarbeiterkontext
-- Reservierungen mit zweistündigen Zeitfenstern, Tischzuordnung und
-  Öffnungszeitenprüfung
-- schematischer Tischgrundriss mit Status und sichtbaren Reservierungen
-- standortgetrennte Speisekarten; Grillgerichte ausschließlich in Kreuzberg
-- Bestellaufnahme, Küchenansicht, Statusablauf und historische Einzelpreise
-- Tischabrechnung mit automatischem Bella-Card-Rabatt ab zehn abgeschlossenen
-  Besuchen
-- Gastprofile mit Telefonnummer, Besuchszähler, Notizen und Allergiehinweisen
-- Catering-Aufträge für Manager und Inhaber
-- Feiertags-Öffnungszeiten, die Marco für beide Standorte pflegen kann
-- responsive, installierbare PWA-Hülle mit Offline-Fallback
+- standortbezogene Arbeitsoberflächen für Kreuzberg und Spandau
+- Tischstatus und Tischverwaltung
+- Gästeverwaltung mit Telefonnummer, Notizen und Besuchszähler
+- Reservierungsverwaltung
+- Bestellaufnahme und Küchenansicht
+- standortabhängige Speisekarten
+- rollenbasierte Berechtigungen für Bedienung, Manager und Inhaber
+- lokale SQLite-Datenbank mit Prisma
+- automatisierte Tests für zentrale Fachlogik
 
-## Rollen
+## Technischer Aufbau
 
-| Rolle | Wesentliche Rechte |
-|---|---|
-| Bedienung | Reservierungen, Bestellungen, Küche, Tische und Speisekarte |
-| Manager | zusätzlich Gastdaten, Bella-Card und Mitarbeiterverwaltung am eigenen Standort |
-| Inhaber (Marco) | vollständiger Zugriff auf Kreuzberg und Spandau, einschließlich Preisen und Feiertagszeiten |
+- **Frontend und Server:** Next.js mit React und TypeScript
+- **Datenbank:** SQLite
+- **ORM:** Prisma
+- **Styling:** globale CSS-Komponenten und wiederverwendbare UI-Bausteine
+- **Tests:** Node Test Runner über `tsx`
 
-Berechtigungen und Standortgrenzen werden serverseitig geprüft. Ausgeblendete
-Navigationselemente sind lediglich Teil der Bedienführung.
+## Quellcode und Projektstruktur
 
-## Technologie
+```text
+app/          Seiten, Routen, Server Actions und App-Layout
+components/   Wiederverwendbare UI-Komponenten
+lib/          Fachlogik, Datenzugriff und Berechtigungen
+prisma/       Prisma-Schema und Datenbankmigrationen
+scripts/      Hilfsskripte, insbesondere Seed und Datenbankprüfung
+tests/        Automatisierte Tests
+docs/         Spezifikation, Architektur, Backlog und Entscheidungen
+AGENTS.md     Arbeitsregeln und Projektkontext für den Coding-Agenten
+```
 
-- Next.js 16 mit App Router
-- React 19 und TypeScript
-- Prisma ORM 7
-- SQLite mit `@prisma/adapter-better-sqlite3`
-- Node-Test-Runner über `tsx`
-- ESLint
+Der vollständige Quellcode eines Features verteilt sich in der Regel auf mehrere Bereiche:
 
-## Lokal starten
+- Benutzeroberfläche und Route unter `app/`
+- wiederverwendbare UI-Bestandteile unter `components/`
+- Fachlogik und Datenzugriff unter `lib/`
+- Datenmodell unter `prisma/schema.prisma`
+- Tests unter `tests/`
 
-Vorausgesetzt werden eine aktuelle Node.js-LTS-Version und npm.
+Die Feature-IDs und ihr Umsetzungsstatus sind in `docs/backlog.md` dokumentiert. Architektur- und Implementierungsentscheidungen stehen in `docs/architecture.md` und `docs/decisions.md`.
+
+## Voraussetzungen
+
+- Node.js
+- npm
+- Git
+
+## Installation
+
+Repository klonen:
+
+```bash
+git clone https://github.com/PuschelNote/mein-kundenprojekt.git
+cd mein-kundenprojekt
+```
+
+Abhängigkeiten installieren:
+
+```bash
+npm install
+```
+
+Umgebungsdatei anlegen:
+
+### Windows PowerShell
 
 ```powershell
-npm install
 Copy-Item .env.example .env
-npx prisma migrate deploy
+```
+
+### macOS/Linux
+
+```bash
+cp .env.example .env
+```
+
+Die lokale Datenbankverbindung ist bereits in `.env.example` vorbereitet:
+
+```env
+DATABASE_URL="file:./dev.db"
+```
+
+## Datenbank vorbereiten
+
+Prisma-Client erzeugen:
+
+```bash
+npm run db:generate
+```
+
+Datenbankmigrationen anwenden:
+
+```bash
+npm run db:migrate
+```
+
+Test- und Ausgangsdaten einspielen:
+
+```bash
 npm run db:seed
+```
+
+Optional kann die Datenbank geprüft werden:
+
+```bash
+npm run db:check
+```
+
+## Anwendung starten
+
+Entwicklungsserver starten:
+
+```bash
 npm run dev
 ```
 
-Danach ist die App unter [http://localhost:3000](http://localhost:3000)
-erreichbar. `npm run dev` generiert den Prisma-Client und spielt ausstehende
-Migrationen vor jedem lokalen Start automatisch ein.
-
-Der Seed ist idempotent und stellt unter anderem beide Standorte, Mitarbeiter,
-Öffnungszeiten, vorläufige Tische, Beispielkarten sowie klar gekennzeichnete
-Demo-Gäste und Demo-Reservierungen bereit. Bereits gepflegte Datensätze werden
-nicht zurückgesetzt.
-
-## Nützliche Befehle
-
-| Befehl | Zweck |
-|---|---|
-| `npm run dev` | Entwicklungsserver starten |
-| `npm run build` | Production-Build erzeugen |
-| `npm start` | erzeugten Production-Build starten |
-| `npm test` | Grunddaten einspielen und vollständige Testsuite ausführen |
-| `npm run lint` | Code mit ESLint prüfen |
-| `npm run db:check` | lokale SQLite-Verbindung prüfen |
-| `npm run db:seed` | nicht-destruktive Demo- und Grunddaten anlegen |
-| `npm run db:migrate` | neue Prisma-Migration im Entwicklungsbetrieb erstellen |
-| `npm run db:studio` | Prisma Studio öffnen |
-
-## Projektstruktur
+Danach im Browser öffnen:
 
 ```text
-app/                  Next.js-Seiten und Server Actions
-components/           gemeinsame UI-Komponenten
-lib/                  Domänenlogik, Berechtigungen und Datenzugriff
-prisma/               Schema und versionierte Migrationen
-public/               statische PWA- und Offline-Dateien
-scripts/              Datenbank- und Seed-Skripte
-tests/                Validierungs- und SQLite-Integrationstests
-docs/                 Spec, Backlog, Architektur, Entscheidungen und Konzepte
+http://localhost:3000
 ```
 
-## Aktueller Entwicklungsstand
+## Qualitätssicherung
 
-Die lokalen Kernabläufe sind umgesetzt. Die sichere Anmeldung und Phase 6 sind
-noch in Arbeit:
+Lint-Prüfung:
 
-- Sitzungen verwenden bereits zufällige Tokens, serverseitig gespeicherte Hashes
-  und eine Ablaufzeit. Persönliche PIN-Vergabe, PIN-Prüfung und Schutz vor
-  wiederholten Fehlversuchen fehlen noch.
-- Manifest, Service Worker, Verbindungsanzeige und ein datensparsamer
-  Offline-Fallback sind vorhanden. Offline-Schreiben, Synchronisation und
-  sichtbare Konfliktauflösung sind noch nicht umgesetzt.
-- SQLite ist die lokale Projektpersistenz und noch kein Mehrgeräte- oder
-  Cloud-Synchronisationssystem.
+```bash
+npm run lint
+```
 
-## Verbindliche Projektdokumentation
+Automatisierte Tests:
 
-- [Fachliche Spezifikation](docs/spec.md)
-- [Backlog und Umsetzungsstatus](docs/backlog.md)
-- [Architektur](docs/architecture.md)
-- [Entscheidungen](docs/decisions.md)
-- [Arbeitsweise](docs/modus-operandi.md)
-- [Manuelle Kalibrierungsnotizen](KALIBRIERUNG.md)
+```bash
+npm test
+```
 
-Die `docs/spec.md` ist die fachliche Single Source of Truth. Eine `prd.md` wird
-in diesem Projekt nicht verwendet.
+Produktions-Build:
+
+```bash
+npm run build
+```
+
+## KI-Unterstützung
+ChatGPT als unterstützung bei prompts oder fehlern
+
+## Projektdokumentation
+
+- `docs/spec.md` – fachliche Spezifikation
+- `docs/backlog.md` – Features, Phasen und Status
+- `docs/architecture.md` – technischer Aufbau und Datenmodell
+- `docs/decisions.md` – Architektur- und Umsetzungsentscheidungen
+- `AGENTS.md` – Arbeits- und Qualitätsregeln für den Coding-Agenten
