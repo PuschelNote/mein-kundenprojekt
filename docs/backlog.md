@@ -63,11 +63,13 @@ _Stand: 26.07.2026_
 |---|---|---|---|
 | BV-007 | Bestellung aufnehmen | done | `/bestellungen` legt eine Bestellung atomar mit Standort, verfügbarem Tisch, optional per exakter Telefonnummer zugeordnetem bekannten Gast und aufnehmendem Mitarbeiter an. |
 | BV-049 | Tisch bei Bestellaufnahme besetzen | done | Eine erfolgreich neu aufgenommene Bestellung setzt den zugehörigen Tisch innerhalb derselben Transaktion auf `besetzt`; abgewiesene Bestellungen verändern den Tischstatus nicht, Tests sind grün. |
+| BV-051 | Reservierung bei Bestellaufnahme übernehmen | done | Nach der Tischauswahl können offene, noch ungenutzte Reservierungen des aktiven Standorts übernommen werden; Bestellung und Übersicht speichern den Reservierungsbezug, Gast und Tisch verbindlich. Standort- und Manipulationsschutz sowie Atomizität sind getestet. |
 | BV-036 | Bestellpositionen verwalten | done | Offene Bestellungen enthalten mindestens eine validierte Position; Gerichte, Mengen von 1 bis 99 und optionale Sonderwünsche bis 300 Zeichen können bearbeitet werden. |
 | BV-037 | Einzelpreis historisieren | done | Jede Position übernimmt bei ihrer erstmaligen Aufnahme den Centpreis des Gerichts; bestehende Positionen behalten ihn bei Karten- und Bestelländerungen. |
 | BV-038 | Nur eine aktive Bestellung pro Tisch zulassen | done | Ein partieller eindeutiger Datenbankindex erlaubt je Tisch höchstens eine Bestellung im Status `offen` oder `serviert`, auch bei konkurrierenden Schreibzugriffen. |
 | BV-008 | Bestellung an die Küche übermitteln | done | `/kueche` zeigt offene Bons des aktiven Standorts mit Positionen und Sonderwünschen und aktualisiert sich alle zehn Sekunden; das endgültige Ausgabemedium bleibt offen. |
 | BV-009 | Bestellstatus verwalten | done | Kontrollierte Übergänge führen von `offen` über `serviert` zu `bezahlt` oder aus aktiven Zuständen zu `storniert`; abgeschlossene Bestellungen sind unveränderlich. |
+| BV-052 | Stornierte Bestellungen manuell löschen | done | Ausschließlich stornierte Bestellungen können nach Bestätigung am aktiven Standort dauerhaft gelöscht werden; Rollen- und Standortprüfung, Positionskaskade und Freigabe eines Reservierungsbezugs sind automatisiert getestet. |
 | BV-039 | Aufnehmenden Mitarbeiter nachweisen | done | Jede Bestellung persistiert und zeigt den serverseitig validierten aufnehmenden Mitarbeiter und den Aufnahmezeitpunkt. |
 | BV-012 | Küchenannahmeschluss erzwingen | done | Neue Bestellungen werden anhand Berliner Ortszeit außerhalb der regulären Öffnung sowie ab exakt 30 Minuten vor Standortschließung serverseitig abgewiesen. |
 

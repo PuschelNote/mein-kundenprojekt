@@ -137,6 +137,11 @@ Zentrale Anwendung / API
 - Bestellanlage und Wechsel des zugehörigen Tischstatus auf `besetzt` laufen in
   derselben Datenbanktransaktion; ein fehlgeschlagener Schreibvorgang darf keinen
   veränderten Tischstatus hinterlassen.
+- Eine Bestellung kann optional eine Reservierung referenzieren. Ein eindeutiger
+  Constraint auf `Bestellung.reservierungId` verhindert Mehrfachverwendung. Die
+  Domänenlogik akzeptiert nur offene, ungenutzte Reservierungen desselben Tischs
+  und aktiven Standorts und übernimmt deren Gast-ID; der Bezug bleibt bei späterer
+  Positionsbearbeitung unveränderlich.
 - Eine Bestellposition speichert den Einzelpreis zum Bestellzeitpunkt.
 - Der Besuchszähler steigt genau einmal beim Übergang einer Bestellung auf
   `bezahlt`; wiederholte Verarbeitung muss idempotent sein.
@@ -174,7 +179,9 @@ Zentrale Anwendung / API
 - Ein partieller SQLite-Unique-Index auf `Bestellung.tischId` schützt die
   aktiven Zustände `offen` und `serviert` auch bei parallelen Schreibzugriffen.
 - Bestellpositionen behalten ihren erstmalig übernommenen Centpreis. Bereits
-  bezahlte oder stornierte Bestellungen sind unveränderlich.
+  bezahlte oder stornierte Bestellungen sind unveränderlich. Stornierte
+  Bestellungen dürfen als ausdrückliche Ausnahme manuell gelöscht werden; ihre
+  Positionen werden kaskadierend entfernt und ein Reservierungsbezug wird frei.
 - Preis- und Kartenänderungen sind ausschließlich für die Rolle `inhaber`
   zulässig.
 - Berechtigungen werden serverseitig vor schreibenden Operationen geprüft. Eine

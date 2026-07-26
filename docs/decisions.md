@@ -653,3 +653,39 @@ lautlos umschreiben._
   dennoch über die Inhaberoberfläche veränderbar. Wiederholtes Seeden ergänzt nur
   fehlende Grundgerichte; die serverseitige Grillregel bleibt zusätzlich beim
   Schreiben und Lesen aktiv.
+
+## 2026-07-26 — Reservierungen werden optional und eindeutig mit Bestellungen verknüpft
+
+- **Status:** angenommen
+- **Kontext:** Bei Ankunft eines reservierten Gasts muss das Servicepersonal den
+  Gast nicht erneut per Telefonnummer zuordnen. Gleichzeitig darf eine
+  manipulierte oder doppelt verwendete Reservierung keine falsche Bestellung
+  erzeugen. Ein Reservierungsstatus „angekommen“ ist nicht definiert.
+- **Entscheidung:** Nach der Tischauswahl bietet die Bestellaufnahme ausschließlich
+  offene, zukünftige beziehungsweise heutige und noch ungenutzte Reservierungen
+  dieses Tischs im aktiven Standort an. Der Server validiert die Kombination und
+  übernimmt Gast-ID, Tisch-ID und Reservierungs-ID atomar in die Bestellung. Ein
+  eindeutiger Datenbank-Constraint erlaubt jede Reservierung höchstens einmal.
+  Reservierungsbezug, Gast und Tisch sind anschließend unveränderlich; die
+  Reservierung bleibt im Status `offen`.
+- **Konsequenz:** Reservierte Gäste gelangen ohne erneute Gastdateneingabe in den
+  Bestell- und späteren Bella-Card-Ablauf. Bestellung und Reservierung bleiben
+  nachvollziehbar verbunden. Ein eigener Ankunftsstatus sowie die Konfliktlösung
+  bei Offline-Mehrfachnutzung bleiben spätere, explizite Erweiterungen.
+
+## 2026-07-26 — Nur stornierte Bestellungen dürfen manuell gelöscht werden
+
+- **Status:** angenommen
+- **Kontext:** Stornierte Fehl- oder Testbestellungen sollen die operative
+  Bestellübersicht nicht dauerhaft füllen. Offene, servierte und insbesondere
+  bezahlte Bestellungen dürfen nicht versehentlich entfernt werden.
+- **Entscheidung:** Mitarbeiter mit der bestehenden Berechtigung zur
+  Bestellaufnahme dürfen nach einer manuellen Bestätigung ausschließlich
+  Bestellungen im Status `storniert` ihres aktiven Standorts dauerhaft löschen.
+  Status, Standort, Rolle und Mitarbeiterkontext werden an der schreibenden
+  Systemgrenze erneut geprüft. Bestellpositionen werden kaskadierend entfernt;
+  Tischstatus und Reservierung bleiben unverändert.
+- **Konsequenz:** Die Übersicht kann gezielt bereinigt werden, ohne aktive oder
+  abgerechnete Daten zu gefährden. Eine zuvor verknüpfte offene Reservierung kann
+  anschließend erneut für eine Bestellung verwendet werden. Der Tisch bleibt bis
+  zur bewussten manuellen Freigabe in seinem bestehenden Status.

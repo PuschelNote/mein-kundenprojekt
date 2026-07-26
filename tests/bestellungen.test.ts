@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { after, before, describe, it } from "node:test";
 import { BestellungStatus, TischStatus } from "../generated/prisma/enums";
-import { assertKuechenannahmeOffen, berechneRechnung, BestellungValidationError, createBestellung, updateBestellung, updateBestellungStatus, validateBestellungInput } from "../lib/bestellungen";
+import { assertKuechenannahmeOffen, berechneRechnung, BestellungValidationError, createBestellung, deleteBestellung, listBestelloptionen, updateBestellung, updateBestellungStatus, validateBestellungInput } from "../lib/bestellungen";
 import { createGericht, validateGerichtInput } from "../lib/gerichte";
 import { prisma } from "../lib/prisma";
 
@@ -10,6 +10,7 @@ let gerichtId = "";
 let fremdesGerichtId = "";
 const bestellungIds: string[] = [];
 const gastIds: string[] = [];
+const reservierungIds: string[] = [];
 const urspruenglicheTischstatus = new Map<string, TischStatus>();
 
 before(async () => {
@@ -20,6 +21,7 @@ before(async () => {
 
 after(async () => {
   await prisma.bestellung.deleteMany({ where: { id: { in: bestellungIds } } });
+  await prisma.reservierung.deleteMany({ where: { id: { in: reservierungIds } } });
   for (const [id, status] of urspruenglicheTischstatus) {
     await prisma.tisch.update({ where: { id }, data: { status } });
   }
@@ -28,8 +30,8 @@ after(async () => {
   await prisma.$disconnect();
 });
 
-function input(tischId: string, id = gerichtId) {
-  return validateBestellungInput({ tischId, gerichtIds: [id], mengen: ["2"], sonderwuensche: ["ohne Knoblauch"] });
+function input(tischId: string, id = gerichtId, reservierungId?: string) {
+  return validateBestellungInput({ tischId, reservierungId, gerichtIds: [id], mengen: ["2"], sonderwuensche: ["ohne Knoblauch"] });
 }
 
 function merkeTischstatus(tisch: { id: string; status: TischStatus }) {
@@ -88,6 +90,44 @@ describe("Bestellpersistenz und Standorttrennung", () => {
     await assert.rejects(createBestellung(mitarbeiter, "kreuzberg", input(tisch.id, fremdesGerichtId), new Date("2026-07-25T18:00:00.000Z")), BestellungValidationError);
     await assert.rejects(createBestellung(mitarbeiter, "kreuzberg", { ...input(tisch.id), gastTelefonNormalisiert: "+491111111111" }, new Date("2026-07-25T18:00:00.000Z")), BestellungValidationError);
     assert.equal((await prisma.tisch.findUniqueOrThrow({ where: { id: tisch.id } })).status, tisch.status);
+  });
+  it("übernimmt Gast und Tisch aus einer offenen Reservierung und weist manipulierte Tischbezüge ab", async () => {
+    const mitarbeiter = await prisma.mitarbeiter.findUniqueOrThrow({ where: { id: "manager-kreuzberg-giuseppe" } });
+    const tische = await prisma.tisch.findMany({ where: { standortId: "kreuzberg", verfuegbar: true, bestellungen: { none: { status: { in: ["offen", "serviert"] } } } }, take: 2, orderBy: { nummer: "desc" } });
+    assert.equal(tische.length, 2);
+    tische.forEach(merkeTischstatus);
+    const gast = await prisma.gast.create({ data: { name: "Testgast Reservierung", telefon: `+49 155 30 ${suffix}`, telefonNormalisiert: `+4915530${suffix}` } });
+    gastIds.push(gast.id);
+    const reservierung = await prisma.reservierung.create({ data: { id: `test-reservierung-bestellung-${suffix}`, datum: "2099-08-15", uhrzeitMinute: 19 * 60, personenzahl: 4, standortId: "kreuzberg", tischId: tische[0].id, gastId: gast.id, erstelltVonId: mitarbeiter.id } });
+    reservierungIds.push(reservierung.id);
+    const fremderTisch = await prisma.tisch.findFirstOrThrow({ where: { standortId: "spandau", verfuegbar: true } });
+    const fremdeReservierung = await prisma.reservierung.create({ data: { id: `test-reservierung-bestellung-fremd-${suffix}`, datum: "2099-08-15", uhrzeitMinute: 20 * 60, personenzahl: 2, standortId: "spandau", tischId: fremderTisch.id, gastId: gast.id, erstelltVonId: "manager-spandau-renate" } });
+    reservierungIds.push(fremdeReservierung.id);
+
+    const optionen = await listBestelloptionen("kreuzberg", new Date("2099-08-15T10:00:00.000Z"));
+    assert.ok(optionen.reservierungen.some((eintrag) => eintrag.id === reservierung.id));
+    assert.ok(!optionen.reservierungen.some((eintrag) => eintrag.id === fremdeReservierung.id));
+    await assert.rejects(createBestellung(mitarbeiter, "kreuzberg", input(tische[0].id, gerichtId, fremdeReservierung.id), new Date("2026-07-25T18:00:00.000Z")), BestellungValidationError);
+    await assert.rejects(createBestellung(mitarbeiter, "kreuzberg", input(tische[1].id, gerichtId, reservierung.id), new Date("2026-07-25T18:00:00.000Z")), BestellungValidationError);
+    assert.equal((await prisma.tisch.findUniqueOrThrow({ where: { id: tische[1].id } })).status, tische[1].status);
+
+    const bestellung = await createBestellung(mitarbeiter, "kreuzberg", input(tische[0].id, gerichtId, reservierung.id), new Date("2026-07-25T18:00:00.000Z"));
+    bestellungIds.push(bestellung.id);
+    assert.equal(bestellung.reservierungId, reservierung.id);
+    assert.equal(bestellung.gastId, gast.id);
+    const bearbeitet = await updateBestellung(mitarbeiter, "kreuzberg", bestellung.id, input(tische[0].id, gerichtId, reservierung.id));
+    assert.equal(bearbeitet.gastId, gast.id);
+    assert.equal((await prisma.tisch.findUniqueOrThrow({ where: { id: tische[0].id } })).status, TischStatus.besetzt);
+    assert.ok(!(await listBestelloptionen("kreuzberg", new Date("2099-08-15T10:00:00.000Z"))).reservierungen.some((eintrag) => eintrag.id === reservierung.id));
+
+    await assert.rejects(deleteBestellung(mitarbeiter, "kreuzberg", bestellung.id), BestellungValidationError);
+    await updateBestellungStatus(mitarbeiter, "kreuzberg", bestellung.id, BestellungStatus.storniert);
+    const fremderMitarbeiter = await prisma.mitarbeiter.findUniqueOrThrow({ where: { id: "manager-spandau-renate" } });
+    await assert.rejects(deleteBestellung(fremderMitarbeiter, "spandau", bestellung.id), BestellungValidationError);
+    await deleteBestellung(mitarbeiter, "kreuzberg", bestellung.id);
+    assert.equal(await prisma.bestellung.count({ where: { id: bestellung.id } }), 0);
+    assert.equal(await prisma.bestellposition.count({ where: { bestellungId: bestellung.id } }), 0);
+    assert.ok((await listBestelloptionen("kreuzberg", new Date("2099-08-15T10:00:00.000Z"))).reservierungen.some((eintrag) => eintrag.id === reservierung.id));
   });
   it("erlaubt nur offen zu serviert zu bezahlt und sperrt abgeschlossene Bestellungen", async () => {
     const mitarbeiter = await prisma.mitarbeiter.findUniqueOrThrow({ where: { id: "manager-kreuzberg-giuseppe" } });

@@ -1,12 +1,12 @@
 "use server";
 import { revalidatePath } from "next/cache";
 import { requireBerechtigung } from "@/lib/berechtigungen";
-import { BestellungValidationError, createBestellung, updateBestellung, updateBestellungStatus, validateBestellungInput } from "@/lib/bestellungen";
+import { BestellungValidationError, createBestellung, deleteBestellung, updateBestellung, updateBestellungStatus, validateBestellungInput } from "@/lib/bestellungen";
 import { requireAktiverStandort } from "@/lib/standort";
 
 export type BestellungActionState = { error?: string; success?: string };
 function input(formData: FormData) {
-  return validateBestellungInput({ tischId: formData.get("tischId"), gastTelefon: formData.get("gastTelefon"), gerichtIds: formData.getAll("gerichtId"), mengen: formData.getAll("menge"), sonderwuensche: formData.getAll("sonderwunsch") });
+  return validateBestellungInput({ tischId: formData.get("tischId"), reservierungId: formData.get("reservierungId"), gastTelefon: formData.get("gastTelefon"), gerichtIds: formData.getAll("gerichtId"), mengen: formData.getAll("menge"), sonderwuensche: formData.getAll("sonderwunsch") });
 }
 function result(error: unknown): BestellungActionState {
   if (error instanceof BestellungValidationError) return { error: error.message };
@@ -35,5 +35,14 @@ export async function updateBestellungStatusAction(_: BestellungActionState, for
     await updateBestellungStatus(mitarbeiter, standort.id, String(formData.get("id")), formData.get("status"));
     revalidatePath("/bestellungen"); revalidatePath("/kueche");
     return { success: formData.get("status") === "bezahlt" ? "Rechnung wurde bezahlt und der Besuch abgeschlossen." : "Status wurde aktualisiert." };
+  } catch (error) { return result(error); }
+}
+
+export async function deleteBestellungAction(_: BestellungActionState, formData: FormData) {
+  try {
+    const [mitarbeiter, standort] = await Promise.all([requireBerechtigung("bestellungen_aufnehmen", "/bestellungen"), requireAktiverStandort("/bestellungen")]);
+    await deleteBestellung(mitarbeiter, standort.id, String(formData.get("id")));
+    revalidatePath("/bestellungen"); revalidatePath("/kueche");
+    return { success: "Stornierte Bestellung wurde gelöscht." };
   } catch (error) { return result(error); }
 }

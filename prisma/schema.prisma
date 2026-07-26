@@ -147,6 +147,7 @@ model Reservierung {
   geaendertVon    Mitarbeiter?        @relation("ReservierungBearbeiter", fields: [geaendertVonId], references: [id], onDelete: Restrict)
   erstelltAm      DateTime            @default(now())
   geaendertAm     DateTime            @updatedAt
+  bestellung      Bestellung?
 
   @@index([standortId, datum, uhrzeitMinute])
   @@index([tischId])
@@ -183,6 +184,8 @@ model Bestellung {
   tisch            Tisch             @relation(fields: [tischId], references: [id], onDelete: Restrict)
   gastId           String?
   gast             Gast?             @relation(fields: [gastId], references: [id], onDelete: Restrict)
+  reservierungId   String?           @unique
+  reservierung     Reservierung?     @relation(fields: [reservierungId], references: [id], onDelete: Restrict)
   aufgenommenVonId String
   aufgenommenVon   Mitarbeiter       @relation(fields: [aufgenommenVonId], references: [id], onDelete: Restrict)
   positionen       Bestellposition[]
