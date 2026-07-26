@@ -102,7 +102,7 @@ Zentrale Anwendung / API
 | `lib/bestellungen.ts` | Bestellvalidierung, historische Positionspreise, Statusfluss sowie atomare Abrechnung, Rabatt- und Besuchslogik |
 | `lib/tische.ts` | Tischvalidierung, Rasterpositionen, Rollen-/Standortprüfung, Verfügbarkeit und Persistenz |
 | `lib/gast-status.ts` | Client- und serverseitig nutzbare Ableitung des Bella-Card-Status |
-| `lib/grunddaten.ts` | Idempotente, nicht-destruktive Anlage von Standorten, Mitarbeitern, Standardzeiten, vorläufigen Tischen und standortgetrennten Beispielkarten |
+| `lib/grunddaten.ts` | Idempotente, nicht-destruktive Anlage von Standorten, Mitarbeitern, Anekdoten-Gästen, Standardzeiten, vorläufigen Tischen und standortgetrennten Beispielkarten |
 | `lib/berechtigungen.ts` | Capability-Matrix, Mitarbeiter-Session und serverseitige Guards |
 | `lib/oeffnungszeiten.ts` | Zeitvalidierung, Formatierung, Öffnungsprüfung und Datenzugriff |
 | `lib/standort.ts` | Cookie-Kontext, ID-Validierung und verpflichtender Standortzugriff |

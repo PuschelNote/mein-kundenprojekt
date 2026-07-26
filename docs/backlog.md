@@ -35,6 +35,7 @@ _Stand: 26.07.2026_
 | BV-027 | Reservierung ändern und stornieren | done | Berechtigte Mitarbeiter können standortgebundene Reservierungen vollständig neu validiert bearbeiten, stornieren und wieder öffnen; physisches Löschen findet nicht statt. |
 | BV-013 | Reservierungsänderungen protokollieren | done | Ersteller und Erstellzeitpunkt bleiben unverändert; letzter Änderungszeitpunkt und ändernder Mitarbeiter werden bei Bearbeitung und Statuswechsel automatisch gespeichert und angezeigt. |
 | BV-053 | Standort bei Reservierungsanlage explizit wählen | done | Das Anlageformular verlangt eine erneute Standortwahl und filtert die Tische unmittelbar danach; Standort, Tisch, Mitarbeiterberechtigung und aktiver Kontext werden serverseitig abgeglichen. Nach erfolgreicher Anlage zeigt die App den gewählten Standortkontext. |
+| BV-054 | Gäste aus den Anekdoten bereitstellen | done | Herr Kellner und Herr Bergmann werden mit stabilen IDs, eindeutig erfundenen Telefonnummern und den belegten Hinweisen als nicht-destruktive Grunddaten angelegt; Herr Bergmann besitzt mit zehn Vorbesuchen bereits Bella-Card-Status. Wiederholtes Seeden erzeugt keine Duplikate und überschreibt keine spätere Pflege. |
 
 ## Phase 2 — Kern: Tische und Restaurantübersicht
 

@@ -707,3 +707,24 @@ lautlos umschreiben._
   ohne die Standorttrennung auf eine UI-Prüfung zu reduzieren. Die neue
   Reservierung erscheint unmittelbar in der Liste ihres Standorts; ein
   standortübergreifendes Verschieben bleibt außerhalb des Scopes.
+
+## 2026-07-26 — Namentliche Anekdoten-Gäste werden nicht-destruktiv geseedet
+
+- **Status:** angenommen
+- **Kontext:** Herr Kellner und Herr Bergmann sind in den Anekdoten namentlich
+  beschrieben und sollen den Gast-, Reservierungs- und Bestellablauf im lokalen
+  Prototyp anschaulich machen. Reale Kontaktdaten liegen nicht vor und dürfen
+  nicht erfunden wirken oder mit Produktionsdaten verwechselt werden.
+- **Entscheidung:** Beide Gäste werden mit stabilen technischen IDs und erkennbar
+  erfundenen Berliner Beispieltelefonnummern als Grunddaten angelegt. Herr
+  Kellner erhält den Hinweis zur ausdrücklichen Standortbestätigung; Herr
+  Bergmann die belegten Vorlieben für Tisch 7 und Tagliatelle al Ragù. Herr
+  Bergmann kommt fast jede Woche und besitzt bereits Bella-Card-Status; sein
+  Grundwert beträgt daher zehn abgeschlossene Besuche. Herr Kellners Zähler startet
+  mangels belastbarer Zahlen bei null. Der Seed legt fehlende Datensätze an,
+  aktualisiert vorhandene Gastprofile aber nicht. Eine einmalige Datenmigration
+  hebt bereits geseedete Bergmann-Datensätze auf diesen korrigierten Grundwert an.
+- **Konsequenz:** Die Anekdoten sind in der lokalen Gastverwaltung demonstrierbar,
+  ohne reale personenbezogene Daten oder unbelegte Besuchshistorien einzuführen.
+  Wiederholtes Seeden erzeugt keine Duplikate und überschreibt keine spätere
+  Pflege durch das Restaurant.

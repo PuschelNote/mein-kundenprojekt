@@ -35,6 +35,25 @@ const bedienungen = [
   { id: "bedienung-fatima", name: "Fatima", rolle: Rolle.bedienung, standortId: null },
 ] as const;
 
+export const anekdotenGaeste = [
+  {
+    id: "gast-anekdote-herr-kellner",
+    name: "Herr Kellner",
+    telefon: "+49 30 0000 0101",
+    telefonNormalisiert: "+493000000101",
+    besuchszaehler: 0,
+    notizen: "Bei Reservierungen den Standort ausdrücklich bestätigen.",
+  },
+  {
+    id: "gast-anekdote-herr-bergmann",
+    name: "Herr Bergmann",
+    telefon: "+49 30 0000 0102",
+    telefonNormalisiert: "+493000000102",
+    besuchszaehler: 10,
+    notizen: "Kommt fast jede Woche. Bevorzugt Tisch 7 und Tagliatelle al Ragù.",
+  },
+] as const;
+
 const oeffnungszeiten = [
   ...[
     Wochentag.dienstag,
@@ -144,6 +163,16 @@ export async function seedGrunddaten() {
     create: inhaber,
     update: { name: inhaber.name },
   });
+
+  for (const gast of anekdotenGaeste) {
+    const vorhanden = await prisma.gast.findFirst({
+      where: { OR: [{ id: gast.id }, { telefonNormalisiert: gast.telefonNormalisiert }] },
+      select: { id: true },
+    });
+    if (!vorhanden) {
+      await prisma.gast.create({ data: gast });
+    }
+  }
 
   for (const zeit of oeffnungszeiten) {
     validateZeitfenster(zeit.oeffnetMinute, zeit.schliesstMinute);
